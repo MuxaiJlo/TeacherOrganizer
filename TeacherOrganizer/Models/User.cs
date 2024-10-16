@@ -14,7 +14,7 @@ namespace TeacherOrganizer.Models
         public int RoleId { get; set; }
         [Required]
         [StringLength(100)]
-        public string UserName { get; set; }
+        public string Username { get; set; }
 
         [Required]
         [StringLength(100)]
@@ -27,7 +27,8 @@ namespace TeacherOrganizer.Models
         public DateTime CreatedAt { get; set; }
 
         public Role Role { get; set; }
-        public ICollection<Lesson> Lessons { get; set; }
+        public ICollection<Lesson> TaughtLessons { get; set; }
+        public ICollection<Lesson> AttendedLessons { get; set; }
         public ICollection<Dictionary> Dictionaries { get; set; }
     }
 }
