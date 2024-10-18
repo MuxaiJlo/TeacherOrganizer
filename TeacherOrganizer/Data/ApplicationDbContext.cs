@@ -24,10 +24,8 @@ namespace TeacherOrganizer.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Lesson>()
-                .HasOne(l => l.Student)
-                .WithMany(u => u.AttendedLessons)
-                .HasForeignKey(l => l.StudentId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasMany(l => l.Students)
+                .WithMany(u => u.AttendedLessons);
 
             modelBuilder.Entity<Dictionary>()
                 .HasOne(d => d.OriginalDictionary)
