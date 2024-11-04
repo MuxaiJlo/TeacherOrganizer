@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TeacherOrganizer.Data;
-using TeacherOrganizer.Models;
+using TeacherOrganizer.Models.DataModels;
 
 namespace TeacherOrganizer
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +20,7 @@ namespace TeacherOrganizer
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Add Identity and JWT Authentication
-            builder.Services.AddIdentity<User, Role>()
+            builder.Services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -60,14 +60,33 @@ namespace TeacherOrganizer
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
-            app.Run();
+            // Call the SeedRolesAsync method to ensure roles are created
+            using (var scope = app.Services.CreateScope())
+            {
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                await SeedRolesAsync(roleManager);
+            }
+
+            await app.RunAsync();
+        }
+
+        public static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
+        {
+            if (!await roleManager.RoleExistsAsync("Teacher"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("Teacher"));
+            }
+            if (!await roleManager.RoleExistsAsync("Student"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("Student"));
+            }
         }
     }
 }
