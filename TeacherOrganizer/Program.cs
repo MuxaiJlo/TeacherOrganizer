@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using TeacherOrganizer.Controllers;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Models.DataModels;
 
@@ -23,6 +24,9 @@ namespace TeacherOrganizer
             builder.Services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            builder.Services.AddScoped<AuthController>();
+            builder.Services.AddScoped<AccountController>();
 
             builder.Services.AddAuthentication(options =>
             {
@@ -58,7 +62,7 @@ namespace TeacherOrganizer
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
+            
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
