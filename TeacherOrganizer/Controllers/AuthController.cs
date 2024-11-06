@@ -16,6 +16,7 @@ namespace TeacherOrganizer.Controllers
     public class AuthController : ControllerBase
     {
         private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _configuration;
 
         public AuthController(UserManager<User> userManager, IConfiguration configuration)
@@ -67,6 +68,12 @@ namespace TeacherOrganizer.Controllers
             }
 
             return Unauthorized(new { message = "Invalid username or password." });
+        }
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
 
         private string GenerateJwtToken(User user)
