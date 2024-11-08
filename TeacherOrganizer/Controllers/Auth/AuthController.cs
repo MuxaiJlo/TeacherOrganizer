@@ -64,40 +64,55 @@ namespace TeacherOrganizer.Controllers.Auth
             var user = await _userManager.FindByNameAsync(model.Username);
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {
-                var token = GenerateJwtToken(user);
-                return Ok(new { Token = token, RedirectUrl = "/Main/Index" });
+                var isInRole = await _userManager.IsInRoleAsync(user, "Student");
+                if (!isInRole)
+                {
+                    return Unauthorized("User does not have the required role.");
+                }
+
+                var token = await GenerateJwtTokenAsync(user);
+
+                return Ok(new { token, message = "Login successful.", redirectUrl = "/Main/Index" });
             }
 
-            return Unauthorized(new { message = "Invalid username or password." });
-        }
-        [HttpPost]
+			return Unauthorized(new { message = user == null ? "User not found" : "Invalid password" });
+		}
+
+
+		[HttpPost]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
 
-        private string GenerateJwtToken(User user)
+        private async Task<string> GenerateJwtTokenAsync(User user)
         {
-            var claims = new[]
+            var roles = await _userManager.GetRolesAsync(user);
+            var claims = new List<Claim>
+    {
+        new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new Claim(ClaimTypes.NameIdentifier, user.Id)
+    };
+
+            foreach (var role in roles)
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
-            };
+                claims.Add(new Claim(ClaimTypes.Role, role));  // Додаємо ролі до токена
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: creds
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
     }
 }

@@ -6,8 +6,9 @@ using TeacherOrganizer.Models.ViewModels;
 
 namespace TeacherOrganizer.Controllers.Main
 {
-    [Authorize(Roles = "Student")]
-    public class MainController : Controller
+	[Route("api/[controller]")]
+	[ApiController]
+	public class MainController : ControllerBase
     {
         private readonly UserManager<User> _userManager;
 
@@ -15,22 +16,29 @@ namespace TeacherOrganizer.Controllers.Main
         {
             _userManager = userManager;
         }
-
-        public async Task<IActionResult> Index()
+		[HttpGet("index")]
+		[Authorize(Roles = "Student")]
+		public async Task<IActionResult> Index()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
+			var user = await _userManager.GetUserAsync(User);
+			if (user == null)
+			{
+				return Unauthorized("User not found or not authorized.");
+			}
 
-            var model = new MainViewModel
-            {
-                Username = user.UserName,
-                LoginTime = DateTime.UtcNow 
-            };
+			var roles = await _userManager.GetRolesAsync(user);
+			foreach (var role in roles)
+			{
+				Console.WriteLine($"User role: {role}");  // Логування ролі
+			}
 
-            return View("MainView", model);
-        }
+			var model = new MainViewModel
+			{
+				Username = user.UserName,
+				LoginTime = DateTime.UtcNow
+			};
+
+			return Ok("You have passed the bearer authentication.");
+		}
     }
 }

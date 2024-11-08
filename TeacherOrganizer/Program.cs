@@ -43,8 +43,9 @@ namespace TeacherOrganizer
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = builder.Configuration["Jwt:Issuer"],
                     ValidAudience = builder.Configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-                };
+                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+                    RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+				};
             });
 
             builder.Services.AddDbContext<ApplicationDbContext>(options => 
@@ -62,12 +63,12 @@ namespace TeacherOrganizer
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            
-            app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
 
-            app.MapControllerRoute(
+			app.UseAuthentication();
+			app.UseRouting();
+			app.UseAuthorization();
+
+			app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
