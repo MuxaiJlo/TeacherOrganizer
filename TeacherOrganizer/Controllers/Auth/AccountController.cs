@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TeacherOrganizer.Models.RegLogModels;
 
-namespace TeacherOrganizer.Controllers
+namespace TeacherOrganizer.Controllers.Auth
 {
     public class AccountController : Controller
     {

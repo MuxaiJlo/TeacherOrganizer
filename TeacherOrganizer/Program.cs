@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using TeacherOrganizer.Controllers;
+using TeacherOrganizer.Controllers.Auth;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Models.DataModels;
 

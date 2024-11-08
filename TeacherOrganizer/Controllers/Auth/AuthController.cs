@@ -9,7 +9,7 @@ using TeacherOrganizer.Models.DataModels;
 using System.Threading.Tasks;
 using TeacherOrganizer.Models.RegLogModels;
 
-namespace TeacherOrganizer.Controllers
+namespace TeacherOrganizer.Controllers.Auth
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -19,9 +19,10 @@ namespace TeacherOrganizer.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _configuration;
 
-        public AuthController(UserManager<User> userManager, IConfiguration configuration)
+        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
             _configuration = configuration;
         }
 
@@ -64,7 +65,7 @@ namespace TeacherOrganizer.Controllers
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {
                 var token = GenerateJwtToken(user);
-                return Ok(new { token });
+                return Ok(new { Token = token, RedirectUrl = "/Main/Index" });
             }
 
             return Unauthorized(new { message = "Invalid username or password." });
