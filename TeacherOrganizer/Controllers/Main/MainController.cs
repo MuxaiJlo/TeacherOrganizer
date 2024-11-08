@@ -9,27 +9,22 @@ namespace TeacherOrganizer.Controllers.Main
 	[Route("api/[controller]")]
 	[ApiController]
 	public class MainController : ControllerBase
-    {
-        private readonly UserManager<User> _userManager;
+	{
+		private readonly UserManager<User> _userManager;
 
-        public MainController(UserManager<User> userManager)
-        {
-            _userManager = userManager;
-        }
+		public MainController(UserManager<User> userManager)
+		{
+			_userManager = userManager;
+		}
+
 		[HttpGet("index")]
-		[Authorize(Roles = "Student")]
+		[Authorize]
 		public async Task<IActionResult> Index()
-        {
+		{
 			var user = await _userManager.GetUserAsync(User);
 			if (user == null)
 			{
 				return Unauthorized("User not found or not authorized.");
-			}
-
-			var roles = await _userManager.GetRolesAsync(user);
-			foreach (var role in roles)
-			{
-				Console.WriteLine($"User role: {role}");  // Логування ролі
 			}
 
 			var model = new MainViewModel
@@ -40,5 +35,6 @@ namespace TeacherOrganizer.Controllers.Main
 
 			return Ok("You have passed the bearer authentication.");
 		}
-    }
+	}
+
 }

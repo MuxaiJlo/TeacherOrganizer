@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using TeacherOrganizer.Controllers.Auth;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Models.DataModels;
@@ -44,7 +45,7 @@ namespace TeacherOrganizer
                     ValidIssuer = builder.Configuration["Jwt:Issuer"],
                     ValidAudience = builder.Configuration["Jwt:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-                    RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+					RoleClaimType = ClaimTypes.Role
 				};
             });
 
