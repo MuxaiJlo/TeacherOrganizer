@@ -35,6 +35,8 @@ namespace TeacherOrganizer.Controllers.Auth
 
             var user = new User
             {
+                FirstName = model.FirstName,
+                LastName = model.LastName,
                 UserName = model.Username,
                 Email = model.Email,
                 CreatedAt = DateTime.UtcNow
@@ -72,11 +74,10 @@ namespace TeacherOrganizer.Controllers.Auth
 
                 var token = await GenerateJwtTokenAsync(user);
 
-                // Установим токен в HttpOnly cookie
                 Response.Cookies.Append("jwtToken", token, new CookieOptions
                 {
                     HttpOnly = true,
-                    Secure = false, // использовать только с HTTPS
+                    Secure = false, 
                     SameSite = SameSiteMode.Strict,
                     Expires = DateTimeOffset.UtcNow.AddDays(1)
                 });
@@ -108,7 +109,7 @@ namespace TeacherOrganizer.Controllers.Auth
 
             foreach (var role in roles)
             {
-                claims.Add(new Claim(ClaimTypes.Role, role));  // Додаємо ролі до токена
+                claims.Add(new Claim(ClaimTypes.Role, role));  
             }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));

@@ -40,8 +40,7 @@ namespace TeacherOrganizer.Controllers.Main
                 LoginTime = DateTime.UtcNow
             };
 
-            return View("Index", model); // Возвращаем вьюшку с моделью
-        }
+            return View("Index", model); 
 
     }
 }
