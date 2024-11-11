@@ -54,7 +54,10 @@ namespace TeacherOrganizer
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("Open", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+                options.AddPolicy("Open", builder =>
+                    builder.AllowAnyOrigin()
+                           .AllowAnyHeader()
+                           .AllowAnyMethod());
             });
 
             builder.Services.AddDbContext<ApplicationDbContext>(options => 
@@ -72,8 +75,9 @@ namespace TeacherOrganizer
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseCors("Open");
 
-			app.UseAuthentication();
+            app.UseAuthentication();
 			app.UseRouting();
 			app.UseAuthorization();
 
