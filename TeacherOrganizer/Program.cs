@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
+using System.Text;
 using TeacherOrganizer.Controllers.Auth;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Models.DataModels;
@@ -27,7 +27,7 @@ namespace TeacherOrganizer
                 .AddDefaultTokenProviders();
 
             builder.Services.AddScoped<AuthController>();
-            builder.Services.AddScoped<AccountController>();
+            builder.Services.AddScoped<AuthViewController>();
 
             builder.Services.AddAuthentication(options =>
             {
@@ -38,8 +38,8 @@ namespace TeacherOrganizer
             .AddJwtBearer(options =>
             {
                 options.SaveToken = true;
-				options.RequireHttpsMetadata = false;
-				options.TokenValidationParameters = new TokenValidationParameters
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
@@ -47,9 +47,20 @@ namespace TeacherOrganizer
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = builder.Configuration["Jwt:Issuer"],
                     ValidAudience = builder.Configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-					RoleClaimType = ClaimTypes.Role
-				};
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        if (context.Request.Cookies.ContainsKey("jwtToken"))
+                        {
+                            context.Token = context.Request.Cookies["jwtToken"];
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
             builder.Services.AddCors(options =>

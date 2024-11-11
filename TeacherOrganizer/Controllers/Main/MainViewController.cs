@@ -17,11 +17,10 @@ namespace TeacherOrganizer.Controllers.Main
         }
         [HttpGet("Index")]
         [Authorize(Roles = "Student")]
-        public async Task<IActionResult> Index(MainViewModel model)
+        public async Task<IActionResult> Index()
         {
             var userName = User.Identity?.Name;
 
-            // Перевіряємо, чи отримано userName
             if (string.IsNullOrEmpty(userName))
             {
                 Console.WriteLine("User not found or unauthorized - userName is null");
@@ -32,36 +31,16 @@ namespace TeacherOrganizer.Controllers.Main
             if (user == null)
             {
                 Console.WriteLine("User not found or unauthorized");
-                Console.WriteLine($"Username: {userName}");
-                foreach (var claim in User.Claims)
-                {
-                    Console.WriteLine($"Claim Type: {claim.Type}, Claim Value: {claim.Value}");
-                }
-
-                var errorDetails = new
-                {
-                    Message = "User not found or not authorized.",
-                    Username = userName,
-                    Claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList()
-                };
-
-                return Unauthorized(errorDetails);
+                return Unauthorized(new { Message = "User not found or not authorized." });
             }
 
-            var roles = await _userManager.GetRolesAsync(user);
-            Console.WriteLine("User authorized successfully");
-            Console.WriteLine($"Username: {user.UserName}, Email: {user.Email}, Roles: {string.Join(", ", roles)}");
-
-            return Ok(new
+            var model = new MainViewModel
             {
-                Message = "You have passed the bearer authentication.",
-                UserInfo = new
-                {
-                    Username = user.UserName,
-                    Email = user.Email,
-                    Roles = roles
-                }
-            });
+                Username = user.UserName,
+                LoginTime = DateTime.UtcNow
+            };
+
+            return View("Index", model); // Возвращаем вьюшку с моделью
         }
 
     }

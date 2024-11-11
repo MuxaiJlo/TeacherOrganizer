@@ -72,14 +72,23 @@ namespace TeacherOrganizer.Controllers.Auth
 
                 var token = await GenerateJwtTokenAsync(user);
 
-                return Ok(new { token, message = "Login successful.", redirectUrl = "/Main/Index" });
+                // Установим токен в HttpOnly cookie
+                Response.Cookies.Append("jwtToken", token, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false, // использовать только с HTTPS
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTimeOffset.UtcNow.AddDays(1)
+                });
+
+                return Ok(new { message = "Login successful.", redirectUrl = "/Main/Index" });
             }
 
-			return Unauthorized(new { message = user == null ? "User not found" : "Invalid password" });
-		}
+            return Unauthorized(new { message = user == null ? "User not found" : "Invalid password" });
+        }
 
 
-		[HttpPost]
+        [HttpPost]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
