@@ -18,13 +18,11 @@ namespace TeacherOrganizer.Controllers.Main
 		}
 
 		[HttpGet("index")]
-		[Authorize]
+		[Authorize(Roles ="Student")]
 		public async Task<IActionResult> Index()
 		{
-			// Отримуємо ім'я користувача
 			var userName = User.Identity?.Name;
 
-			// Спробуємо знайти користувача безпосередньо за ім’ям
 			var user = await _userManager.FindByNameAsync(userName);
 			if (user == null)
 			{
@@ -45,7 +43,6 @@ namespace TeacherOrganizer.Controllers.Main
 				return Unauthorized(errorDetails);
 			}
 
-			// Авторизація пройшла успішно
 			var roles = await _userManager.GetRolesAsync(user);
 			Console.WriteLine("User authorized successfully");
 			Console.WriteLine($"Username: {user.UserName}, Email: {user.Email}, Roles: {string.Join(", ", roles)}");
