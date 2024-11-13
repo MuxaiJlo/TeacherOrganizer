@@ -8,7 +8,7 @@ namespace TeacherOrganizer.Controllers.Main
 {
     [Route("Main")]
     public class MainViewController : Controller
-	{
+    {
         private readonly UserManager<User> _userManager;
 
         public MainViewController(UserManager<User> userManager)
@@ -40,7 +40,8 @@ namespace TeacherOrganizer.Controllers.Main
                 LoginTime = DateTime.UtcNow
             };
 
-            return View("Index", model); 
+            return View("Index", model);
 
+        }
     }
 }
