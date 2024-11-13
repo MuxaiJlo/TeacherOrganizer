@@ -211,6 +211,9 @@ namespace TeacherOrganizer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LessonId"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -218,16 +221,31 @@ namespace TeacherOrganizer.Migrations
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool?>("IsRescheduleConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ProposedEndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ProposedStartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RecheduleInitiator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<string>("TeacherId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("UpdateAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("LessonId");
 

@@ -5,7 +5,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TeacherOrganizer.Controllers.Auth;
 using TeacherOrganizer.Data;
+using TeacherOrganizer.Interefaces;
 using TeacherOrganizer.Models.DataModels;
+using TeacherOrganizer.Servies;
 
 namespace TeacherOrganizer
 {
@@ -28,6 +30,8 @@ namespace TeacherOrganizer
 
             builder.Services.AddScoped<AuthController>();
             builder.Services.AddScoped<AuthViewController>();
+            builder.Services.AddScoped<ILessonService, LessonService>();
+
 
             builder.Services.AddAuthentication(options =>
             {
