@@ -4,7 +4,7 @@ namespace TeacherOrganizer.Models.DataModels
 {
     public enum LessonStatus
     {
-        Schedule,
+        Scheduled,
         Canceled,
         Completed,
         RescheduledRequest
@@ -21,7 +21,7 @@ namespace TeacherOrganizer.Models.DataModels
         public DateTime EndTime { get; set; }
         public string Description { get; set; }
         [Required]
-        public LessonStatus Status { get; set; } = LessonStatus.Schedule;
+        public LessonStatus Status { get; set; } = LessonStatus.Scheduled;
         public DateTime? ProposedStartTime { get; set; }
         public DateTime? ProposedEndTime { get; set; }
         public bool? IsRescheduleConfirmed { get; set; }

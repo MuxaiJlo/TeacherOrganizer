@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TeacherOrganizer.Models.RegLogModels;
+using TeacherOrganizer.Models.AuthModels;
 
 namespace TeacherOrganizer.Controllers.Auth
 {
