@@ -221,19 +221,6 @@ namespace TeacherOrganizer.Migrations
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool?>("IsRescheduleConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ProposedEndTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("ProposedStartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("RecheduleInitiator")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");
 
@@ -244,7 +231,7 @@ namespace TeacherOrganizer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("UpdateAt")
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("LessonId");
@@ -252,6 +239,39 @@ namespace TeacherOrganizer.Migrations
                     b.HasIndex("TeacherId");
 
                     b.ToTable("Lessons");
+                });
+
+            modelBuilder.Entity("TeacherOrganizer.Models.DataModels.RescheduleRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("InitiatorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("LessonId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ProposedEndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ProposedStartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("RequestStatus")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InitiatorId");
+
+                    b.HasIndex("LessonId");
+
+                    b.ToTable("RescheduleRequests");
                 });
 
             modelBuilder.Entity("TeacherOrganizer.Models.DataModels.User", b =>
@@ -451,6 +471,25 @@ namespace TeacherOrganizer.Migrations
                         .IsRequired();
 
                     b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("TeacherOrganizer.Models.DataModels.RescheduleRequest", b =>
+                {
+                    b.HasOne("TeacherOrganizer.Models.DataModels.User", "Initiator")
+                        .WithMany()
+                        .HasForeignKey("InitiatorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TeacherOrganizer.Models.DataModels.Lesson", "Lesson")
+                        .WithMany()
+                        .HasForeignKey("LessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Initiator");
+
+                    b.Navigation("Lesson");
                 });
 
             modelBuilder.Entity("TeacherOrganizer.Models.DataModels.Word", b =>

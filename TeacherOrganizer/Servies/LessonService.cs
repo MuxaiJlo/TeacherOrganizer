@@ -25,7 +25,7 @@ namespace TeacherOrganizer.Servies
                 .Where(u => lessonDto.StudentIds.Contains(u.Id))
                 .ToListAsync();
 
-            if (students.Count != lessonDto.StudentIds.Count)
+            if (students.Count != lessonDto.StudentIds.Distinct().Count())
                 throw new Exception("One or more students not found");
 
             var lesson = new Lesson
@@ -47,21 +47,25 @@ namespace TeacherOrganizer.Servies
 
         public async Task<bool> DeleteLessonAsync(int lessonId)
         {
-            var lesson = _context.Lessons.FindAsync(lessonId);
+            var lesson = await _context.Lessons.FindAsync(lessonId);
             if (lesson != null) return false;
 
-            _context.Lessons.Remove(await lesson);
+            _context.Lessons.Remove(lesson);
             await _context.SaveChangesAsync();
             return true;
         }
 
         public async Task<List<Lesson>> GetLessonsForUserAsync(string userId, DateTime start, DateTime end)
         {
-            return await _context.Lessons
-                .Where(l => l.Students.Any(s => s.Id == userId) || l.TeacherId == userId)
-                .Where(l => l.StartTime >= start && l.EndTime <= end)
-                .ToListAsync();
+            var query = _context.Lessons
+                                .Where(l => l.StartTime >= start && l.EndTime <= end)
+                                .Where(l => l.Teacher.UserName == userId || l.Students.Any(s => s.UserName == userId))
+                                .Include(l => l.Teacher)
+                                .Include(l => l.Students);
+
+            return await query.ToListAsync();
         }
+
 
         public async Task<Lesson> ProposeRescheduleAsync(int lessonId, DateTime proposedStart, DateTime proposedEnd)
         {
@@ -69,7 +73,7 @@ namespace TeacherOrganizer.Servies
             if (lesson == null) return null;
 
             //TODO: Functionality to add notification and request to accept it.
-            lesson.Status = LessonStatus.RescheduledRequest;
+            
             lesson.StartTime = proposedStart;
             lesson.EndTime = proposedEnd;
 
