@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TeacherOrganizer.Models.DataModels;
+using TeacherOrganizer.Models.CalendarModels;
 
 namespace TeacherOrganizer.Data
 {

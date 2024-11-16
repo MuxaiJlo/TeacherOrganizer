@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Interefaces;
+using TeacherOrganizer.Models.CalendarModels;
 using TeacherOrganizer.Models.DataModels;
 using TeacherOrganizer.Models.Lessons;
 
@@ -67,34 +68,52 @@ namespace TeacherOrganizer.Servies
         }
 
 
-        public async Task<Lesson> ProposeRescheduleAsync(int lessonId, DateTime proposedStart, DateTime proposedEnd)
+        public async Task<Lesson?> ProposeRescheduleAsync(int lessonId, DateTime proposedStart, DateTime proposedEnd, string initiatorId)
         {
-            var lesson = await _context.Lessons.FindAsync(lessonId);
+            var lesson = await _context.Lessons
+                .Include(l => l.Teacher)
+                .Include(l => l.Students)
+                .FirstOrDefaultAsync(l => l.LessonId == lessonId);
+
             if (lesson == null) return null;
 
-            //TODO: Functionality to add notification and request to accept it.
-            
-            lesson.StartTime = proposedStart;
-            lesson.EndTime = proposedEnd;
+            var initiator = await _context.Users.FirstOrDefaultAsync(u => u.Id == initiatorId);
+            if (initiator == null) throw new UnauthorizedAccessException("Initiator not found");
 
-            _context.Lessons.Update(lesson);
+            var rescheduleRequest = new RescheduleRequest
+            {
+                Lesson = lesson,
+                Initiator = initiator,
+                InitiatorId = initiatorId,
+                ProposedStartTime = proposedStart,
+                ProposedEndTime = proposedEnd,
+                RequestStatus = RescheduleRequestStatus.Pending
+            };
+
+            _context.RescheduleRequests.Add(rescheduleRequest);
+
             await _context.SaveChangesAsync();
             return lesson;
         }
 
-        public async Task<Lesson> UpdateLessonAsync(int lessonId, Lesson updatedLesson)
+
+        public async Task<Lesson> UpdateLessonAsync(int lessonId, LessonUpdateModel updatedLesson)
         {
-            var existingLesson = await _context.Lessons.FindAsync(lessonId);
-            if (existingLesson == null) return null;
+            var lesson = await _context.Lessons
+                .Include(l => l.Teacher)
+                .Include(l => l.Students)
+                .FirstOrDefaultAsync(l => l.LessonId == lessonId);
 
-            existingLesson.StartTime = updatedLesson.StartTime;
-            existingLesson.EndTime = updatedLesson.EndTime;
-            existingLesson.Description = updatedLesson.Description;
-            existingLesson.Status = updatedLesson.Status;
+            if (lesson == null) return null;
 
-            _context.Lessons.Update(existingLesson);
+            lesson.StartTime = updatedLesson.StartTime;
+            lesson.EndTime = updatedLesson.EndTime;
+            lesson.Description = updatedLesson.Description;
+            lesson.Status = updatedLesson.Status;
+
             await _context.SaveChangesAsync();
-            return existingLesson;
+
+            return lesson;
         }
         public async Task<Lesson?> GetLessonByIdAsync(int lessonId)
         {

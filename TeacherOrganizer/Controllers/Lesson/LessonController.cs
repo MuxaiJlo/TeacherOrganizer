@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Interefaces;
-using TeacherOrganizer.Models.DataModels;
+using TeacherOrganizer.Models.CalendarModels;
 using TeacherOrganizer.Models.Lessons;
 
 namespace TeacherOrganizer.Controllers.Lesson
@@ -105,7 +106,7 @@ namespace TeacherOrganizer.Controllers.Lesson
         //PUT: api/Lesson/{lessonId}
         [HttpPut("{lessonId}")]
         [Authorize(Roles = "Teacher,Student")]
-        public async Task<IActionResult> UpdateLesson(int lessonId, [FromBody] Models.DataModels.Lesson lessonUpdate)
+        public async Task<IActionResult> UpdateLesson(int lessonId, [FromBody] LessonUpdateModel lessonUpdate)
         {
             var updatedLesson = await _lessonService.UpdateLessonAsync(lessonId, lessonUpdate);
             if (updatedLesson == null) return NotFound(new { Message = "Lesson not found" });
@@ -132,23 +133,40 @@ namespace TeacherOrganizer.Controllers.Lesson
         {
             try
             {
-                var request = new RescheduleRequest
+                var initiatorId = User.Identity?.Name;
+
+                if (initiatorId == null)
                 {
-                    LessonId = lessonId,
-                    ProposedStartTime = dto.ProposedStartTime,
-                    ProposedEndTime = dto.ProposedEndTime,
-                    InitiatorId = User.Identity?.Name,
-                    RequestStatus = RescheduleRequestStatus.Pending
-                };
+                    return Unauthorized(new { Message = "Unauthorized: User identity not found." });
+                }
 
-                _context.RescheduleRequests.Add(request);
-                await _context.SaveChangesAsync();
+                // Вызов метода сервиса
+                var lesson = await _lessonService.ProposeRescheduleAsync(lessonId, dto.ProposedStartTime, dto.ProposedEndTime, initiatorId);
 
-                return CreatedAtAction(nameof(GetLessonById), new { lessonId }, request);
+                if (lesson == null)
+                {
+                    return NotFound(new { Message = "Lesson not found" });
+                }
+
+                return Ok(new
+                {
+                    LessonId = lesson.LessonId,
+                    lesson.StartTime,
+                    lesson.EndTime,
+                    lesson.Description,
+                    lesson.Status,
+                    Teacher = new { lesson.Teacher.Id, lesson.Teacher.UserName },
+                    Students = lesson.Students.Select(s => new { s.Id, s.UserName })
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { Message = ex.Message });
+                Console.Error.WriteLine($"Error proposing reschedule: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Message = "An error occurred while proposing the reschedule.",
+                    Details = ex.Message
+                });
             }
         }
 
