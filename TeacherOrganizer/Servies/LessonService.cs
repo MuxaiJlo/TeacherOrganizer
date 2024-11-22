@@ -77,8 +77,13 @@ namespace TeacherOrganizer.Servies
 
             if (lesson == null) return null;
 
-            var initiator = await _context.Users.FirstOrDefaultAsync(u => u.Id == initiatorId);
-            if (initiator == null) throw new UnauthorizedAccessException("Initiator not found");
+            var initiator = await _context.Users.FirstOrDefaultAsync(u => u.UserName == initiatorId);
+            if (initiator == null)
+            {
+                Console.WriteLine($"Initiator with ID '{initiatorId}' not found in the database.");
+                throw new UnauthorizedAccessException("Initiator not found");
+            }
+
 
             var rescheduleRequest = new RescheduleRequest
             {

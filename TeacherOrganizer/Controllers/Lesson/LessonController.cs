@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Interefaces;
 using TeacherOrganizer.Models.CalendarModels;
@@ -129,18 +130,18 @@ namespace TeacherOrganizer.Controllers.Lesson
         //POST: api/Lesson/{lessonId}/Reschedule
         [HttpPost("{lessonId}/Reschedule")]
         [Authorize(Roles = "Teacher,Student")]
-        public async Task<IActionResult> ProposeReschedule(int lessonId, [FromBody] RescheduleRequest dto)
+        public async Task<IActionResult> ProposeReschedule(int lessonId, [FromBody] ResheduleModel dto)
         {
             try
             {
-                var initiatorId = User.Identity?.Name;
-
+                var initiatorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (initiatorId == null)
                 {
-                    return Unauthorized(new { Message = "Unauthorized: User identity not found." });
+                    Console.WriteLine("User.Identity.Name: " + User.Identity?.Name);
+                    initiatorId = User.Identity?.Name; 
                 }
 
-                // Вызов метода сервиса
+
                 var lesson = await _lessonService.ProposeRescheduleAsync(lessonId, dto.ProposedStartTime, dto.ProposedEndTime, initiatorId);
 
                 if (lesson == null)
