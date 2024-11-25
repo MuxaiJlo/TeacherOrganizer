@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Security.Claims;
 using TeacherOrganizer.Models.DataModels;
-using System.Threading.Tasks;
-using TeacherOrganizer.Models.RegLogModels;
+using TeacherOrganizer.Models.AuthModels;
 
 namespace TeacherOrganizer.Controllers.Auth
 {
@@ -66,12 +64,6 @@ namespace TeacherOrganizer.Controllers.Auth
             var user = await _userManager.FindByNameAsync(model.Username);
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {
-                var isInRole = await _userManager.IsInRoleAsync(user, "Student");
-                if (!isInRole)
-                {
-                    return Unauthorized("User does not have the required role.");
-                }
-
                 var token = await GenerateJwtTokenAsync(user);
 
                 Response.Cookies.Append("jwtToken", token, new CookieOptions
@@ -82,7 +74,7 @@ namespace TeacherOrganizer.Controllers.Auth
                     Expires = DateTimeOffset.UtcNow.AddDays(1)
                 });
 
-                return Ok(new { message = "Login successful.", redirectUrl = "/Main/Index" });
+                return Ok(new { message = "Login successful.", token, redirectUrl = "/Main/Index" });
             }
 
             return Unauthorized(new { message = user == null ? "User not found" : "Invalid password" });

@@ -12,13 +12,13 @@ namespace TeacherOrganizer.Controllers.Main
 	{
 		private readonly UserManager<User> _userManager;
 
-		public MainController(UserManager<User> userManager)
+        public MainController(UserManager<User> userManager)
 		{
 			_userManager = userManager;
 		}
 
 		[HttpGet("index")]
-		[Authorize(Roles ="Student")]
+		[Authorize(Roles = "Student,Teacher")]
 		public async Task<IActionResult> Index()
 		{
 			var userName = User.Identity?.Name;
@@ -64,6 +64,7 @@ namespace TeacherOrganizer.Controllers.Main
 				}
 			});
 		}
-	}
 
+        
+    }
 }

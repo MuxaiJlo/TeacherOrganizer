@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TeacherOrganizer.Models.RegLogModels
+namespace TeacherOrganizer.Models.AuthModels
 {
     public class LoginModel
     {

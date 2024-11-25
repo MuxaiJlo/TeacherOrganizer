@@ -16,7 +16,7 @@ namespace TeacherOrganizer.Controllers.Main
             _userManager = userManager;
         }
         [HttpGet("Index")]
-        [Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student, Teacher")]
         public async Task<IActionResult> Index()
         {
             var userName = User.Identity?.Name;
