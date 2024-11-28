@@ -67,11 +67,6 @@ namespace TeacherOrganizer.Controllers.Lesson
         [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> AddLesson([FromBody] LessonModels newLesson)
         {
-            Console.WriteLine("TeacherId: " + newLesson.TeacherId);
-            Console.WriteLine("StartTime: " + newLesson.StartTime);
-            Console.WriteLine("EndTime: " + newLesson.EndTime);
-            Console.WriteLine("Description: " + newLesson.Description);
-            Console.WriteLine("StudentIds: " + string.Join(", ", newLesson.StudentIds));
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
