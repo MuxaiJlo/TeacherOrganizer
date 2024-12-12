@@ -6,7 +6,7 @@ namespace TeacherOrganizer.Models.DataModels
     {
         [Key]
         public int DictionaryId { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public int? OriginalDictionaryId { get; set; }
         [Required]
         public string Name { get; set; }

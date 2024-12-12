@@ -29,7 +29,7 @@ namespace TeacherOrganizer.Controllers.Dictionary
             try
             {
                 var newDictionary = _dictionaryService.CreateDictionaryAsync(dictionary, userId);
-                return CreatedAtAction(nameof(GetDictionaryById), new { id = newDictionary.DictionaryId }, newDictionary);
+                return CreatedAtAction(nameof(GetDictionaryById), new { id = newDictionary.Id }, newDictionary);
             }
             catch (Exception ex)
             {
@@ -40,14 +40,14 @@ namespace TeacherOrganizer.Controllers.Dictionary
         // GET: api/Dictionary
         [HttpGet]
         [Authorize(Roles = "Teacher, Student")]
-        public async Task<IActionResult> GetDictionaryById(int id)
+        public async Task<IActionResult> GetDictionaries()
         {
             var userId = User.FindFirstValue(ClaimTypes.Name);
             if (string.IsNullOrEmpty(userId)) return Unauthorized(new { Message = "User ID not found in token." });
 
             try
             {
-                var dictionary = await _dictionaryService.GetDictionaryByUserAsync(userId);
+                var dictionary = await _dictionaryService.GetDictionariesByUserAsync(userId);
                 if (dictionary == null) return NotFound();
                 return Ok(dictionary);
             }
