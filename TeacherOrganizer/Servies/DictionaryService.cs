@@ -49,5 +49,38 @@ namespace TeacherOrganizer.Servies
                 .Include(d => d.OriginalDictionary)
                 .FirstOrDefaultAsync(d => d.DictionaryId == dictionaryId);
         }
+        public async Task<Dictionary> CopyDictionaryAsync(int dictionaryId, string userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+                throw new Exception("User not found.");
+
+            var originalDictionary = await _context.Dictionaries
+                .Include(d => d.Words)
+                .FirstOrDefaultAsync(d => d.DictionaryId == dictionaryId);
+
+            if (originalDictionary == null)
+                throw new Exception("Original dictionary not found.");
+
+            var newDictionary = new Dictionary
+            {
+                Name = $"{originalDictionary.Name} - Copy",
+                UserId = user.Id,
+                CreatedAt = DateTime.UtcNow,
+                OriginalDictionaryId = originalDictionary.DictionaryId,
+                Words = originalDictionary.Words.Select(w => new Word
+                {
+                    Text = w.Text,
+                    Translation = w.Translation,
+                    Example = w.Example
+                }).ToList()
+            };
+
+            _context.Dictionaries.Add(newDictionary);
+            await _context.SaveChangesAsync();
+
+            return newDictionary;
+        }
+
     }
 }

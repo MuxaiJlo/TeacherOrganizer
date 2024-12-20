@@ -8,5 +8,7 @@ namespace TeacherOrganizer.Interefaces
         Task<Dictionary> CreateDictionaryAsync(DictionaryCreateModel dictionary, string userId);
         Task<IEnumerable<Dictionary>> GetDictionariesByUserAsync(string userId);
         Task<Dictionary> GetDictionaryByIdAsync(int dictionaryId);
+        Task<Dictionary> CopyDictionaryAsync(int dictionaryId, string userId);
+
     }
 }

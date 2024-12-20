@@ -77,5 +77,27 @@ namespace TeacherOrganizer.Controllers.Dictionary
                 return StatusCode(500, new { Message = "Error retrieving dictionary", Details = ex.Message });
             }
         }
+
+        // POST: api/Dictionary/{id}/Copy
+        [HttpPost("{id}/Copy")]
+        [Authorize(Roles = "Teacher, Student")]
+        public async Task<IActionResult> CopyDictionary(int id)
+        {
+            var userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new { Message = "User ID not found in token." });
+
+            try
+            {
+                var copiedDictionary = await _dictionaryService.CopyDictionaryAsync(id, userId);
+                return CreatedAtAction(nameof(GetDictionaryById), new { id = copiedDictionary.DictionaryId }, copiedDictionary);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Error copying dictionary", Details = ex.Message });
+            }
+        }
+
     }
 }
