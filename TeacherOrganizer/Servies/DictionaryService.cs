@@ -17,8 +17,12 @@ namespace TeacherOrganizer.Servies
 
         public async Task<Dictionary> CreateDictionaryAsync(DictionaryCreateModel dictionary, string userId)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-            if (user == null) throw new Exception("User not found");
+            // Убедитесь, что userId соответствует типу первичного ключа в таблице Users
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.UserName == userId); 
+
+            if (user == null)
+                throw new Exception("User not found");
 
             var newDictionary = new Dictionary
             {
@@ -31,8 +35,11 @@ namespace TeacherOrganizer.Servies
             _context.Dictionaries.Add(newDictionary);
             await _context.SaveChangesAsync();
 
+            await _context.Entry(newDictionary).Reference(d => d.User).LoadAsync();
             return newDictionary;
         }
+
+
 
         public async Task<IEnumerable<Dictionary>> GetDictionariesByUserAsync(string userId)
         {
@@ -51,7 +58,7 @@ namespace TeacherOrganizer.Servies
         }
         public async Task<Dictionary> CopyDictionaryAsync(int dictionaryId, string userId)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userId);
             if (user == null)
                 throw new Exception("User not found.");
 

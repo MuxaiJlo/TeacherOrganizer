@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TeacherOrganizer.Interefaces;
 using TeacherOrganizer.Models.DictionaryModels;
@@ -23,19 +24,30 @@ namespace TeacherOrganizer.Controllers.Dictionary
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var userId = User.FindFirstValue(ClaimTypes.Name);
-            if (string.IsNullOrEmpty(userId)) return Unauthorized(new { Message = "User ID not found in token." });
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new { Message = "User ID not found in token." });
+
 
             try
             {
-                var newDictionary = _dictionaryService.CreateDictionaryAsync(dictionary, userId);
-                return CreatedAtAction(nameof(GetDictionaryById), new { id = newDictionary.Id }, newDictionary);
+                var newDictionary = await _dictionaryService.CreateDictionaryAsync(dictionary, userId);
+
+                return CreatedAtAction(nameof(GetDictionaryById), new { id = newDictionary.DictionaryId }, new
+                {
+                    newDictionary.DictionaryId,
+                    newDictionary.Name,
+                    newDictionary.CreatedAt,
+                    User = new { newDictionary.User.Id, newDictionary.User.UserName },
+                    OriginalDictionaryId = newDictionary.OriginalDictionaryId
+                });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { Message = "Error creating dictionary", Details = ex.Message });
             }
         }
+
 
         // GET: api/Dictionary
         [HttpGet]

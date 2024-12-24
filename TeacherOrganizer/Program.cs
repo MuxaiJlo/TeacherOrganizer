@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
 using TeacherOrganizer.Controllers.Auth;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Interefaces;
@@ -28,9 +29,16 @@ namespace TeacherOrganizer
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+
             builder.Services.AddScoped<AuthController>();
             builder.Services.AddScoped<AuthViewController>();
             builder.Services.AddScoped<ILessonService, LessonService>();
+            builder.Services.AddScoped<IDictionaryService, DictionaryService>();
+
 
 
             builder.Services.AddAuthentication(options =>
