@@ -8,6 +8,7 @@ using TeacherOrganizer.Controllers.Auth;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Interefaces;
 using TeacherOrganizer.Models.DataModels;
+using TeacherOrganizer.Services;
 using TeacherOrganizer.Servies;
 
 namespace TeacherOrganizer
@@ -38,7 +39,7 @@ namespace TeacherOrganizer
             builder.Services.AddScoped<AuthViewController>();
             builder.Services.AddScoped<ILessonService, LessonService>();
             builder.Services.AddScoped<IDictionaryService, DictionaryService>();
-
+            builder.Services.AddScoped<IWordService, WordService>();
 
 
             builder.Services.AddAuthentication(options =>

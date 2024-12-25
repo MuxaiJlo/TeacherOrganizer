@@ -44,7 +44,8 @@ namespace TeacherOrganizer.Servies
         public async Task<IEnumerable<Dictionary>> GetDictionariesByUserAsync(string userId)
         {
             return await _context.Dictionaries
-               .Where(d => d.UserId == userId)
+               .Where(d => d.User.UserName == userId)
+               .Include(d => d.Words)
                .Include(d => d.OriginalDictionary)
                .ToListAsync();
         }

@@ -19,7 +19,7 @@ namespace TeacherOrganizer.Controllers.Dictionary
 
         // POST: api/Word
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Teacher, Student")]
         public async Task<IActionResult> AddWord([FromBody] WordCreateModel model)
         {
             if (!ModelState.IsValid)
@@ -38,7 +38,7 @@ namespace TeacherOrganizer.Controllers.Dictionary
 
         // GET: api/Word/{id}
         [HttpGet("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Teacher, Student")]
         public async Task<IActionResult> GetWordById(int id)
         {
             try
@@ -58,7 +58,7 @@ namespace TeacherOrganizer.Controllers.Dictionary
 
         // DELETE: api/Word/{id}
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Teacher, Student")]
         public async Task<IActionResult> DeleteWord(int id)
         {
             try

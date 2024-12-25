@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TeacherOrganizer.Models.DataModels;
 
 namespace TeacherOrganizer.Models.DictionaryModels
 {
