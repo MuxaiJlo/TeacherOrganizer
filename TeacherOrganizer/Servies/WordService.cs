@@ -41,9 +41,9 @@ namespace TeacherOrganizer.Services
             return await _context.Words.FirstOrDefaultAsync(w => w.WordId == wordId);
         }
 
-        public async Task<bool> DeleteWordAsync(int wordId)
+        public async Task<bool> DeleteWordFromDictionaryAsync(int wordId, int dictionaryId)
         {
-            var word = await _context.Words.FirstOrDefaultAsync(w => w.WordId == wordId);
+            var word = await _context.Words.FirstOrDefaultAsync(w => w.WordId == wordId && w.DictionaryId == dictionaryId);
 
             if (word == null)
                 return false;
@@ -53,5 +53,23 @@ namespace TeacherOrganizer.Services
 
             return true;
         }
+
+        public async Task<Word> UpdateWordAsync(int wordId, WordUpdateModel model)
+        {
+            var word = await _context.Words.FirstOrDefaultAsync(w => w.WordId == wordId && w.DictionaryId == model.DictionaryId);
+
+            if (word == null)
+                throw new Exception("Word not found in the specified dictionary.");
+
+            word.Text = model.Text;
+            word.Translation = model.Translation;
+            word.Example = model.Example;
+
+            _context.Words.Update(word);
+            await _context.SaveChangesAsync();
+
+            return word;
+        }
+
     }
 }

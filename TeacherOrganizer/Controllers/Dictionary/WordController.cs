@@ -56,17 +56,17 @@ namespace TeacherOrganizer.Controllers.Dictionary
             }
         }
 
-        // DELETE: api/Word/{id}
-        [HttpDelete("{id}")]
+        // DELETE: api/Word/{id}/Dictionary/{dictionaryId}
+        [HttpDelete("{id}/Dictionary/{dictionaryId}")]
         [Authorize(Roles = "Teacher, Student")]
-        public async Task<IActionResult> DeleteWord(int id)
+        public async Task<IActionResult> DeleteWordFromDictionary(int id, int dictionaryId)
         {
             try
             {
-                var success = await _wordService.DeleteWordAsync(id);
+                var success = await _wordService.DeleteWordFromDictionaryAsync(id, dictionaryId);
 
                 if (!success)
-                    return NotFound(new { Message = "Word not found." });
+                    return NotFound(new { Message = "Word not found in the specified dictionary." });
 
                 return NoContent();
             }
@@ -75,5 +75,25 @@ namespace TeacherOrganizer.Controllers.Dictionary
                 return StatusCode(500, new { Message = "Error deleting word", Details = ex.Message });
             }
         }
+
+        // PUT: api/Word/{id}
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Teacher, Student")]
+        public async Task<IActionResult> UpdateWord(int id, [FromBody] WordUpdateModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var updatedWord = await _wordService.UpdateWordAsync(id, model);
+                return Ok(updatedWord);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Error updating word", Details = ex.Message });
+            }
+        }
+
     }
 }

@@ -7,6 +7,7 @@ namespace TeacherOrganizer.Interefaces
     {
         Task<Word> AddWordAsync(WordCreateModel model);
         Task<Word> GetWordByIdAsync(int wordId);
-        Task<bool> DeleteWordAsync(int wordId);
+        Task<bool> DeleteWordFromDictionaryAsync(int wordId, int dictionaryId);
+        Task<Word> UpdateWordAsync(int wordId, WordUpdateModel model);
     }
 }
