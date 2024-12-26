@@ -1,4 +1,4 @@
-﻿@model TeacherOrganizer.Models.RegLogModels.LoginModel
+﻿@model TeacherOrganizer.Models.AuthModels.LoginModel
 @{
     ViewData["Title"] = "Login";
 }
@@ -30,8 +30,30 @@
     <a asp-action="Register">Don't have an account? Register</a>
 </div>
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+<script>
+    document.querySelector('form').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const username = document.querySelector('input[name="Username"]').value;
+        const password = document.querySelector('input[name="Password"]').value;
+
+        fetch('/api/Auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
+                } else {
+                    console.error(data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+
+</script>

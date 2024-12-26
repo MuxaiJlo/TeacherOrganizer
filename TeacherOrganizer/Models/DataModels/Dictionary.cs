@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TeacherOrganizer.Models.DataModels
 {
@@ -7,7 +6,7 @@ namespace TeacherOrganizer.Models.DataModels
     {
         [Key]
         public int DictionaryId { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public int? OriginalDictionaryId { get; set; }
         [Required]
         public string Name { get; set; }

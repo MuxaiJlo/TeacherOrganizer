@@ -1,17 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TeacherOrganizer.Models.RegLogModels;
+using TeacherOrganizer.Models.AuthModels;
 
-namespace TeacherOrganizer.Controllers
+namespace TeacherOrganizer.Controllers.Auth
 {
-    public class AccountController : Controller
+    [Route("AuthView")]
+    public class AuthViewController : Controller
     {
         private readonly AuthController _authController;
 
-        public AccountController(AuthController authController)
+        public AuthViewController(AuthController authController)
         {
             _authController = authController;
         }
-
+        [HttpGet("Register")]
         public IActionResult Register()
         {
             return View("RegisterView");
@@ -22,7 +23,7 @@ namespace TeacherOrganizer.Controllers
         {
             return await _authController.Register(model);
         }
-
+        [HttpGet("Login")]
         public IActionResult Login()
         {
             return View("LoginView");
