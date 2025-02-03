@@ -1,0 +1,115 @@
+﻿@{
+    ViewData["Title"] = "Календар занять";
+}
+
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            editable: true,
+            selectable: true,
+            eventSources: [
+                {
+                    url: '/api/Lesson/Calendar',
+                    method: 'GET',
+                    extraParams: function() {
+                        let start = new Date();
+                        let end = new Date();
+                        end.setMonth(end.getMonth() + 1);
+                        return {
+                            start: start.toISOString().split('T')[0],
+                            end: end.toISOString().split('T')[0]
+                        };
+                    },
+                    failure: function() {
+                        alert('Помилка завантаження занять!');
+                    }
+                }
+            ],
+            eventClick: function(info) {
+                if (confirm("Ви впевнені, що хочете видалити заняття?")) {
+                    fetch(`/api/Lesson/${info.event.id}`, {
+                        method: 'DELETE'
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            info.event.remove();
+                            alert("Заняття видалено!");
+                        } else {
+                            alert("Помилка видалення заняття.");
+                        }
+                    });
+                }
+            },
+            eventDrop: function(info) {
+                let updatedLesson = {
+                    StartTime: info.event.start.toISOString(),
+                    EndTime: info.event.end ? info.event.end.toISOString() : info.event.start.toISOString(),
+                    Description: info.event.title,
+                    Status: 3
+                };
+
+                fetch(`/api/Lesson/${info.event.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedLesson)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Заняття оновлено!");
+                    } else {
+                        alert("Помилка оновлення заняття.");
+                    }
+                });
+            },
+            select: function(info) {
+                let title = prompt("Введіть опис заняття:");
+                if (title) {
+                    let newLesson = {
+                        TeacherId: "ID_Вчителя",
+                        StartTime: info.start.toISOString(),
+                        EndTime: info.end.toISOString(),
+                        Description: title,
+                        Status: 0,
+                        StudentIds: ["ID_Учня"]
+                    };
+
+                    fetch('/api/Lesson', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(newLesson)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.LessonId) {
+                            calendar.addEvent({
+                                id: data.LessonId,
+                                title: title,
+                                start: info.startStr,
+                                end: info.endStr
+                            });
+                            alert("Заняття додано!");
+                        } else {
+                            alert("Помилка додавання заняття.");
+                        }
+                    });
+                }
+            }
+        });
+
+        calendar.render();
+    });
+</script>
+
+<div class="container mt-4">
+    <h2 class="text-center">Календар занять</h2>
+    <div id="calendar"></div>
+</div>

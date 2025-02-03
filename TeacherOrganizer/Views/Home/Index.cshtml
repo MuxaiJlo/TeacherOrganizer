@@ -1,8 +1,43 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Головна сторінка";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<link rel="stylesheet" href="~/css/bubbles.css" />
+<script src="~/js/bubbles.js" defer></script>
+
+<!-- Фоновий блок з анімацією -->
+<div class="bubble-background">
+    <div id="bubble-container"></div>
 </div>
+
+<!-- Основний контент (поверх бульбашок) -->
+<div class="container text-center content-overlay">
+    <h1 class="display-3 fw-bold">TeacherOrganizer</h1>
+    <p>Організація навчального процесу для репетиторів та студентів</p>
+
+    <div class="mt-4">
+        <a class="btn btn-primary btn-lg" asp-controller="AuthView" asp-action="Register">Зареєструватися</a>
+        <a class="btn btn-outline-light btn-lg" asp-controller="AuthView" asp-action="Login">Увійти</a>
+    </div>
+</div>
+
+<!-- Інформаційні секції -->
+<section class="container mt-5 content-overlay">
+    <div class="row">
+        <div class="col-md-4 text-center">
+            <img src="~/img/calendar-icon.png" alt="Календар занять" class="mb-3" width="80">
+            <h3>Календар занять</h3>
+            <p>Плануйте свої уроки та відстежуйте їх у зручному календарі.</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <img src="~/img/dictionary-icon.png" alt="Словники" class="mb-3" width="80">
+            <h3>Словники</h3>
+            <p>Зберігайте та редагуйте власні словники, діліться з учнями.</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <img src="~/img/notifications-icon.png" alt="Нагадування" class="mb-3" width="80">
+            <h3>Нагадування</h3>
+            <p>Отримуйте повідомлення про майбутні заняття та зміни у розкладі.</p>
+        </div>
+    </div>
+</section>
