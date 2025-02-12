@@ -2,55 +2,66 @@
 @{
     ViewData["Title"] = "Login";
 }
+<link rel="stylesheet" href="~/css/auth.css" />
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-lg">
-                <div class="card-body">
-                    <h3 class="text-center mb-4">Login</h3>
-                    <form id="loginForm">
-                        <div class="mb-3">
-                            <label for="Username" class="form-label">Username</label>
-                            <input type="text" id="Username" name="Username" class="form-control" required />
-                        </div>
-                        <div class="mb-3">
-                            <label for="Password" class="form-label">Password</label>
-                            <input type="password" id="Password" name="Password" class="form-control" required />
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Login</button>
-                    </form>
-                    <div class="mt-3 text-center">
-                        <a href="/AuthView/Register">Don't have an account? Register</a>
-                    </div>
-                </div>
+<div class="flag-container">
+    <img src="~/img/uk-flag.png" alt="UK Flag" class="flag flag-left">
+    <img src="~/img/uk-flag.png" alt="UK Flag" class="flag flag-right">
+</div>
+
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="login-container p-4 shadow rounded">
+        <h2 class="text-center">Welcome Back!</h2>
+        <p class="text-center text-muted">Log in to continue your learning journey.</p>
+
+        <form id="loginForm">
+            <div class="mb-3">
+                <label for="Username" class="form-label">Username</label>
+                <input type="text" id="Username" name="Username" class="form-control" required />
             </div>
+            <div class="mb-3">
+                <label for="Password" class="form-label">Password</label>
+                <input type="password" id="Password" name="Password" class="form-control" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
+
+        <div class="text-center mt-3">
+            <a href="/AuthView/Register" class="text-decoration-none">Don't have an account? Register</a>
+        </div>
+        <div class="text-center mt-3">
+            <a href="/" class="btn btn-outline-secondary w-100">Return to Home</a>
         </div>
     </div>
 </div>
 
 <script>
-    document.getElementById("loginForm").addEventListener("submit", function (event) {
+    document.getElementById('loginForm').addEventListener('submit', function (event) {
         event.preventDefault();
 
         const formData = {
-            Username: document.getElementById("Username").value,
-            Password: document.getElementById("Password").value
+            Username: document.getElementById('Username').value,
+            Password: document.getElementById('Password').value
         };
 
-        fetch("/api/Auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+        fetch('/api/Auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         })
             .then(response => response.json())
             .then(data => {
                 if (data.token) {
-                    window.location.href = data.redirectUrl || "/Main/Index";
+                    alert("Login successful!");
+                    window.location.href = '/Main/Index';
                 } else {
-                    alert("Invalid credentials");
+                    alert(data.message || 'Login failed');
                 }
             })
-            .catch(error => alert("Error logging in: " + error));
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error during login');
+            });
     });
 </script>

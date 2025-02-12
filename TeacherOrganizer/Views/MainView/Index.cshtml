@@ -1,27 +1,35 @@
 ﻿@model TeacherOrganizer.Models.ViewModels.MainViewModel
-
 @{
-    ViewData["Title"] = "Profile";
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="container mt-5">
-    <h2 class="text-center">Welcome, @Model.FirstName @Model.LastName!</h2>
+<link rel="stylesheet" href="~/css/dashboard.css" />
 
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Profile Information</h5>
-                    <p class="card-text"><strong>Username:</strong> @Model.Username</p>
-                    <p class="card-text"><strong>Email:</strong> @Model.Email</p>
-                    <p class="card-text"><strong>First Name:</strong> @Model.FirstName</p>
-                    <p class="card-text"><strong>Last Name:</strong> @Model.LastName</p>
-                    <p class="card-text"><strong>Role:</strong>@Model.Role</pc>
-                    <p class="card-text"><strong>Login Time:</strong> @Model.LoginTime.ToString("f")</p>
-                    <a href="@Url.Action("Edit", "Profile")" class="btn btn-primary">Edit Profile</a>
-                </div>
-            </div>
+<div class="dashboard-container">
+    <!-- Фіксоване меню зліва -->
+    <aside class="sidebar">
+        <div class="user-info">
+            <img src="~/img/user.png" alt="User Icon" class="user-icon">
+            <h5>@Model.Username</h5>
+            <p>@Model.Role</p>
         </div>
-    </div>
+        <nav class="menu">
+            <ul>
+                <li><a href="#" data-page="calendar">📅 Calendar</a></li>
+                <li><a href="#" data-page="dictionary">📖 Dictionary</a></li>
+                <li><a href="#" data-page="settings">⚙️ Settings</a></li>
+                <li><a href="/AuthView/Logout" class="logout">🚪 Logout</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Контейнер для змінного контенту -->
+    <main class="content">
+        <div id="content-placeholder">
+            <h2 class="text-center">Welcome, @Model.FirstName @Model.LastName!</h2>
+            <p class="text-center">Select a menu item to view more details.</p>
+        </div>
+    </main>
 </div>
 
+<script src="~/js/dashboard.js"></script>

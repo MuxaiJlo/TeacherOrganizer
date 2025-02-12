@@ -1,0 +1,50 @@
+﻿/* Основні стилі для сторінок логіну та реєстрації */
+.login-container {
+    max-width: 400px;
+    background: white;
+    position: relative;
+    z-index: 10;
+    margin-top: -50px; /* Підтягуємо форму вище */
+}
+
+/* Контейнер для прапорів */
+.flag-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+}
+
+/* Стилі для прапорів */
+.flag {
+    height: 100vh;
+    width: auto;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+}
+
+.flag-left {
+    left: 0;
+}
+
+.flag-right {
+    right: 0;
+    transform: scaleX(-1); /* Віддзеркалюємо правий прапор */
+}
+
+/* Додаємо трохи відступів для мобільних пристроїв */
+@media (max-width: 768px) {
+    .login-container {
+        margin-top: -20px; /* Менше піднімаємо на мобільних */
+    }
+
+    .flag {
+        height: 80vh; /* Робимо прапори меншими */
+    }
+}

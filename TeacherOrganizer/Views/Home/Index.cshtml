@@ -1,43 +1,42 @@
 ﻿@{
-    ViewData["Title"] = "Головна сторінка";
+    ViewData["Title"] = "Home";
 }
 
-<link rel="stylesheet" href="~/css/bubbles.css" />
-<script src="~/js/bubbles.js" defer></script>
 
-<!-- Фоновий блок з анімацією -->
-<div class="bubble-background">
-    <div id="bubble-container"></div>
-</div>
-
-<!-- Основний контент (поверх бульбашок) -->
+<!-- Main content -->
 <div class="container text-center content-overlay">
-    <h1 class="display-3 fw-bold">TeacherOrganizer</h1>
-    <p>Організація навчального процесу для репетиторів та студентів</p>
+    <h1 class="display-3 fw-bold text-dark">Welcome to TeacherOrganizer</h1>
+    <p class="lead text-dark">A modern platform for organizing the educational process</p>
 
     <div class="mt-4">
-        <a class="btn btn-primary btn-lg" asp-controller="AuthView" asp-action="Register">Зареєструватися</a>
-        <a class="btn btn-outline-light btn-lg" asp-controller="AuthView" asp-action="Login">Увійти</a>
+        <a class="btn btn-primary btn-lg" asp-controller="AuthView" asp-action="Register">Sign Up</a>
+        <a class="btn btn-outline-secondary btn-lg text-dark" asp-controller="AuthView" asp-action="Login">Login</a>
     </div>
 </div>
 
-<!-- Інформаційні секції -->
+<!-- Features section -->
 <section class="container mt-5 content-overlay">
-    <div class="row">
+    <h2 class="text-center fw-bold mb-4">Why Choose TeacherOrganizer?</h2>
+    <p class="text-center">
+        TeacherOrganizer is a powerful tool for tutors and students to manage lessons, vocabulary, and schedules efficiently.
+        Plan, organize, and track your learning process seamlessly.
+    </p>
+
+    <div class="row mt-4">
         <div class="col-md-4 text-center">
-            <img src="~/img/calendar-icon.png" alt="Календар занять" class="mb-3" width="80">
-            <h3>Календар занять</h3>
-            <p>Плануйте свої уроки та відстежуйте їх у зручному календарі.</p>
+            <img src="~/img/calendar-icon.png" alt="Lesson Calendar" class="mb-3" width="80">
+            <h3>Lesson Calendar</h3>
+            <p>Schedule your lessons and track them with ease in a user-friendly calendar.</p>
         </div>
         <div class="col-md-4 text-center">
-            <img src="~/img/dictionary-icon.png" alt="Словники" class="mb-3" width="80">
-            <h3>Словники</h3>
-            <p>Зберігайте та редагуйте власні словники, діліться з учнями.</p>
+            <img src="~/img/dictionary-icon.png" alt="Dictionaries" class="mb-3" width="80">
+            <h3>Personal Dictionaries</h3>
+            <p>Save and edit your own vocabulary lists and share them with students.</p>
         </div>
         <div class="col-md-4 text-center">
-            <img src="~/img/notifications-icon.png" alt="Нагадування" class="mb-3" width="80">
-            <h3>Нагадування</h3>
-            <p>Отримуйте повідомлення про майбутні заняття та зміни у розкладі.</p>
+            <img src="~/img/notifications-icon.png" alt="Notifications" class="mb-3" width="80">
+            <h3>Smart Notifications</h3>
+            <p>Receive reminders about upcoming lessons and schedule changes.</p>
         </div>
     </div>
 </section>
