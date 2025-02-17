@@ -1,50 +1,52 @@
-﻿/* Основні стилі для сторінок логіну та реєстрації */
+﻿/* Margin&Padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Global */
+body {
+    background-color: white; /* Фон сторінки */
+    min-height: 100vh; /* Мінімальна висота екрану */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Щоб хвиля була внизу */
+    overflow: hidden; /* Забороняємо прокрутку */
+}
+
 .login-container {
-    max-width: 400px;
+    max-width: 600px;
     background: white;
     position: relative;
     z-index: 10;
-    margin-top: -50px; /* Підтягуємо форму вище */
+    margin-left: 780px;
 }
 
-/* Контейнер для прапорів */
-.flag-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    pointer-events: none;
+.register-container{
+    max-width: 600px;
+    background: white;
+    position: relative;
+    z-index: 10;
+    margin-left: 780px;
 }
-
-/* Стилі для прапорів */
-.flag {
-    height: 100vh;
-    width: auto;
-    object-fit: cover;
+/* Wave */
+.wave {
     position: absolute;
-    top: 0;
-}
-
-.flag-left {
+    bottom: -20px;
     left: 0;
+    width: 100vw;
+    height: auto;
+}
+.btn-primary {
+    background-color: #FF4500;
+    border-color: #FF6347;
 }
 
-.flag-right {
-    right: 0;
-    transform: scaleX(-1); /* Віддзеркалюємо правий прапор */
-}
-
-/* Додаємо трохи відступів для мобільних пристроїв */
-@media (max-width: 768px) {
-    .login-container {
-        margin-top: -20px; /* Менше піднімаємо на мобільних */
+    .btn-primary:hover {
+        background-color: #FF6347;
+        border-color: #FF4500;
     }
-
-    .flag {
-        height: 80vh; /* Робимо прапори меншими */
-    }
+.text-decoration-none {
+    color: #FF4500;
 }

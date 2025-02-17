@@ -1,42 +1,54 @@
-﻿@{
-    ViewData["Title"] = "Home";
-}
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Tutor - Learn with Confidence</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/css/home.css" />
+</head>
+<body>
+    <!-- Wave -->
+    <svg class="wave" viewBox="0 0 1440 400">
+        <path fill="#FFA07A" fill-opacity="1"
+              d="M0,200L80,180C160,160,320,120,480,150C640,180,800,260,960,275C1120,290,1280,240,1360,220L1440,200V400H0Z">
+        </path>
+    </svg>
 
-
-<!-- Main content -->
-<div class="container text-center content-overlay">
-    <h1 class="display-3 fw-bold text-dark">Welcome to TeacherOrganizer</h1>
-    <p class="lead text-dark">A modern platform for organizing the educational process</p>
-
-    <div class="mt-4">
-        <a class="btn btn-primary btn-lg" asp-controller="AuthView" asp-action="Register">Sign Up</a>
-        <a class="btn btn-outline-secondary btn-lg text-dark" asp-controller="AuthView" asp-action="Login">Login</a>
-    </div>
-</div>
-
-<!-- Features section -->
-<section class="container mt-5 content-overlay">
-    <h2 class="text-center fw-bold mb-4">Why Choose TeacherOrganizer?</h2>
-    <p class="text-center">
-        TeacherOrganizer is a powerful tool for tutors and students to manage lessons, vocabulary, and schedules efficiently.
-        Plan, organize, and track your learning process seamlessly.
-    </p>
-
-    <div class="row mt-4">
-        <div class="col-md-4 text-center">
-            <img src="~/img/calendar-icon.png" alt="Lesson Calendar" class="mb-3" width="80">
-            <h3>Lesson Calendar</h3>
-            <p>Schedule your lessons and track them with ease in a user-friendly calendar.</p>
-        </div>
-        <div class="col-md-4 text-center">
-            <img src="~/img/dictionary-icon.png" alt="Dictionaries" class="mb-3" width="80">
-            <h3>Personal Dictionaries</h3>
-            <p>Save and edit your own vocabulary lists and share them with students.</p>
-        </div>
-        <div class="col-md-4 text-center">
-            <img src="~/img/notifications-icon.png" alt="Notifications" class="mb-3" width="80">
-            <h3>Smart Notifications</h3>
-            <p>Receive reminders about upcoming lessons and schedule changes.</p>
+    <!-- Main Section -->
+    <div class="hero-section content-overlay">
+        <h1 class="display-3 fw-bold text-dark">Welcome to TeacherOrganizer</h1>
+        <p class="lead text-dark">A modern platform for organizing the educational process</p>
+        <div class="mt-4">
+            <a class="btn btn-primary btn-lg" asp-controller="AuthView" asp-action="Register">Sign Up</a>
+            <a class="btn btn-outline-light btn-lg" asp-controller="AuthView" asp-action="Login">Login</a>
         </div>
     </div>
-</section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <h2 class="fw-bold">Why Choose My Lessons?</h2>
+        <p>Learn faster, practice more, and achieve your language goals!</p>
+        <div class="row">
+            <div class="col-md-4">
+                <img src="https://cdn-icons-png.flaticon.com/512/747/747310.png" alt="Flexible Schedule" class="feature-icon">
+                <h4>Flexible Schedule</h4>
+                <p>Schedule your lessons and track them with ease in a user-friendly calendar.</p>
+            </div>
+            <div class="col-md-4">
+                <img src="https://cdn-icons-png.flaticon.com/512/3094/3094844.png" alt="Personalized Program" class="feature-icon">
+                <h4>Personal Dictionaries</h4>
+                <p>Save and edit your own vocabulary lists and share them with students.</p>
+            </div>
+            <div class="col-md-4">
+                <img src="https://cdn-icons-png.flaticon.com/512/2910/2910768.png" alt="Speaking Practice" class="feature-icon">
+                <h4>Notifications</h4>
+                <p>Receive reminders about upcoming lessons and schedule changes.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

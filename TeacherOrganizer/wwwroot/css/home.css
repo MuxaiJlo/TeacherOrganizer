@@ -1,0 +1,88 @@
+﻿/* Margin&Padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Global */
+body {
+    background-color: white; /* Фон сторінки */
+    min-height: 100vh; /* Мінімальна висота екрану */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Щоб хвиля була внизу */
+    overflow: hidden; /* Забороняємо прокрутку */
+}
+
+/* Wave */
+.wave {
+    position: absolute;
+    bottom: -20px; 
+    left: 0;
+    width: 100vw; 
+    height: auto;
+}
+
+    .hero-section h1 {
+        font-weight: bold;
+    }
+
+    .hero-section p {
+        font-size: 1.8rem;
+    }
+
+/* Buttons */
+.btn-primary {
+    background-color: #FF4500;
+    border-color: #FF6347;
+}
+
+    .btn-primary:hover {
+        background-color: #FF6347;
+        border-color: #FF4500;
+    }
+
+.btn-outline-light {
+    color: white;
+    border-color: black;
+    color: black
+}
+
+    .btn-outline-light:hover {
+    background-color: white;
+    color: #FF4500;
+    outline: 2px solid #FF4500; 
+}
+
+/* Hero Section */
+.hero-section {
+    position: relative;
+    background: transparent;
+    padding: 100px 20px;
+    text-align: center;
+    margin-top: -100px;
+    z-index: 1;
+}
+
+/* Features Section */
+.features {
+    background: transparent;
+    color: #333;
+    text-align: center;
+    padding: 50px 20px;
+    width: 100%;
+    position: relative;
+    margin-top: -100px;
+    z-index: 3;
+}
+
+.feature-icon {
+    width: 80px;
+    margin-bottom: 15px;
+}
+.content-overlay {
+    position: relative;
+    z-index: 2;
+    padding-top: 12vh;
+}
