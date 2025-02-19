@@ -2,34 +2,46 @@
 @{
     ViewData["Title"] = "Dashboard";
 }
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.js"></script>
+    <script src="~/js/dashboard.js" defer></script>
+    <script src="~/js/calendar.js" defer></script>
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+</head>
 
-<link rel="stylesheet" href="~/css/dashboard.css" />
 
-<div class="dashboard-container">
-    <!-- Фіксоване меню зліва -->
-    <aside class="sidebar">
-        <div class="user-info">
-            <img src="~/img/user.png" alt="User Icon" class="user-icon">
-            <h5>@Model.Username</h5>
-            <p>@Model.Role</p>
-        </div>
-        <nav class="menu">
-            <ul>
-                <li><a href="#" data-page="calendar">📅 Calendar</a></li>
-                <li><a href="#" data-page="dictionary">📖 Dictionary</a></li>
-                <li><a href="#" data-page="settings">⚙️ Settings</a></li>
-                <li><a href="/AuthView/Logout" class="logout">🚪 Logout</a></li>
-            </ul>
-        </nav>
-    </aside>
+<body>
+    <div class="dashboard-container">
+        <!-- Фиксированное левое меню -->
+        <aside class="sidebar">
+            <div class="user-info">
+                <img src="~/img/user.png" alt="User Icon" class="user-icon">
+                <h5>@Model.Username</h5>
+                <p>@Model.Role</p>
+            </div>
+            <nav class="menu">
+                <ul>
+                    <li><a href="#" data-page="calendar">📅 Calendar</a></li>
+                    <li><a href="#" data-page="dictionary">📖 Dictionary</a></li>
+                    <li><a href="#" data-page="settings">⚙️ Settings</a></li>
+                    <li><a href="/AuthView/Logout" class="logout">🚪 Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
 
-    <!-- Контейнер для змінного контенту -->
-    <main class="content">
-        <div id="content-placeholder">
-            <h2 class="text-center">Welcome, @Model.FirstName @Model.LastName!</h2>
-            <p class="text-center">Select a menu item to view more details.</p>
-        </div>
-    </main>
-</div>
+        <main class="content">
+            <div id="content-placeholder">
+                <h2 class="text-center">Welcome, @Model.FirstName @Model.LastName!</h2>
+                <p class="text-center">Select a menu item to view more details.</p>
+            </div>
+        </main>
 
-<script src="~/js/dashboard.js"></script>
+        <svg class="wave" viewBox="0 0 1440 290">
+            <path fill="#FFA07A" fill-opacity="1"
+                  d="M0,200L80,180C160,160,320,120,480,150C640,180,800,260,960,275C1120,290,1280,240,1360,220L1440,200V290H0Z">
+            </path>
+        </svg>
+
+    </div>
+</body>
