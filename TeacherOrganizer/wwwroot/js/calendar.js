@@ -1,13 +1,18 @@
-﻿function loadCalendar() {
-    console.log("📅 Initializing calendar...");
+﻿import { fetchLessons, fetchStudents, createLesson } from "./api.js";
 
-    let calendarEl = document.getElementById("calendar");
+let calendar = null; // Змінна для зберігання календаря на рівні модуля
+
+// Функція для ініціалізації календаря, тепер експортована
+export function initializeCalendar(contentPlaceholder) {
+    contentPlaceholder.innerHTML = `<div id="calendar"></div>`; // Встановлюємо HTML *всередині* модуля
+
+    const calendarEl = document.getElementById("calendar");
     if (!calendarEl) {
-        console.error("❌ Calendar element not found!");
+        console.error("❌ Calendar element not found!"); // Цього вже не повинно статися
         return;
     }
 
-    let calendar = new FullCalendar.Calendar(calendarEl, {
+    calendar = new FullCalendar.Calendar(calendarEl, { // Присвоюємо значення змінній calendar на рівні модуля
         initialView: "dayGridMonth",
         height: "800px",
         aspectRatio: 2,
@@ -16,14 +21,14 @@
             center: "title",
             right: "dayGridMonth,timeGridWeek,timeGridDay"
         },
-        events: function (fetchInfo, successCallback, failureCallback) {
-            let start = fetchInfo.startStr.split("T")[0];
-            let end = fetchInfo.endStr.split("T")[0];
-
-            fetch(`/api/Lesson/Calendar?start=${start}&end=${end}`)
-                .then(response => response.json())
-                .then(data => successCallback(data))
-                .catch(error => failureCallback(error));
+        events: async function (fetchInfo, successCallback, failureCallback) {
+            try {
+                let events = await fetchLessons(fetchInfo.startStr, fetchInfo.endStr);
+                successCallback(events);
+            } catch (error) {
+                console.error("❌ Error fetching events:", error);
+                failureCallback([]); // Важливо: викликаємо failureCallback у разі помилки
+            }
         },
         dateClick: function (info) {
             openLessonModal(info.dateStr);
@@ -31,56 +36,79 @@
     });
 
     calendar.render();
+
+    loadModal(); // Викликаємо loadModal тут, після рендерингу календаря
+    loadStudentsList(); // Викликаємо loadStudentsList тут, після рендерингу календаря
+
+    document.getElementById("saveLesson")?.addEventListener("click", saveLesson); // Переносимо слухач подій сюди
 }
-function openLessonModal(date) {
-    console.log("📅 Opening modal for:", date);
 
-    let modalEl = document.getElementById("lessonModal");
-    if (!modalEl) {
-        console.error("❌ Modal element not found!");
-        return;
+async function loadModal() {
+    try {
+        const response = await fetch("/modals/lesson-modal.html");
+        if (!response.ok) throw new Error("Failed to load modal template");
+
+        const modalHtml = await response.text();
+        document.body.insertAdjacentHTML("beforeend", modalHtml);
+
+        const modalEl = document.getElementById("lessonModal");
+        if (!modalEl) {
+            console.error("❌ Modal element not found!");
+            return;
+        }
+
+        modal = new bootstrap.Modal(modalEl); // Ініціалізуємо модальне вікно Bootstrap
+        return modal;
+    } catch (error) {
+        console.error("❌ Error loading modal:", error);
+        return null;
     }
+}
 
-    let modal = new bootstrap.Modal(modalEl);
+let modal = null; // Змінна для зберігання модального вікна на рівні модуля
 
-    // Записуємо вибрану дату (тільки час, без дати)
+function openLessonModal(date) {
+    if (!modal) return;
+
+    console.log("📅 Opening modal for:", date);
     document.getElementById("lessonDate").value = date;
     document.getElementById("lessonStartTime").value = "";
     document.getElementById("lessonEndTime").value = "";
     document.getElementById("lessonDescription").value = "";
-
     modal.show();
 }
-document.addEventListener("DOMContentLoaded", function () {
-    console.log("✅ DOM Loaded!");
 
-    let saveButton = document.getElementById("saveLesson");
+async function saveLesson() {
+    let selectedStudents = Array.from(document.getElementById("studentsSelect").selectedOptions)
+        .map(option => option.value);
 
-    if (saveButton) {
-        saveButton.addEventListener("click", function () {
-            console.log("✅ Save button clicked!");
+    let lessonData = {
+        teacherId: "current_teacher_id", // Тут потрібно отримати реальний ID викладача
+        description: document.getElementById("lessonDescription").value,
+        startTime: document.getElementById("lessonDate").value + "T" + document.getElementById("lessonStartTime").value,
+        endTime: document.getElementById("lessonDate").value + "T" + document.getElementById("lessonEndTime").value,
+        studentIds: selectedStudents
+    };
 
-            let lessonData = {
-                description: document.getElementById("lessonDescription").value,
-                startTime: document.getElementById("lessonDate").value + "T" + document.getElementById("lessonStartTime").value,
-                endTime: document.getElementById("lessonDate").value + "T" + document.getElementById("lessonEndTime").value
-            };
-
-            console.log("📤 Sending data:", lessonData);
-
-            fetch("/api/Lesson", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(lessonData)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log("✅ Lesson added:", data);
-                    location.reload(); // Оновлюємо сторінку після збереження
-                })
-                .catch(error => console.error("❌ Error sending request:", error));
-        });
-    } else {
-        console.error("❌ Save button not found!");
+    console.log("📤 Sending data:", lessonData);
+    try {
+        let newLesson = await createLesson(lessonData);
+        console.log("✅ Lesson added:", newLesson);
+        calendar.refetchEvents(); // Оновлюємо відображення подій на календарі
+        modal.hide();
+    } catch (error) {
+        alert(error.message || "Failed to save lesson");
     }
-});
+}
+
+async function loadStudentsList() {
+    let students = await fetchStudents();
+    let studentsSelect = document.getElementById("studentsSelect");
+    studentsSelect.innerHTML = "";
+    students.forEach(student => {
+        let option = document.createElement("option");
+        option.value = student.id;
+        option.textContent = student.userName;
+        studentsSelect.appendChild(option);
+    });
+}
