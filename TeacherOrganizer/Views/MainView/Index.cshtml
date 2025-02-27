@@ -1,0 +1,26 @@
+﻿@model TeacherOrganizer.Models.ViewModels.MainViewModel
+
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center">Welcome, @Model.FirstName @Model.LastName!</h2>
+
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Profile Information</h5>
+                    <p class="card-text"><strong>Username:</strong> @Model.Username</p>
+                    <p class="card-text"><strong>Email:</strong> @Model.Email</p>
+                    <p class="card-text"><strong>First Name:</strong> @Model.FirstName</p>
+                    <p class="card-text"><strong>Last Name:</strong> @Model.LastName</p>
+                    <p class="card-text"><strong>Login Time:</strong> @Model.LoginTime.ToString("f")</p>
+                    <a href="@Url.Action("Edit", "Profile")" class="btn btn-primary">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
