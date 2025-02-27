@@ -1,15 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TeacherOrganizer.Models.RegLogModels
+namespace TeacherOrganizer.Models.AuthModels
 {
-    public class RegisterModel
+    public class LoginModel
     {
         [Required]
         public string Username { get; set; }
-
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
