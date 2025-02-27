@@ -66,10 +66,10 @@ namespace TeacherOrganizer.Servies
         public async Task<List<Lesson>> GetLessonsForUserAsync(string userId, DateTime start, DateTime end)
         {
             var query = _context.Lessons
-                                .Where(l => l.StartTime >= start && l.EndTime <= end)
-                                .Where(l => l.Teacher.UserName == userId || l.Students.Any(s => s.UserName == userId))
-                                .Include(l => l.Teacher)
-                                .Include(l => l.Students);
+                .Include(l => l.Teacher)
+                .Include(l => l.Students)
+                .Where(l => l.StartTime >= start && l.EndTime <= end)
+                .Where(l => l.Teacher.UserName == userId || l.Students.Any(s => s.UserName == userId));
 
             return await query.ToListAsync();
         }
