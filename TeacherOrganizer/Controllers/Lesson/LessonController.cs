@@ -62,7 +62,7 @@ namespace TeacherOrganizer.Controllers.Lesson
             return Ok(lessons);
         }
 
-        // GET: /api/Lesson
+        // POST: /api/Lesson
         [HttpPost]
         [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> AddLesson([FromBody] LessonModels newLesson)
@@ -74,6 +74,13 @@ namespace TeacherOrganizer.Controllers.Lesson
 
             try
             {
+                var teacherId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (teacherId == null)
+                {
+                    return BadRequest(new { Message = "Teacher ID not found in JWT token." });
+                }
+
+
                 var createdLesson = await _lessonService.AddLessonAsync(newLesson);
 
                 return CreatedAtAction(nameof(GetLessonById), new { lessonId = createdLesson.LessonId }, new

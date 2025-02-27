@@ -1,11 +1,15 @@
-﻿export async function fetchLessons(start, end) {
+﻿export async function fetchLessons() {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString(); 
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString(); 
+
     try {
         let response = await fetch(`/api/Lesson/Calendar?start=${start}&end=${end}`);
         if (!response.ok) throw new Error("Failed to fetch lessons");
         return await response.json();
     } catch (error) {
         console.error("❌ Error fetching lessons:", error);
-        return [];
+        return;
     }
 }
 
@@ -22,6 +26,8 @@ export async function fetchStudents() {
 
 export async function createLesson(lessonData) {
     try {
+        console.log("Fetching URL:", "/api/Lesson"); 
+        console.log("Sending data to API:", lessonData);
         let response = await fetch("/api/Lesson", {
             method: "POST",
             headers: { "Content-Type": "application/json" },

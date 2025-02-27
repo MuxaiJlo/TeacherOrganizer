@@ -18,6 +18,8 @@ namespace TeacherOrganizer.Servies
 
         public async Task<Lesson> AddLessonAsync(LessonModels lessonDto)
         {
+            Console.WriteLine($"🔍 Searching for teacher with ID: {lessonDto.TeacherId}");
+
             var teacher = await _context.Users.FindAsync(lessonDto.TeacherId);
             if (teacher == null)
                 throw new Exception("Teacher not found");

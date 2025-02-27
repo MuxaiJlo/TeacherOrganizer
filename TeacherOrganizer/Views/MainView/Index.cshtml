@@ -3,17 +3,21 @@
     ViewData["Title"] = "Dashboard";
 }
 <head>
-    <!-- Bootstrap CSS -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FullCalendar CSS -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.css" rel="stylesheet">
-    <!-- Local styles -->
     <link rel="stylesheet" href="~/css/dashboard.css" />
+
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Select2 JS (після jQuery!) -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js" defer></script>
 </head>
+
 
 <body>
     <div class="dashboard-container">
-        <!-- Фіксоване ліве меню -->
         <aside class="sidebar">
             <div class="user-info">
                 <img src="~/img/user.png" alt="User Icon" class="user-icon">
@@ -42,13 +46,9 @@
         </svg>
     </div>
 
-    <!-- Scripts -->
-    <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.js"></script>
-    <!-- Local scripts -->
     <script src="~/js/dashboard.js" defer></script>
-    <script type="module" src="~/js/calendar.js"></script>
-    <script type="module" src="~/js/api.js"></script>
+    <script type="module" src="~/js/calendar.js" defer></script>
+    <script type="module" src="~/js/api.js" defer></script>
 </body>
