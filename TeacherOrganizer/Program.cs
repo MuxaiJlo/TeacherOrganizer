@@ -2,9 +2,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using TeacherOrganizer.Controllers;
+using System.Text;
+using System.Text.Json.Serialization;
+using TeacherOrganizer.Controllers.Auth;
 using TeacherOrganizer.Data;
+using TeacherOrganizer.Interefaces;
 using TeacherOrganizer.Models.DataModels;
+using TeacherOrganizer.Services;
+using TeacherOrganizer.Servies;
 
 namespace TeacherOrganizer
 {
@@ -25,16 +30,28 @@ namespace TeacherOrganizer
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+
             builder.Services.AddScoped<AuthController>();
-            builder.Services.AddScoped<AccountController>();
+            builder.Services.AddScoped<AuthViewController>();
+            builder.Services.AddScoped<ILessonService, LessonService>();
+            builder.Services.AddScoped<IDictionaryService, DictionaryService>();
+            builder.Services.AddScoped<IWordService, WordService>();
+
 
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(options =>
             {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = false;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -43,8 +60,28 @@ namespace TeacherOrganizer
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = builder.Configuration["Jwt:Issuer"],
                     ValidAudience = builder.Configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
                 };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        if (context.Request.Cookies.ContainsKey("jwtToken"))
+                        {
+                            context.Token = context.Request.Cookies["jwtToken"];
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
+            });
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("Open", builder =>
+                    builder.AllowAnyOrigin()
+                           .AllowAnyHeader()
+                           .AllowAnyMethod());
             });
 
             builder.Services.AddDbContext<ApplicationDbContext>(options => 
@@ -62,12 +99,13 @@ namespace TeacherOrganizer
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            
-            app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
+            app.UseCors("Open");
 
-            app.MapControllerRoute(
+            app.UseAuthentication();
+			app.UseRouting();
+			app.UseAuthorization();
+
+			app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 

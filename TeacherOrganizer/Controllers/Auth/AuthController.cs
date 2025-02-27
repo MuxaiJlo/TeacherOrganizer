@@ -1,15 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Security.Claims;
 using TeacherOrganizer.Models.DataModels;
-using System.Threading.Tasks;
-using TeacherOrganizer.Models.RegLogModels;
+using TeacherOrganizer.Models.AuthModels;
 
-namespace TeacherOrganizer.Controllers
+namespace TeacherOrganizer.Controllers.Auth
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -19,9 +17,10 @@ namespace TeacherOrganizer.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _configuration;
 
-        public AuthController(UserManager<User> userManager, IConfiguration configuration)
+        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
             _configuration = configuration;
         }
 
@@ -34,6 +33,8 @@ namespace TeacherOrganizer.Controllers
 
             var user = new User
             {
+                FirstName = model.FirstName,
+                LastName = model.LastName,
                 UserName = model.Username,
                 Email = model.Email,
                 CreatedAt = DateTime.UtcNow
@@ -63,12 +64,23 @@ namespace TeacherOrganizer.Controllers
             var user = await _userManager.FindByNameAsync(model.Username);
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {
-                var token = GenerateJwtToken(user);
-                return Ok(new { token });
+                var token = await GenerateJwtTokenAsync(user);
+
+                Response.Cookies.Append("jwtToken", token, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false, 
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTimeOffset.UtcNow.AddDays(1)
+                });
+
+                return Ok(new { message = "Login successful.", token, redirectUrl = "/Main/Index" });
             }
 
-            return Unauthorized(new { message = "Invalid username or password." });
+            return Unauthorized(new { message = user == null ? "User not found" : "Invalid password" });
         }
+
+
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
@@ -76,27 +88,34 @@ namespace TeacherOrganizer.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        private string GenerateJwtToken(User user)
+        private async Task<string> GenerateJwtTokenAsync(User user)
         {
-            var claims = new[]
+            var roles = await _userManager.GetRolesAsync(user);
+            var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(ClaimTypes.Name, user.UserName),
+		        new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.NameIdentifier, user.Id)
             };
 
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));  
+            }
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: creds
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
     }
 }
