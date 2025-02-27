@@ -2,8 +2,11 @@
 let calendar = null;
 let modal = null;
 
+let dateStart = null;
+let dateEnd = null;
 export function initializeCalendar(contentPlaceholder) {
     contentPlaceholder.innerHTML = `<div id="calendar"></div>`;
+    console.log("📅 Initializing calendar...");
 
     const calendarEl = document.getElementById("calendar");
     if (!calendarEl) {
@@ -13,25 +16,26 @@ export function initializeCalendar(contentPlaceholder) {
 
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: "dayGridMonth",
-        height: "800px",
-        aspectRatio: 2,
         headerToolbar: {
             left: "prev,next today",
             center: "title",
             right: "dayGridMonth,timeGridWeek,timeGridDay"
         },
-        events: async function (fetchInfo, successCallback, failureCallback) {
-            try {
-                let events = await fetchLessons(); // Викликаємо fetchLessons без параметрів
-                successCallback(events);
-            } catch (error) {
-                console.error("❌ Error fetching events:", error);
-                failureCallback();
-            }
-        },
         dateClick: function (info) {
             openLessonModal(info.dateStr);
+        },
+        datesSet: function (info) {
+            console.log("📅 Date range changed:", info.start, info.end);
+
+            if (!info.start || !info.end) {
+                console.error("❌ Invalid date range:", info.start, info.end);
+                return;
+            }
+            dateStart = new Date(info.start);
+            dateEnd = new Date(info.end);
+            updateCalendarEvents(new Date(info.start), new Date(info.end));
         }
+
     });
 
     calendar.render();
@@ -39,6 +43,39 @@ export function initializeCalendar(contentPlaceholder) {
     loadModal();
     loadStudentsList();
 }
+const formatDateForApi = (date) => {
+    return date.getFullYear() + "-" +
+        String(date.getMonth() + 1).padStart(2, "0") + "-" +
+        String(date.getDate()).padStart(2, "0") + "T" +
+        String(date.getHours()).padStart(2, "0") + ":" +
+        String(date.getMinutes()).padStart(2, "0") + ":" +
+        String(date.getSeconds()).padStart(2, "0");
+};
+async function updateCalendarEvents(start, end) {
+    try {
+        // Проверяем, какие значения передаются в функцию
+        console.log("🔍 Received start:", start);
+        console.log("🔍 Received end:", end);
+
+        // Преобразуем даты в ISO-формат
+        const formattedStart = start.toISOString().split(".")[0];
+        const formattedEnd = end.toISOString().split(".")[0];
+
+        console.log("📤 Sending start:", formattedStart);
+        console.log("📤 Sending end:", formattedEnd);
+
+        console.log("Fetching URL:", `/api/Lesson/Calendar?start=${formattedStart}&end=${formattedEnd}`);
+
+        const events = await fetchLessons(formattedStart, formattedEnd);
+        calendar.getEvents().forEach(event => event.remove());
+        calendar.addEventSource(events);
+    } catch (error) {
+        console.error("❌ Error fetching events:", error);
+    }
+}
+
+
+
 
 async function loadModal() {
     try {
@@ -109,7 +146,6 @@ async function loadStudentsList() {
         }
     });
 }
-
 async function saveLesson() {
     let selectedStudents = $('#studentsSelect').val();
 
@@ -119,19 +155,21 @@ async function saveLesson() {
         endTime: document.getElementById("lessonDate").value + "T" + document.getElementById("lessonEndTime").value,
         studentIds: selectedStudents
     };
-    
+
     console.log("📤 Sending data:", lessonData);
     try {
         let newLesson = await createLesson(lessonData);
         console.log("✅ Lesson added:", newLesson);
 
+        alert("✅ Lesson added");
+
+        // Закрываем модалку перед обновлением календаря
         modal.hide();
-
-        setTimeout(() => {
-            calendar.refetchEvents();
-        }, 500); // Додаємо затримку, щоб події оновилися після закриття модалки
-
+        updateCalendarEvents(dateStart, dateEnd);
+        
+        
     } catch (error) {
         alert(error.message || "Failed to save lesson");
     }
 }
+

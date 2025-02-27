@@ -1,17 +1,27 @@
-﻿export async function fetchLessons() {
-    const now = new Date();
-    const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString(); 
-    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString(); 
+﻿export async function fetchLessons(start, end) {
+    if (!start || !end) {
+        console.warn("⚠️ Skipping fetchLessons due to missing start or end");
+        return [];
+    }
 
     try {
+        console.log("🛜 Fetching from API with start:", start, "end:", end);
+
         let response = await fetch(`/api/Lesson/Calendar?start=${start}&end=${end}`);
-        if (!response.ok) throw new Error("Failed to fetch lessons");
+        
+        if (!response.ok) {
+            console.error("❌ API returned error:", response.status);
+            throw new Error("Failed to fetch lessons");
+        }
+
         return await response.json();
     } catch (error) {
         console.error("❌ Error fetching lessons:", error);
-        return;
+        return [];
     }
 }
+
+
 
 export async function fetchStudents() {
     try {

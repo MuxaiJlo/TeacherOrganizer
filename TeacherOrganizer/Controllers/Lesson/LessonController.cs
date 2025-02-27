@@ -53,15 +53,24 @@ namespace TeacherOrganizer.Controllers.Lesson
         public async Task<IActionResult> GetCalendar([FromQuery] DateTime start, [FromQuery] DateTime end)
         {
             var userId = User.Identity?.Name;
+
             if (start >= end)
                 return BadRequest(new { Message = "Start date must be earlier than end date." });
 
-            Console.WriteLine($"Getting calendar for user: {userId}, from {start} to {end}");
+
+            Console.WriteLine($"===========================Getting calendar for user: {userId}, from {start} to {end}\"===========================");
 
             var lessons = await _lessonService.GetLessonsForUserAsync(userId, start, end);
 
-            Console.WriteLine($"Found {lessons.Count} lessons.");
-            return Ok(lessons);
+            var events = lessons.Select(l => new
+            {
+                title = l.Description, 
+                start = l.StartTime.ToString("yyyy-MM-ddTHH:mm:ss"),
+                end = l.EndTime.ToString("yyyy-MM-ddTHH:mm:ss")
+            });
+
+            Console.WriteLine($"\"=========================== Found {lessons.Count} lessons. \"===========================");
+            return Ok(events);
         }
 
         // POST: /api/Lesson
