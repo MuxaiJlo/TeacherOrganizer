@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Interefaces;
 using TeacherOrganizer.Models.CalendarModels;
+using TeacherOrganizer.Models.DataModels;
 using TeacherOrganizer.Models.Lessons;
 
 namespace TeacherOrganizer.Controllers.Lesson
@@ -65,7 +67,7 @@ namespace TeacherOrganizer.Controllers.Lesson
         // POST: /api/Lesson
         [HttpPost]
         [Authorize(Roles = "Teacher")]
-        public async Task<IActionResult> AddLesson([FromBody] LessonModels newLesson)
+        public async Task<IActionResult> AddLesson([FromBody] LessonModelsInput newLesson)
         {
             if (!ModelState.IsValid)
             {
@@ -74,14 +76,26 @@ namespace TeacherOrganizer.Controllers.Lesson
 
             try
             {
+
+                // Розбираємо токен і дістаємо id вчител
                 var teacherId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
                 if (teacherId == null)
                 {
-                    return BadRequest(new { Message = "Teacher ID not found in JWT token." });
+                    return Unauthorized("Teacher ID not found in token.");
                 }
 
+                var lessonModel = new LessonModels
+                {
+                    TeacherId = teacherId,
+                    StartTime = newLesson.StartTime,
+                    EndTime = newLesson.EndTime,
+                    Description = newLesson.Description,
+                    Status = LessonStatus.Scheduled,
+                    StudentIds = newLesson.StudentIds
+                };
 
-                var createdLesson = await _lessonService.AddLessonAsync(newLesson);
+                var createdLesson = await _lessonService.AddLessonAsync(lessonModel);
 
                 return CreatedAtAction(nameof(GetLessonById), new { lessonId = createdLesson.LessonId }, new
                 {

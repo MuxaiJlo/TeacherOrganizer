@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Interefaces;
 using TeacherOrganizer.Models.CalendarModels;
@@ -10,17 +11,21 @@ namespace TeacherOrganizer.Servies
     public class LessonService : ILessonService
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public LessonService(ApplicationDbContext context)
+        public LessonService(ApplicationDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         public async Task<Lesson> AddLessonAsync(LessonModels lessonDto)
         {
             Console.WriteLine($"🔍 Searching for teacher with ID: {lessonDto.TeacherId}");
 
-            var teacher = await _context.Users.FindAsync(lessonDto.TeacherId);
+            var teacher = await _userManager.FindByNameAsync(lessonDto.TeacherId);
+
+            Console.WriteLine($"Searching for teacher with ID after FindByNameAsync: {teacher}");
             if (teacher == null)
                 throw new Exception("Teacher not found");
 
