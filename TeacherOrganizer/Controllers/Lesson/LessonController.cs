@@ -64,7 +64,8 @@ namespace TeacherOrganizer.Controllers.Lesson
 
             var events = lessons.Select(l => new
             {
-                title = l.Description, 
+                id = l.LessonId,
+                title = l.Description,
                 start = l.StartTime.ToString("yyyy-MM-ddTHH:mm:ss"),
                 end = l.EndTime.ToString("yyyy-MM-ddTHH:mm:ss")
             });
@@ -131,7 +132,7 @@ namespace TeacherOrganizer.Controllers.Lesson
 
         //PUT: api/Lesson/{lessonId}
         [HttpPut("{lessonId}")]
-        [Authorize(Roles = "Teacher,Student")]
+        [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> UpdateLesson(int lessonId, [FromBody] LessonUpdateModel lessonUpdate)
         {
             var updatedLesson = await _lessonService.UpdateLessonAsync(lessonId, lessonUpdate);
@@ -148,7 +149,6 @@ namespace TeacherOrganizer.Controllers.Lesson
             var result = await _lessonService.DeleteLessonAsync(lessonId);
             if (!result) return NotFound(new { Message = "Lesson not found" });
             return NoContent();
-
         }
 
 

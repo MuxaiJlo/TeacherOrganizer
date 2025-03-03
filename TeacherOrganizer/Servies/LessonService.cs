@@ -56,7 +56,8 @@ namespace TeacherOrganizer.Servies
         public async Task<bool> DeleteLessonAsync(int lessonId)
         {
             var lesson = await _context.Lessons.FindAsync(lessonId);
-            if (lesson != null) return false;
+            if (lesson == null) return false;
+            Console.WriteLine($"=====================Lesson: {lesson}=======================");
 
             _context.Lessons.Remove(lesson);
             await _context.SaveChangesAsync();
@@ -121,10 +122,9 @@ namespace TeacherOrganizer.Servies
             lesson.StartTime = updatedLesson.StartTime;
             lesson.EndTime = updatedLesson.EndTime;
             lesson.Description = updatedLesson.Description;
-            lesson.Status = updatedLesson.Status;
+            lesson.Status = LessonStatus.Scheduled;
 
             await _context.SaveChangesAsync();
-
             return lesson;
         }
         public async Task<Lesson?> GetLessonByIdAsync(int lessonId)

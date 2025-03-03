@@ -1,0 +1,46 @@
+﻿<div class="modal fade" id="lessonDetailsModal" tabindex="-1" aria-labelledby="lessonDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="lessonDetailsModalLabel">Lesson Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="detailLessonDate" class="form-label">Date</label>
+                    <input type="date" class="form-control" id="detailLessonDate">
+                </div>
+                <div class="mb-3">
+                    <label for="detailLessonStartTime" class="form-label">Start Time</label>
+                    <input type="time" class="form-control" id="detailLessonStartTime">
+                </div>
+                <div class="mb-3">
+                    <label for="detailLessonEndTime" class="form-label">End Time</label>
+                    <input type="time" class="form-control" id="detailLessonEndTime">
+                </div>
+                <div class="mb-3">
+                    <label for="detailLessonDescription" class="form-label">Description</label>
+                    <textarea class="form-control" id="detailLessonDescription"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="rescheduleLessonDate" class="form-label">New Date</label>
+                    <input type="date" class="form-control" id="rescheduleLessonDate">
+                </div>
+                <div class="mb-3">
+                    <label for="rescheduleLessonStartTime" class="form-label">New Start Time</label>
+                    <input type="time" class="form-control" id="rescheduleLessonStartTime">
+                </div>
+                <div class="mb-3">
+                    <label for="rescheduleLessonEndTime" class="form-label">New End Time</label>
+                    <input type="time" class="form-control" id="rescheduleLessonEndTime">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveLessonDetails">Save changes</button>
+                <button type="button" class="btn btn-danger" id="deleteLesson">Delete</button>
+                <button type="button" class="btn btn-warning" id="rescheduleLesson">Reschedule</button>
+            </div>
+        </div>
+    </div>
+</div>

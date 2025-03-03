@@ -1,9 +1,11 @@
-﻿import { fetchLessons, fetchStudents, createLesson } from "./api.js";
+﻿import { fetchLessons, fetchStudents, createLesson, fetchLessonById, updateLesson, deleteLesson, rescheduleLesson } from "./api.js";
 let calendar = null;
 let modal = null;
-
 let dateStart = null;
 let dateEnd = null;
+let currentLessonId = null;
+let modalDetails = null;
+
 export function initializeCalendar(contentPlaceholder) {
     contentPlaceholder.innerHTML = `<div id="calendar"></div>`;
     console.log("📅 Initializing calendar...");
@@ -20,6 +22,11 @@ export function initializeCalendar(contentPlaceholder) {
             left: "prev,next today",
             center: "title",
             right: "dayGridMonth,timeGridWeek,timeGridDay"
+        },
+        eventClick: function (info) {
+            console.log("📌 Event clicked:", info.event);
+            console.log("ℹ️ Event ID:", info.event.id);
+            openLessonDetailsModal(info.event.id);
         },
         dateClick: function (info) {
             openLessonModal(info.dateStr);
@@ -42,7 +49,9 @@ export function initializeCalendar(contentPlaceholder) {
 
     loadModal();
     loadStudentsList();
+    loadModalDetails();
 }
+
 const formatDateForApi = (date) => {
     return date.getFullYear() + "-" +
         String(date.getMonth() + 1).padStart(2, "0") + "-" +
@@ -51,31 +60,22 @@ const formatDateForApi = (date) => {
         String(date.getMinutes()).padStart(2, "0") + ":" +
         String(date.getSeconds()).padStart(2, "0");
 };
+
 async function updateCalendarEvents(start, end) {
     try {
-        // Проверяем, какие значения передаются в функцию
-        console.log("🔍 Received start:", start);
-        console.log("🔍 Received end:", end);
-
-        // Преобразуем даты в ISO-формат
         const formattedStart = start.toISOString().split(".")[0];
         const formattedEnd = end.toISOString().split(".")[0];
-
-        console.log("📤 Sending start:", formattedStart);
-        console.log("📤 Sending end:", formattedEnd);
 
         console.log("Fetching URL:", `/api/Lesson/Calendar?start=${formattedStart}&end=${formattedEnd}`);
 
         const events = await fetchLessons(formattedStart, formattedEnd);
         calendar.getEvents().forEach(event => event.remove());
+        console.log("📥 Received events:", events); 
         calendar.addEventSource(events);
     } catch (error) {
         console.error("❌ Error fetching events:", error);
     }
 }
-
-
-
 
 async function loadModal() {
     try {
@@ -93,14 +93,12 @@ async function loadModal() {
 
         modal = new bootstrap.Modal(modalEl);
 
-        // Додаємо подію для Select2
         modalEl.addEventListener("shown.bs.modal", function () {
             $('#studentsSelect').select2({
                 dropdownParent: $('#lessonModal')
             });
         });
 
-        // ВАЖЛИВО! Додаємо обробник після вставки модального вікна в DOM
         document.getElementById("saveLesson").addEventListener("click", saveLesson);
 
         return modal;
@@ -109,8 +107,6 @@ async function loadModal() {
         return null;
     }
 }
-
-
 
 function openLessonModal(date) {
     if (!modal) return;
@@ -133,9 +129,8 @@ async function loadStudentsList() {
         studentsSelect.append(option);
     });
 
-    console.log(studentsSelect);
+    console.log("👥 Loaded students:", studentsSelect); 
 
-    // Переконаємося, що DOM вже завантажено
     $(document).ready(function () {
         if ($.fn.select2) {
             setTimeout(() => {
@@ -146,6 +141,7 @@ async function loadStudentsList() {
         }
     });
 }
+
 async function saveLesson() {
     let selectedStudents = $('#studentsSelect').val();
 
@@ -163,13 +159,109 @@ async function saveLesson() {
 
         alert("✅ Lesson added");
 
-        // Закрываем модалку перед обновлением календаря
         modal.hide();
         updateCalendarEvents(dateStart, dateEnd);
-        
-        
+
     } catch (error) {
         alert(error.message || "Failed to save lesson");
     }
 }
 
+async function loadModalDetails() {
+    try {
+        const response = await fetch("/modals/lesson-details-modal.html");
+        if (!response.ok) throw new Error("Failed to load modal details template");
+
+        const modalHtml = await response.text();
+        document.body.insertAdjacentHTML("beforeend", modalHtml);
+
+        const modalEl = document.getElementById("lessonDetailsModal");
+        if (!modalEl) {
+            console.error("❌ Modal details element not found!");
+            return null;
+        }
+
+        modalDetails = new bootstrap.Modal(modalEl);
+
+        document.getElementById("saveLessonDetails").addEventListener("click", saveLessonDetails);
+        document.getElementById("deleteLesson").addEventListener("click", deleteCurrentLesson);
+        document.getElementById("rescheduleLesson").addEventListener("click", rescheduleCurrentLesson);
+
+        return modalDetails;
+    } catch (error) {
+        console.error("❌ Error loading modal details:", error);
+        return null;
+    }
+}
+
+async function openLessonDetailsModal(lessonId) {
+    if (!lessonId) {
+        console.error("❌ lessonId is undefined or null");
+        return;
+    }
+    console.log(`ℹ️ Fetching lesson with ID: ${lessonId}`);
+
+    try {
+        currentLessonId = lessonId;
+        const lesson = await fetchLessonById(lessonId);
+        if (!lesson) {
+            alert("Lesson not found");
+            return;
+        }
+        document.getElementById("detailLessonDate").value = lesson.startTime.split("T")[0];
+        document.getElementById("detailLessonStartTime").value = lesson.startTime.split("T")[1].substring(0, 5);
+        document.getElementById("detailLessonEndTime").value = lesson.endTime.split("T")[1].substring(0, 5);
+        document.getElementById("detailLessonDescription").value = lesson.description;
+        modalDetails.show();
+    } catch (error) {
+        console.error("❌ Error fetching lesson details:", error);
+        alert("Failed to load lesson details");
+    }
+}
+
+async function saveLessonDetails() {
+    console.log(`🔄 Updating lesson with ID: ${currentLessonId}`); 
+    try {
+        const updatedLessonData = {
+            startTime: document.getElementById("rescheduleLessonDate").value + "T" + document.getElementById("rescheduleLessonStartTime").value,
+            endTime: document.getElementById("rescheduleLessonDate").value + "T" + document.getElementById("rescheduleLessonEndTime").value,
+            description: document.getElementById("detailLessonDescription").value,
+        };
+
+        let updatedLesson = await updateLesson(currentLessonId, updatedLessonData);
+        console.log("✅ Lesson updated:", updatedLesson);
+        modalDetails.hide();
+        updateCalendarEvents(dateStart, dateEnd);
+    } catch (error) {
+        alert(error.message || "Failed to update lesson");
+    }
+}
+
+async function deleteCurrentLesson() {
+    console.log(`🗑️ Deleting lesson with ID: ${currentLessonId}`); 
+    try {
+        await deleteLesson(currentLessonId);
+        console.log("✅ Lesson deleted"); 
+        modalDetails.hide();
+        updateCalendarEvents(dateStart, dateEnd);
+    } catch (error) {
+        alert(error.message || "Failed to delete lesson");
+    }
+}
+
+async function rescheduleCurrentLesson() {
+    console.log(`🔄 Rescheduling lesson with ID: ${currentLessonId}`); 
+    try {
+        const rescheduleData = {
+            proposedStartTime: document.getElementById("rescheduleLessonDate").value + "T" + document.getElementById("rescheduleLessonStartTime").value,
+            proposedEndTime: document.getElementById("rescheduleLessonDate").value + "T" + document.getElementById("rescheduleLessonEndTime").value,
+        };
+
+        let rescheduledLesson = await rescheduleLesson(currentLessonId, rescheduleData);
+        console.log("✅ Lesson rescheduled: ", rescheduleLesson); 
+        modalDetails.hide();
+        updateCalendarEvents(dateStart, dateEnd);
+    } catch (error) {
+        alert(error.message || "Failed to reschedule lesson");
+    }
+}
