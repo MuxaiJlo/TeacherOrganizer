@@ -183,9 +183,21 @@ async function loadModalDetails() {
 
         modalDetails = new bootstrap.Modal(modalEl);
 
-        document.getElementById("saveLessonDetails").addEventListener("click", saveLessonDetails);
-        document.getElementById("deleteLesson").addEventListener("click", deleteCurrentLesson);
-        document.getElementById("rescheduleLesson").addEventListener("click", rescheduleCurrentLesson);
+        modalEl.addEventListener("shown.bs.modal", () => {
+            const actionSelect = document.getElementById("actionSelect");
+            actionSelect.addEventListener("change", handleActionChange);
+
+            document.getElementById("saveChangesBtn").addEventListener("click", () => {
+                const selectedAction = actionSelect.value;
+                if (selectedAction === "update") {
+                    saveLessonDetails();
+                } else if (selectedAction === "reschedule") {
+                    rescheduleCurrentLesson();
+                }
+            });
+
+            document.getElementById("deleteLessonBtn").addEventListener("click", deleteCurrentLesson);
+        });
 
         return modalDetails;
     } catch (error) {
@@ -208,10 +220,17 @@ async function openLessonDetailsModal(lessonId) {
             alert("Lesson not found");
             return;
         }
+
+        // Устанавливаем значения в существующие поля
         document.getElementById("detailLessonDate").value = lesson.startTime.split("T")[0];
         document.getElementById("detailLessonStartTime").value = lesson.startTime.split("T")[1].substring(0, 5);
         document.getElementById("detailLessonEndTime").value = lesson.endTime.split("T")[1].substring(0, 5);
         document.getElementById("detailLessonDescription").value = lesson.description;
+
+        const actionSelect = document.getElementById("actionSelect");
+        actionSelect.value = "none"; // Скидываем выбор
+        handleActionChange(); // Обновляем интерфейс
+
         modalDetails.show();
     } catch (error) {
         console.error("❌ Error fetching lesson details:", error);
@@ -219,13 +238,41 @@ async function openLessonDetailsModal(lessonId) {
     }
 }
 
+
+function handleActionChange() {
+    const actionSelect = document.getElementById("actionSelect").value;
+    const updateFields = document.getElementById("updateFields");
+    const rescheduleFields = document.getElementById("rescheduleFields");
+    const deleteConfirmation = document.getElementById("deleteConfirmation");
+    const saveChangesBtn = document.getElementById("saveChangesBtn");
+    const deleteLessonBtn = document.getElementById("deleteLessonBtn");
+
+    updateFields.style.display = "none";
+    rescheduleFields.style.display = "none";
+    deleteConfirmation.style.display = "none";
+    saveChangesBtn.style.display = "none";
+    deleteLessonBtn.style.display = "none";
+
+    if (actionSelect === "update") {
+        updateFields.style.display = "block";
+        saveChangesBtn.style.display = "inline-block";
+    } else if (actionSelect === "reschedule") {
+        rescheduleFields.style.display = "block";
+        saveChangesBtn.style.display = "inline-block";
+    } else if (actionSelect === "delete") {
+        deleteConfirmation.style.display = "block";
+        deleteLessonBtn.style.display = "inline-block";
+    }
+}
+
+
 async function saveLessonDetails() {
     console.log(`🔄 Updating lesson with ID: ${currentLessonId}`); 
     try {
         const updatedLessonData = {
-            startTime: document.getElementById("rescheduleLessonDate").value + "T" + document.getElementById("rescheduleLessonStartTime").value,
-            endTime: document.getElementById("rescheduleLessonDate").value + "T" + document.getElementById("rescheduleLessonEndTime").value,
-            description: document.getElementById("detailLessonDescription").value,
+            startTime: document.getElementById("updateLessonDate").value + "T" + document.getElementById("updateLessonStartTime").value,
+            endTime: document.getElementById("updateLessonDate").value + "T" + document.getElementById("updateLessonEndTime").value,
+            description: document.getElementById("updateLessonDescription").value,
         };
 
         let updatedLesson = await updateLesson(currentLessonId, updatedLessonData);
