@@ -1,0 +1,81 @@
+﻿<div class="modal fade" id="lessonDetailsModal" tabindex="-1" aria-labelledby="lessonDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="lessonDetailsModalLabel">Lesson Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="detailLessonDate" class="form-label">Date</label>
+                    <input type="date" class="form-control" id="detailLessonDate" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="detailLessonStartTime" class="form-label">Start Time</label>
+                    <input type="time" class="form-control" id="detailLessonStartTime" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="detailLessonEndTime" class="form-label">End Time</label>
+                    <input type="time" class="form-control" id="detailLessonEndTime" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="detailLessonDescription" class="form-label">Description</label>
+                    <textarea class="form-control" id="detailLessonDescription" readonly></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="actionSelect" class="form-label">Select Action</label>
+                    <select class="form-select" id="actionSelect">
+                        <option value="none" selected>Choose action</option>
+                        <option value="update">Update</option>
+                        <option value="reschedule">Reschedule</option>
+                        <option value="delete">Delete</option>
+                    </select>
+                </div>
+
+                <div id="updateFields" style="display: none;">
+                    <div class="mb-3">
+                        <label for="updateLessonDate" class="form-label">New Date</label>
+                        <input type="date" class="form-control" id="updateLessonDate">
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateLessonStartTime" class="form-label">New Start Time</label>
+                        <input type="time" class="form-control" id="updateLessonStartTime">
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateLessonEndTime" class="form-label">New End Time</label>
+                        <input type="time" class="form-control" id="updateLessonEndTime">
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateLessonDescription" class="form-label">New Description</label>
+                        <textarea class="form-control" id="updateLessonDescription"></textarea>
+                    </div>
+                </div>
+
+                <div id="rescheduleFields" style="display: none;">
+                    <div class="mb-3">
+                        <label for="rescheduleLessonDate" class="form-label">New Date</label>
+                        <input type="date" class="form-control" id="rescheduleLessonDate">
+                    </div>
+                    <div class="mb-3">
+                        <label for="rescheduleLessonStartTime" class="form-label">New Start Time</label>
+                        <input type="time" class="form-control" id="rescheduleLessonStartTime">
+                    </div>
+                    <div class="mb-3">
+                        <label for="rescheduleLessonEndTime" class="form-label">New End Time</label>
+                        <input type="time" class="form-control" id="rescheduleLessonEndTime">
+                    </div>
+                </div>
+
+                <div id="deleteConfirmation" style="display: none;">
+                    <p>Are you sure you want to delete this lesson?</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveChangesBtn" style="display: none;">Save changes</button>
+                <button type="button" class="btn btn-danger" id="deleteLessonBtn" style="display: none;">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>

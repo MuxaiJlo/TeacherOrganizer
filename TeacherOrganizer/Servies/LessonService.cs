@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Interefaces;
 using TeacherOrganizer.Models.CalendarModels;
@@ -10,15 +11,21 @@ namespace TeacherOrganizer.Servies
     public class LessonService : ILessonService
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public LessonService(ApplicationDbContext context)
+        public LessonService(ApplicationDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         public async Task<Lesson> AddLessonAsync(LessonModels lessonDto)
         {
-            var teacher = await _context.Users.FindAsync(lessonDto.TeacherId);
+            Console.WriteLine($"🔍 Searching for teacher with ID: {lessonDto.TeacherId}");
+
+            var teacher = await _userManager.FindByNameAsync(lessonDto.TeacherId);
+
+            Console.WriteLine($"Searching for teacher with ID after FindByNameAsync: {teacher}");
             if (teacher == null)
                 throw new Exception("Teacher not found");
 
@@ -49,7 +56,8 @@ namespace TeacherOrganizer.Servies
         public async Task<bool> DeleteLessonAsync(int lessonId)
         {
             var lesson = await _context.Lessons.FindAsync(lessonId);
-            if (lesson != null) return false;
+            if (lesson == null) return false;
+            Console.WriteLine($"=====================Lesson: {lesson}=======================");
 
             _context.Lessons.Remove(lesson);
             await _context.SaveChangesAsync();
@@ -59,10 +67,10 @@ namespace TeacherOrganizer.Servies
         public async Task<List<Lesson>> GetLessonsForUserAsync(string userId, DateTime start, DateTime end)
         {
             var query = _context.Lessons
-                                .Where(l => l.StartTime >= start && l.EndTime <= end)
-                                .Where(l => l.Teacher.UserName == userId || l.Students.Any(s => s.UserName == userId))
-                                .Include(l => l.Teacher)
-                                .Include(l => l.Students);
+                .Include(l => l.Teacher)
+                .Include(l => l.Students)
+                .Where(l => l.StartTime >= start && l.EndTime <= end)
+                .Where(l => l.Teacher.UserName == userId || l.Students.Any(s => s.UserName == userId));
 
             return await query.ToListAsync();
         }
@@ -114,10 +122,9 @@ namespace TeacherOrganizer.Servies
             lesson.StartTime = updatedLesson.StartTime;
             lesson.EndTime = updatedLesson.EndTime;
             lesson.Description = updatedLesson.Description;
-            lesson.Status = updatedLesson.Status;
+            lesson.Status = LessonStatus.Scheduled;
 
             await _context.SaveChangesAsync();
-
             return lesson;
         }
         public async Task<Lesson?> GetLessonByIdAsync(int lessonId)

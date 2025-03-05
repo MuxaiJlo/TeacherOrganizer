@@ -2,58 +2,69 @@
 @{
     ViewData["Title"] = "Login";
 }
+<link rel="stylesheet" href="~/css/auth.css" />
 
-<h1>Login</h1>
+<body>
+    <!-- Wave -->
+    <svg class="wave" viewBox="0 0 1440 400">
+        <path fill="#FFA07A" fill-opacity="1"
+              d="M0,200L80,180C160,160,320,120,480,150C640,180,800,260,960,275C1120,290,1280,240,1360,220L1440,200V400H0Z">
+        </path>
+    </svg>
 
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Login">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Username" class="control-label"></label>
-                <input asp-for="Username" class="form-control" />
-                <span asp-validation-for="Username" class="text-danger"></span>
+    <div class="d-flex justify-content-center align-items-center vh-200">
+        <div class="login-container p-4 shadow rounded">
+            <h2 class="text-center">Welcome Back!</h2>
+            <p class="text-center text-muted">Log in to continue your learning journey.</p>
+
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label for="Username" class="form-label">Username</label>
+                    <input type="text" id="Username" name="Username" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label for="Password" class="form-label">Password</label>
+                    <input type="password" id="Password" name="Password" class="form-control" required />
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+
+            <div class="text-center mt-3">
+                <a href="/AuthView/Register" class="text-decoration-none">Don't have an account? Register</a>
             </div>
-            <div class="form-group">
-                <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
+            <div class="text-center mt-3">
+                <a href="/" class="btn btn-outline-secondary w-100">Return to Home</a>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Login" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Register">Don't have an account? Register</a>
-</div>
+</body>
 
 <script>
-    document.querySelector('form').addEventListener('submit', function (e) {
-        e.preventDefault();
+    document.getElementById('loginForm').addEventListener('submit', function (event) {
+        event.preventDefault();
 
-        const username = document.querySelector('input[name="Username"]').value;
-        const password = document.querySelector('input[name="Password"]').value;
+        const formData = {
+            Username: document.getElementById('Username').value,
+            Password: document.getElementById('Password').value
+        };
 
         fetch('/api/Auth/login', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
         })
             .then(response => response.json())
             .then(data => {
-                if (data.redirectUrl) {
-                    window.location.href = data.redirectUrl;
+                if (data.token) {
+                    window.location.href = '/Main/Index';
                 } else {
-                    console.error(data.message);
+                    alert(data.message || 'Login failed');
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error during login');
+            });
     });
-
-
 </script>

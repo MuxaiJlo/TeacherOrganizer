@@ -1,0 +1,34 @@
+﻿<div id="lessonModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Lesson</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="lessonForm">
+                    <input type="hidden" id="lessonDate">
+                    <div class="mb-3">
+                        <label for="lessonDescription" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="lessonDescription">
+                    </div>
+                    <div class="mb-3">
+                        <label for="lessonStartTime" class="form-label">Start Time</label>
+                        <input type="time" class="form-control" id="lessonStartTime">
+                    </div>
+                    <div class="mb-3">
+                        <label for="lessonEndTime" class="form-label">End Time</label>
+                        <input type="time" class="form-control" id="lessonEndTime">
+                    </div>
+                    <div class="mb-3">
+                        <label for="studentsSelect" class="form-label">Select Students</label>
+                        <select class="form-control" id="studentsSelect" multiple data-dropdown-parent="#lessonModal"></select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="saveLesson">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

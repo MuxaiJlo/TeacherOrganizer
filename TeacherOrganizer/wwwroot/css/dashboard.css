@@ -1,0 +1,157 @@
+﻿/* Прибираємо зайвий відступ у body */
+body {
+    margin: 0;
+    padding: 0;
+}
+
+/* Основний контейнер */
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Фіксоване ліве меню (sidebar) */
+.sidebar {
+    width: 250px;
+    background: #343a40;
+    color: white;
+    padding: 20px 0;
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Інформація про користувача */
+.user-info {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #555;
+    width: 100%;
+}
+
+.user-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: white;
+    padding: 5px;
+}
+
+/* Меню */
+.menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+    .menu ul li {
+        margin: 10px 0;
+    }
+
+        .menu ul li a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+            .menu ul li a:hover {
+                background: #495057;
+            }
+
+.logout {
+    color: #ff5555;
+}
+
+/* Основний контент */
+.content {
+    margin-left: 250px;
+    padding: 40px;
+    width: calc(100% - 250px);
+    background: transparent;
+    min-height: 100vh;
+    display: block !important;
+    flex-direction: column; /* Додаємо, щоб контент розтягувався */
+}
+
+/* Wave */
+.wave {
+    position: absolute;
+    bottom: 0px;
+    left: -50px;
+    height: auto;
+    z-index: -1; /* Щоб не перекривала контент */
+    position: fixed;
+}
+/* Контейнер календаря */
+#calendar {
+    width: 100% !important;
+    max-width: 1200px; /* Не більше 1200px */
+    margin: auto;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.fc .fc-button {
+    background-color: #FD7A45 !important;
+    border: none !important;
+    color: white !important;
+    font-weight: bold !important;
+    padding: 8px 12px !important;
+    border-radius: 5px !important;
+    transition: background 0.3s;
+}
+
+    .fc .fc-button:hover {
+        background-color: #ff6b30 !important; /* Темніший відтінок при наведенні */
+    }
+/* Робимо шрифт більшим */
+.fc-daygrid-day-number {
+    font-size: 1.2rem !important;
+    color: #FD7A45 !important; /* Колір чисел */
+}
+.fc-col-header-cell-cushion {
+    color: #FD7A45;
+}
+/* Чорна сітка */
+.fc-theme-standard .fc-scrollgrid {
+    border: 2px solid black !important;
+}
+
+.fc-theme-standard td, .fc-theme-standard th {
+    border-color: black !important; /* Чорна обводка */
+}
+
+/* Обводка для кожного дня */
+.fc-daygrid-day-frame {
+    border: 1px solid black !important;
+}
+
+/* При наведенні змінюємо колір */
+.fc-daygrid-day:hover {
+    background-color: rgba(253, 122, 69, 0.3) !important;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+.fc-daygrid-day {
+    min-width: 100px !important; /* Задай потрібний розмір */
+}
+
+
+.fc-daygrid-day-frame {
+    flex-grow: 1 !important;
+}
+.fc-scrollgrid {
+    width: 100% !important;
+    table-layout: fixed !important;
+}
