@@ -10,20 +10,49 @@
             contentPlaceholder.innerHTML = ""; // Clear existing content
 
             if (page === "calendar") {
-                //  Crucially, wait for the calendar module to load *before* trying to render.
                 try {
                     const calendarModule = await import("./calendar.js");
                     console.log("📅 Calendar module loaded");
-                    calendarModule.initializeCalendar(contentPlaceholder); // Call the initialization function
+                    calendarModule.initializeCalendar(contentPlaceholder);
                 } catch (error) {
                     console.error("❌ Error loading calendar module:", error);
-                    contentPlaceholder.innerHTML = "<p>Error loading calendar.</p>"; // Display an error message
+                    contentPlaceholder.innerHTML = "<p>Error loading calendar.</p>";
                 }
             } else if (page === "dictionary") {
-                contentPlaceholder.innerHTML = "<h2>Dictionary Page</h2>";
+                try {
+                    const dictionaryModule = await import("./dictionary.js");
+                    console.log("📖 Dictionary module loaded");
+                    dictionaryModule.initializeDictionary(contentPlaceholder);
+                } catch (error) {
+                    console.error("❌ Error loading dictionary module:", error);
+                    contentPlaceholder.innerHTML = "<p>Error loading dictionary.</p>";
+                }
             } else if (page === "settings") {
                 contentPlaceholder.innerHTML = "<h2>Settings Page</h2>";
             }
         });
     });
 });
+
+async function handleLogout() {
+    try {
+        let response = await fetch("/AuthView/Logout", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            credentials: "same-origin"
+        });
+
+        if (response.ok) {
+            window.location.href = "/";
+        } else {
+            console.error("Logout failed");
+        }
+    } catch (error) {
+        console.error("Error during logout:", error);
+    }
+}
+
+

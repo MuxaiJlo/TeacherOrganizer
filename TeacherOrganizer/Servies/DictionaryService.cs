@@ -17,7 +17,6 @@ namespace TeacherOrganizer.Servies
 
         public async Task<Dictionary> CreateDictionaryAsync(DictionaryCreateModel dictionary, string userId)
         {
-            // Убедитесь, что userId соответствует типу первичного ключа в таблице Users
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.UserName == userId); 
 
@@ -49,13 +48,22 @@ namespace TeacherOrganizer.Servies
                .Include(d => d.OriginalDictionary)
                .ToListAsync();
         }
-
         public async Task<Dictionary> GetDictionaryByIdAsync(int dictionaryId)
         {
-            return await _context.Dictionaries
+            var dictionary = await _context.Dictionaries
                 .Include(d => d.Words)
                 .Include(d => d.OriginalDictionary)
+                .Include(d => d.User)
                 .FirstOrDefaultAsync(d => d.DictionaryId == dictionaryId);
+
+            if (dictionary == null)
+            {
+                return null;
+            }
+
+            dictionary.User = null; // Завжди встановлюємо User в null
+
+            return dictionary;
         }
         public async Task<Dictionary> CopyDictionaryAsync(int dictionaryId, string userId)
         {

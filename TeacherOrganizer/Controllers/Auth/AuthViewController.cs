@@ -35,9 +35,11 @@ namespace TeacherOrganizer.Controllers.Auth
             return await _authController.Login(model);
         }
 
+        [HttpPost("Logout")]
         public async Task<IActionResult> Logout()
         {
             return await _authController.Logout();
         }
+
     }
 }
