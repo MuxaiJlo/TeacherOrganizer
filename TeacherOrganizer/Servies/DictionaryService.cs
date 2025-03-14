@@ -61,7 +61,7 @@ namespace TeacherOrganizer.Servies
                 return null;
             }
 
-            dictionary.User = null; // Завжди встановлюємо User в null
+            dictionary.User = null; 
 
             return dictionary;
         }

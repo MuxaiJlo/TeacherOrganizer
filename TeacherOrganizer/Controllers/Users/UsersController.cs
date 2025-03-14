@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Models.DataModels;
+using TeacherOrganizer.Models.DictionaryModels;
 
 namespace TeacherOrganizer.Controllers.Users
 {
@@ -11,10 +12,12 @@ namespace TeacherOrganizer.Controllers.Users
     public class UsersController : ControllerBase
     {
         private readonly UserManager<User> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public UsersController(UserManager<User> userManager)
+        public UsersController(UserManager<User> userManager, ApplicationDbContext context)
         {
             _userManager = userManager;
+            _context = context; 
         }
 
         [HttpGet("Students")]
@@ -40,5 +43,26 @@ namespace TeacherOrganizer.Controllers.Users
 
             return Ok(students);
         }
+
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetUserById(string userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var userDto = new UserDto
+            {
+                UserName = user.UserName,
+                FirstName = user.FirstName, 
+                LastName = user.LastName 
+            };
+
+            return Ok(userDto);
+        }
+
     }
 }

@@ -1,12 +1,12 @@
 ﻿document.addEventListener("DOMContentLoaded", function () {
     console.log("✅ Dashboard loaded!");
 
-    document.querySelectorAll(".menu a").forEach(link => {
+    // Обробники для навігаційних посилань
+    document.querySelectorAll(".menu a[data-page]").forEach(link => {
         link.addEventListener("click", async function (e) {
             e.preventDefault();
             let page = this.getAttribute("data-page");
             let contentPlaceholder = document.getElementById("content-placeholder");
-
             contentPlaceholder.innerHTML = ""; // Clear existing content
 
             if (page === "calendar") {
@@ -32,8 +32,20 @@
             }
         });
     });
+
+    // Додаємо окремий обробник для кнопки логауту
+    const logoutButton = document.querySelector(".menu a.logout");
+    if (logoutButton) {
+        logoutButton.addEventListener("click", function (e) {
+            e.preventDefault();
+            handleLogout();
+        });
+    } else {
+        console.error("Logout button not found");
+    }
 });
 
+// Функція для обробки логауту
 async function handleLogout() {
     try {
         let response = await fetch("/AuthView/Logout", {
@@ -44,7 +56,6 @@ async function handleLogout() {
             },
             credentials: "same-origin"
         });
-
         if (response.ok) {
             window.location.href = "/";
         } else {
@@ -54,5 +65,3 @@ async function handleLogout() {
         console.error("Error during logout:", error);
     }
 }
-
-

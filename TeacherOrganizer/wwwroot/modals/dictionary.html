@@ -1,6 +1,9 @@
 ﻿<div id="dictionary-container" class="container mt-4">
+    <div class="card p-3 mb-3">
+        <h2>Dictionaries</h2>
+    </div>
+
     <div class="card p-3">
-        <h2 class="mb-3">Словари</h2>
         <ul id="dictionaries-list" class="list-group"></ul>
     </div>
 </div>
@@ -20,4 +23,11 @@
         </div>
         <div class="collapse dictionary-content"></div>
     </li>
+</template>
+
+<template id="dictionary-word-template">
+    <div class="card mb-2 p-2">
+        <h6 class="word-original"></h6>
+        <p class="mb-0 word-translation"></p>
+    </div>
 </template>
