@@ -8,6 +8,16 @@
         return [];
     }
 }
+export async function getDictionariesAll() {
+    try {
+        const response = await fetch("/api/Dictionary/All");
+        if (!response.ok) throw new Error("Failed to fetch dictionaries");
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching dictionaries:", error);
+        return [];
+    }
+}
 
 export async function getDictionaryById(dictionaryId) {
     try {
@@ -19,6 +29,19 @@ export async function getDictionaryById(dictionaryId) {
         return null;
     }
 }
+export async function getWordsByDictionaryId(dictionaryId) {
+    try {
+        const response = await fetch(`/api/Dictionary/${dictionaryId}`);
+        if (!response.ok) throw new Error("Failed to fetch words");
+
+        const dictionary = await response.json();
+        return dictionary.words; // Возвращаем только список слов
+    } catch (error) {
+        console.error("❌ Error fetching words:", error);
+        return [];
+    }
+}
+
 
 export async function createDictionary(dictionaryData) {
     try {

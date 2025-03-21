@@ -45,15 +45,14 @@ namespace TeacherOrganizer.Servies
             return await _context.Dictionaries
                .Where(d => d.User.UserName == userId)
                .Include(d => d.Words)
-               .Include(d => d.OriginalDictionary)
+               .Include(d => d.OriginalDictionary.Words)
                .ToListAsync();
         }
         public async Task<Dictionary> GetDictionaryByIdAsync(int dictionaryId)
         {
             var dictionary = await _context.Dictionaries
                 .Include(d => d.Words)
-                .Include(d => d.OriginalDictionary)
-                .Include(d => d.User)
+                .Include(d => d.OriginalDictionary.Words)
                 .FirstOrDefaultAsync(d => d.DictionaryId == dictionaryId);
 
             if (dictionary == null)
@@ -91,12 +90,20 @@ namespace TeacherOrganizer.Servies
                     Example = w.Example
                 }).ToList()
             };
-
+            newDictionary.User = null;
+            newDictionary.OriginalDictionary.User = null;
             _context.Dictionaries.Add(newDictionary);
             await _context.SaveChangesAsync();
 
             return newDictionary;
         }
 
+        public async Task<IEnumerable<Dictionary>> GetAllDictionaryAsync()
+        {
+            return await _context.Dictionaries
+               .Include(d => d.Words)
+               .Include(d => d.OriginalDictionary.Words)
+               .ToListAsync(); 
+        }
     }
 }

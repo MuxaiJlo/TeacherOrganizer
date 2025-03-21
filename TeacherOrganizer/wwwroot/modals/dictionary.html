@@ -1,12 +1,15 @@
-﻿<div id="dictionary-container" class="container mt-4">
-    <div class="card p-3 mb-3">
-        <h2>Dictionaries</h2>
+﻿<div class="dictionary-controls d-flex align-items-center justify-content-between mb-3">
+    <div class="btn-group me-3">
+        <button id="showUserDictionaries" class="btn btn-primary">My Dictionaries</button>
+        <button id="showAllDictionaries" class="btn btn-outline-primary">All Dictionaries</button>
     </div>
-
-    <div class="card p-3">
-        <ul id="dictionaries-list" class="list-group"></ul>
+    <div class="filters d-flex">
+        <input type="text" id="filterName" class="form-control me-2" placeholder="Filter by name">
+        <input type="text" id="filterAuthor" class="form-control" placeholder="Filter by author">
     </div>
 </div>
+
+<ul id="dictionaries-list" class="list-group"></ul>
 
 <template id="dictionary-item-template">
     <li class="list-group-item">

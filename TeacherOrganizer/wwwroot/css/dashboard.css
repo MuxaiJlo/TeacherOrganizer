@@ -178,3 +178,25 @@ body {
     background: #495057;
     cursor: pointer; /* Змінюємо курсор на руку при наведенні */
 }
+
+.dictionary-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px; /* Відступ між кнопками */
+}
+
+.filters {
+    display: flex;
+    gap: 10px; /* Відступ між полями */
+}
+
+    .filters .form-control {
+        width: 200px; /* Фіксована ширина для рівномірного вигляду */
+    }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TeacherOrganizer.Interefaces;
+using TeacherOrganizer.Models.DataModels;
 using TeacherOrganizer.Models.DictionaryModels;
 
 namespace TeacherOrganizer.Controllers.Dictionary
@@ -110,6 +111,21 @@ namespace TeacherOrganizer.Controllers.Dictionary
                 return StatusCode(500, new { Message = "Error copying dictionary", Details = ex.Message });
             }
         }
-
+        // GET: api/AllDictionary/All
+        [HttpGet("all")]
+        [Authorize(Roles = "Teacher, Student")]
+        public async Task<IActionResult> GetAllDicitionary()
+        {
+            try
+            {
+                var dictionary = await _dictionaryService.GetAllDictionaryAsync();
+                if (dictionary == null) return NotFound();
+                return Ok(dictionary);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Error retrieving dictijnaries", Details = ex.Message });
+            }
+        }
     }
 }
