@@ -200,3 +200,21 @@ body {
     .filters .form-control {
         width: 200px; /* Фіксована ширина для рівномірного вигляду */
     }
+
+#createDictionaryModal .modal-dialog {
+    max-width: 800px; /* Збільшення ширини модального вікна */
+}
+
+#createDictionaryModal .word-input input {
+    width: 25%; /* Зменшення ширини полів Word та Translation */
+    margin-right: 5px; /* Додавання відступу між полями */
+}
+
+    #createDictionaryModal .word-input input:last-child {
+        margin-right: 0; /* Видалення відступу для останнього поля */
+    }
+
+#addWordButton {
+    background-color: #FD7A45;
+    border-color: #FD7A45;
+}

@@ -1,36 +1,74 @@
-﻿<div class="dictionary-controls d-flex align-items-center justify-content-between mb-3">
-    <div class="btn-group me-3">
-        <button id="showUserDictionaries" class="btn btn-primary">My Dictionaries</button>
-        <button id="showAllDictionaries" class="btn btn-outline-primary">All Dictionaries</button>
+﻿<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>Dictionaries</h2>
+        <div>
+            <button id="showUserDictionaries" class="btn btn-primary" style="background-color: #FD7A45; border-color: #FD7A45;">My Dictionaries</button>
+            <button id="showAllDictionaries" class="btn btn-primary" style="background-color: #FD7A45; border-color: #FD7A45;">All Dictionaries</button>
+            <button id="createDictionaryButton" class="btn btn-success">Create Dictionary</button>
+        </div>
     </div>
-    <div class="filters d-flex">
-        <input type="text" id="filterName" class="form-control me-2" placeholder="Filter by name">
-        <input type="text" id="filterAuthor" class="form-control" placeholder="Filter by author">
+    <div class="mt-3">
+        <input type="text" id="filterName" class="form-control" placeholder="Filter by Name">
+        <input type="text" id="filterAuthor" class="form-control mt-2" placeholder="Filter by Author">
     </div>
+    <ul id="dictionaries-list" class="list-group mt-3"></ul>
 </div>
-
-<ul id="dictionaries-list" class="list-group"></ul>
 
 <template id="dictionary-item-template">
     <li class="list-group-item">
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h5 class="dictionary-name"></h5>
-                <p class="dictionary-meta text-muted"></p>
+                <small class="dictionary-meta"></small>
             </div>
-            <button class="btn btn-primary toggle-btn" type="button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down-fill" viewBox="0 0 16 16">
-                    <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
-                </svg>
-            </button>
+            <div>
+                <button class="btn btn-primary toggle-btn" style="background-color: #FD7A45; border-color: #FD7A45;">▼</button>
+                <button class="btn add-word-btn" style="background-color: #FD7A45; border-color: #FD7A45; display: none;">+</button>
+            </div>
         </div>
-        <div class="collapse dictionary-content"></div>
+        <div class="dictionary-content collapse">
+            <div id="addWordFormContainer" class="mt-3 collapse">
+                <div class="word-input d-flex align-items-center mb-2">
+                    <input type="text" class="form-control flex-grow-1" placeholder="Word">
+                    <input type="text" class="form-control flex-grow-1" placeholder="Translation">
+                    <input type="text" class="form-control flex-grow-1" placeholder="Example">
+                    <button class="btn remove-word border-0 bg-transparent text-danger p-0" style="font-size: 1.5em; line-height: 1;" onmouseover="this.style.color='red';" onmouseout="this.style.color='black';">-</button>
+                </div>
+                <button id="addNewWordInput" class="btn btn-secondary">+</button>
+                <button id="saveWordButton" class="btn btn-primary" style="background-color: #FD7A45; border-color: #FD7A45;">Save</button>
+                <button id="cancelAddWordButton" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
     </li>
 </template>
 
-<template id="dictionary-word-template">
-    <div class="card mb-2 p-2">
-        <h6 class="word-original"></h6>
-        <p class="mb-0 word-translation"></p>
+<div class="modal fade" id="createDictionaryModal" tabindex="-1" aria-labelledby="createDictionaryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createDictionaryModalLabel">Create Dictionary</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="dictionaryName" class="form-label">Dictionary Name</label>
+                    <input type="text" class="form-control" id="dictionaryName">
+                </div>
+                <div id="wordsContainer">
+                    <label>Words:</label>
+                    <div class="word-input d-flex align-items-center mb-2">
+                        <input type="text" class="form-control flex-grow-1" placeholder="Word">
+                        <input type="text" class="form-control flex-grow-1" placeholder="Translation">
+                        <input type="text" class="form-control flex-grow-1" placeholder="Example">
+                        <button class="btn remove-word border-0 bg-transparent text-danger p-0" style="font-size: 1.5em; line-height: 1;" onmouseover="this.style.color='red';" onmouseout="this.style.color='black';">-</button>
+                    </div>
+                </div>
+                <button id="addWordButton" class="btn btn-secondary mt-2">+</button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveDictionaryButton" style="background-color: #FD7A45; border-color: #FD7A45;">Save changes</button>
+            </div>
+        </div>
     </div>
-</template>
+</div>

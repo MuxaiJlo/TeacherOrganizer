@@ -92,3 +92,20 @@ export async function getUserById(userId) {
         return null; 
     }
 }
+export async function addWord(wordData) {
+    try {
+        const response = await fetch("/api/Word", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(wordData),
+        });
+
+        if (!response.ok) throw new Error("Failed to add word");
+        return await response.json();
+    } catch (error) {
+        console.error("Error adding word:", error);
+        return null;
+    }
+}

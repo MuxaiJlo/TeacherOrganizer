@@ -1,13 +1,13 @@
 ﻿import * as api from "./api_dictionary.js";
+import { setupDictionaryModal } from "./dictionary_modal.js";
+import { setupDictionaryList } from "./dictionary_list.js";
 
 async function loadDictionaryView() {
+    console.log("Loading dictionary view...");
     const response = await fetch('/modals/dictionary.html');
-    return await response.text();
-}
-
-async function loadDictionaryModal() {
-    console.log("Dictionary modal loading skipped");
-    return;
+    const viewHtml = await response.text();
+    console.log("Dictionary view loaded.");
+    return viewHtml;
 }
 
 export async function initializeDictionary(contentPlaceholder) {
@@ -17,15 +17,9 @@ export async function initializeDictionary(contentPlaceholder) {
         const viewHtml = await loadDictionaryView();
         contentPlaceholder.innerHTML = viewHtml;
 
-        await loadDictionaryModal();
+        setupDictionaryModal();
+        setupDictionaryList();
 
-        // Додаємо обробники після завантаження HTML
-        document.querySelector("#showUserDictionaries").addEventListener("click", () => loadDictionaries(true));
-        document.querySelector("#showAllDictionaries").addEventListener("click", () => loadDictionaries(false));
-        document.querySelector("#filterName").addEventListener("input", applyFilters);
-        document.querySelector("#filterAuthor").addEventListener("input", applyFilters);
-
-        // Завантажуємо словники користувача за замовчуванням
         await loadDictionaries(true);
     } catch (error) {
         console.error("❌ Error initializing dictionary:", error);
@@ -38,21 +32,27 @@ export async function initializeDictionary(contentPlaceholder) {
     }
 }
 
-// Глобальний масив для збереження словників
 let dictionaries = [];
 
 async function loadDictionaries(onlyUserDictionaries) {
+    console.log(`Loading ${onlyUserDictionaries ? "user" : "all"} dictionaries...`);
     try {
         dictionaries = onlyUserDictionaries ? await api.getDictionaries() : await api.getDictionariesAll();
         console.log("📥 Received dictionaries:", dictionaries);
-
-        applyFilters(); // Застосовуємо фільтри після завантаження
+        // Додайте цей рядок для перевірки даних
+        console.log("Type of dictionaries:", typeof dictionaries);
+        if (dictionaries) {
+            applyFilters();
+        } else {
+            console.error("Dictionaries is undefined");
+        }
     } catch (error) {
         console.error("Error fetching dictionaries:", error);
     }
 }
 
 async function applyFilters() {
+    console.log("Applying filters...");
     const filterName = document.querySelector("#filterName").value.toLowerCase();
     const filterAuthor = document.querySelector("#filterAuthor").value.toLowerCase();
     const listContainer = document.querySelector("#dictionaries-list");
@@ -62,86 +62,15 @@ async function applyFilters() {
         return;
     }
 
+    console.log("Clearing list container.");
     listContainer.innerHTML = "";
     const filteredDictionaries = dictionaries.filter(dictionary =>
         dictionary.name.toLowerCase().includes(filterName) &&
         (!dictionary.userId || (dictionary.userId && dictionary.userId !== null && dictionary.userId.toLowerCase().includes(filterAuthor)))
     );
 
-    if (filteredDictionaries.length === 0) {
-        listContainer.innerHTML = "<li class='list-group-item'>There are no available dictionariesв</li>";
-        return;
-    }
-
-    const promises = filteredDictionaries.map(async dictionary => {
-        const template = document.getElementById("dictionary-item-template").content.cloneNode(true);
-        const listItem = template.querySelector(".list-group-item");
-
-        listItem.querySelector(".dictionary-name").textContent = dictionary.name;
-
-        try {
-            const author = await api.getUserById(dictionary.userId);
-            listItem.querySelector(".dictionary-meta").textContent = `Author: ${author?.userName || "Unknown"}`;
-        } catch (error) {
-            console.error("Error fetching author:", error);
-            listItem.querySelector(".dictionary-meta").textContent = "Author: Unknown";
-        }
-
-        // Викликаємо setupToggleButton для кожного елемента списку
-        setupToggleButton(listItem, dictionary);
-
-        return listItem;
-    });
-
-    const listItems = await Promise.all(promises);
-
-    listItems.forEach(listItem => {
-        listContainer.appendChild(listItem);
-    });
+    console.log("Filtered dictionaries:", filteredDictionaries);
+    setupDictionaryList(filteredDictionaries);
 }
 
-function setupToggleButton(listItem, dictionary) {
-    const toggleBtn = listItem.querySelector(".toggle-btn");
-    const contentDiv = listItem.querySelector(".dictionary-content");
-
-    toggleBtn.addEventListener("click", async () => {
-        if (contentDiv.classList.contains("show")) {
-            contentDiv.classList.remove("show");
-            toggleBtn.innerHTML = "▼";
-        } else {
-            if (!contentDiv.hasChildNodes()) {
-                await loadDictionaryWords(contentDiv, dictionary.dictionaryId);
-            }
-            contentDiv.classList.add("show");
-            toggleBtn.innerHTML = "▲";
-        }
-    });
-}
-
-async function loadDictionaryWords(contentDiv, dictionaryId) {
-    contentDiv.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
-
-    try {
-        const dictionaryDetails = await api.getDictionaryById(dictionaryId);
-
-        if (dictionaryDetails.words && dictionaryDetails.words.length > 0) {
-            const wordsList = document.createElement("div");
-            wordsList.classList.add("mt-3");
-
-            dictionaryDetails.words.forEach(word => {
-                const wordElement = document.createElement("div");
-                wordElement.classList.add("word-item");
-                wordElement.innerHTML = `<strong>${word.text}</strong> - ${word.translation}`;
-                wordsList.appendChild(wordElement);
-            });
-
-            contentDiv.innerHTML = '';
-            contentDiv.appendChild(wordsList);
-        } else {
-            contentDiv.innerHTML = '<p class="mt-3">This dictionary contains no words.</p>';
-        }
-    } catch (error) {
-        console.error("Error loading dictionary details:", error);
-        contentDiv.innerHTML = '<p class="text-danger mt-3">Error loading dictionary details.</p>';
-    }
-}
+export { dictionaries, loadDictionaries, applyFilters };
