@@ -23,10 +23,21 @@
             </div>
             <div>
                 <button class="btn btn-primary toggle-btn" style="background-color: #FD7A45; border-color: #FD7A45;">▼</button>
-                <button class="btn add-word-btn" style="background-color: #FD7A45; border-color: #FD7A45; display: none;">+</button>
+                <button class="btn add-word-btn" style="background-color: #FD7A45; display: none;">+</button>
             </div>
         </div>
         <div class="dictionary-content collapse">
+            <table class="table mt-3">
+                <thead>
+                    <tr>
+                        <th>Word</th>
+                        <th>Translation</th>
+                        <th>Example</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="words-table-body"></tbody>
+            </table>
             <div id="addWordFormContainer" class="mt-3 collapse">
                 <div class="word-input d-flex align-items-center mb-2">
                     <input type="text" class="form-control flex-grow-1" placeholder="Word">
@@ -34,7 +45,7 @@
                     <input type="text" class="form-control flex-grow-1" placeholder="Example">
                     <button class="btn remove-word border-0 bg-transparent text-danger p-0" style="font-size: 1.5em; line-height: 1;" onmouseover="this.style.color='red';" onmouseout="this.style.color='black';">-</button>
                 </div>
-                <button id="addNewWordInput" class="btn btn-secondary">+</button>
+                <button id="addNewWordInput" class="btn btn-secondary" style="color: White">+</button>
                 <button id="saveWordButton" class="btn btn-primary" style="background-color: #FD7A45; border-color: #FD7A45;">Save</button>
                 <button id="cancelAddWordButton" class="btn btn-secondary">Cancel</button>
             </div>

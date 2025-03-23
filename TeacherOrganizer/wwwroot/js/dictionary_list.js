@@ -54,22 +54,24 @@ function setupDictionaryToggle(listItem, dictionary) {
             contentDiv.classList.remove("show");
             toggleBtn.innerHTML = "▼";
             addWordBtn.style.display = "none";
-            contentDiv.innerHTML = "";
-            addWordFormSetup = false;
         } else {
             console.log(`Expanding dictionary ${dictionary.dictionaryId}.`);
             contentDiv.classList.add("show");
             toggleBtn.innerHTML = "▲";
             addWordBtn.style.display = "inline-block";
-            await loadDictionaryWords(contentDiv, dictionary.dictionaryId);
+
+            const wordsTableBody = contentDiv.querySelector(".words-table-body");
+
+            if (wordsTableBody) {
+                await loadDictionaryWords(wordsTableBody, dictionary.dictionaryId);
+            } else {
+                console.error("Error: words-table-body not found!");
+            }
+
             if (!addWordFormSetup) {
-                // Отримуємо шаблон з HTML
                 const template = document.getElementById("dictionary-item-template").content.querySelector("#addWordFormContainer");
-                // Клонуємо шаблон
                 const clonedTemplate = template.cloneNode(true);
-                // Додаємо клонований шаблон до contentDiv
-                contentDiv.appendChild(clonedTemplate);
-                // Викликаємо setupAddWordForm
+                contentDiv.querySelector("table").insertAdjacentElement("afterend", clonedTemplate);
                 setupAddWordForm(contentDiv, dictionary.dictionaryId);
                 addWordFormSetup = true;
             }
@@ -92,28 +94,25 @@ function setupDictionaryToggle(listItem, dictionary) {
 
 function setupAddWordForm(contentDiv, dictionaryId) {
     const addWordFormContainer = contentDiv.querySelector("#addWordFormContainer");
+    if (!addWordFormContainer) {
+        console.error("Error: addWordFormContainer not found!");
+        return;
+    }
 
     contentDiv.querySelector("#addNewWordInput").addEventListener("click", () => {
         console.log(`Add new word input clicked for dictionary ${dictionaryId}.`);
-        const wordInput = document.createElement("div");
-        wordInput.classList.add("word-input", "d-flex", "align-items-center", "mb-2");
-        wordInput.innerHTML = `
-            <input type="text" class="form-control flex-grow-1" placeholder="Word">
-            <input type="text" class="form-control flex-grow-1" placeholder="Translation">
-            <input type="text" class="form-control flex-grow-1" placeholder="Example">
-            <button class="btn remove-word border-0 bg-transparent text-danger p-0" style="font-size: 1.5em; line-height: 1;" onmouseover="this.style.color='red';" onmouseout="this.style.color='black';">-</button>
-        `;
-        addWordFormContainer.insertBefore(wordInput, contentDiv.querySelector("#addNewWordInput"));
+        const wordInputTemplate = addWordFormContainer.querySelector(".word-input").cloneNode(true);
+        addWordFormContainer.insertBefore(wordInputTemplate, contentDiv.querySelector("#addNewWordInput"));
 
-        wordInput.querySelector(".remove-word").addEventListener("click", () => {
+        wordInputTemplate.querySelector(".remove-word").addEventListener("click", () => {
             console.log(`Remove word clicked for dictionary ${dictionaryId}.`);
-            wordInput.remove();
+            wordInputTemplate.remove();
         });
     });
 
     contentDiv.querySelector("#saveWordButton").addEventListener("click", async () => {
         console.log(`Save word button clicked for dictionary ${dictionaryId}.`);
-        const wordInputs = contentDiv.querySelectorAll(".word-input");
+        const wordInputs = addWordFormContainer.querySelectorAll(".word-input");
         const words = [];
 
         wordInputs.forEach(input => {

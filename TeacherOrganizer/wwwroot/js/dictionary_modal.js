@@ -10,28 +10,23 @@ export function setupDictionaryModal() {
         createDictionaryModal.show();
     });
 
+    const wordsContainer = document.getElementById("wordsContainer");
+
     document.querySelector("#addWordButton").addEventListener("click", () => {
         console.log("Add word button clicked.");
-        const wordInput = document.createElement("div");
-        wordInput.classList.add("word-input", "d-flex", "align-items-center", "mb-2");
-        wordInput.innerHTML = `
-            <input type="text" class="form-control flex-grow-1" placeholder="Word">
-            <input type="text" class="form-control flex-grow-1" placeholder="Translation">
-            <input type="text" class="form-control flex-grow-1" placeholder="Example">
-            <button class="btn remove-word border-0 bg-transparent text-danger p-0" style="font-size: 1.5em; line-height: 1;" onmouseover="this.style.color='red';" onmouseout="this.style.color='black';">-</button>
-        `;
-        document.getElementById("wordsContainer").appendChild(wordInput);
+        const wordInputTemplate = wordsContainer.querySelector(".word-input").cloneNode(true);
+        wordsContainer.appendChild(wordInputTemplate);
 
-        wordInput.querySelector(".remove-word").addEventListener("click", () => {
+        wordInputTemplate.querySelector(".remove-word").addEventListener("click", () => {
             console.log("Remove word button clicked.");
-            wordInput.remove();
+            wordInputTemplate.remove();
         });
     });
 
     document.querySelector("#saveDictionaryButton").addEventListener("click", async () => {
         console.log("Save dictionary button clicked.");
         const dictionaryName = document.querySelector("#dictionaryName").value;
-        const wordInputs = document.querySelectorAll("#wordsContainer .word-input");
+        const wordInputs = wordsContainer.querySelectorAll(".word-input");
         const words = [];
 
         wordInputs.forEach(input => {
@@ -48,9 +43,7 @@ export function setupDictionaryModal() {
             return;
         }
 
-        const dictionaryData = {
-            Name: dictionaryName,
-        };
+        const dictionaryData = { Name: dictionaryName };
 
         const newDictionary = await api.createDictionary(dictionaryData);
         if (newDictionary) {
