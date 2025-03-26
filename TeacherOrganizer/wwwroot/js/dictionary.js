@@ -20,6 +20,19 @@ export async function initializeDictionary(contentPlaceholder) {
         setupDictionaryModal();
         setupDictionaryList();
 
+        document.querySelector("#showUserDictionaries").addEventListener("click", async () => {
+            console.log("📌 Showing user dictionaries...");
+            await loadDictionaries(true);
+        });
+
+        document.querySelector("#showAllDictionaries").addEventListener("click", async () => {
+            console.log("📌 Showing all dictionaries...");
+            await loadDictionaries(false);
+        });
+
+        document.querySelector("#filterName").addEventListener("input", applyFilters);
+        document.querySelector("#filterAuthor").addEventListener("input", applyFilters);
+
         await loadDictionaries(true);
     } catch (error) {
         console.error("❌ Error initializing dictionary:", error);
@@ -31,6 +44,7 @@ export async function initializeDictionary(contentPlaceholder) {
         `;
     }
 }
+
 
 let dictionaries = [];
 
@@ -50,11 +64,10 @@ async function loadDictionaries(onlyUserDictionaries) {
         console.error("Error fetching dictionaries:", error);
     }
 }
-
 async function applyFilters() {
     console.log("Applying filters...");
-    const filterName = document.querySelector("#filterName").value.toLowerCase();
-    const filterAuthor = document.querySelector("#filterAuthor").value.toLowerCase();
+    const filterName = document.querySelector("#filterName")?.value.toLowerCase() || "";
+    const filterAuthor = document.querySelector("#filterAuthor")?.value.toLowerCase() || "";
     const listContainer = document.querySelector("#dictionaries-list");
 
     if (!listContainer) {
@@ -64,6 +77,7 @@ async function applyFilters() {
 
     console.log("Clearing list container.");
     listContainer.innerHTML = "";
+
     const filteredDictionaries = dictionaries.filter(dictionary =>
         dictionary.name.toLowerCase().includes(filterName) &&
         (!dictionary.userId || (dictionary.userId && dictionary.userId !== null && dictionary.userId.toLowerCase().includes(filterAuthor)))
@@ -72,5 +86,6 @@ async function applyFilters() {
     console.log("Filtered dictionaries:", filteredDictionaries);
     setupDictionaryList(filteredDictionaries);
 }
+
 
 export { dictionaries, loadDictionaries, applyFilters };

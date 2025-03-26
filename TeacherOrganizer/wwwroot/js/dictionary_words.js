@@ -25,12 +25,9 @@ export async function loadDictionaryWords(wordsTableBody, dictionaryId) {
                             <button class="btn btn-sm btn-primary speak-word" title="Speak word" data-text="${word.text}" data-lang="en">
                                 1
                             </button>
-                            <button class="btn btn-sm btn-primary speak-word" title="Speak translation" data-text="${word.translation}" data-lang="ru">
-                                2
-                            </button>
                             ${word.example ? `
                             <button class="btn btn-sm btn-primary speak-word" title="Speak example" data-text="${word.example}" data-lang="en">
-                                3
+                                2
                             </button>
                             ` : ''}
                         </div>

@@ -104,6 +104,9 @@ function setupAddWordForm(contentDiv, dictionaryId) {
         const wordInputTemplate = addWordFormContainer.querySelector(".word-input").cloneNode(true);
         addWordFormContainer.insertBefore(wordInputTemplate, contentDiv.querySelector("#addNewWordInput"));
 
+        wordInputTemplate.querySelectorAll("input").forEach(input => {
+            input.value = "";
+        });
         wordInputTemplate.querySelector(".remove-word").addEventListener("click", () => {
             console.log(`Remove word clicked for dictionary ${dictionaryId}.`);
             wordInputTemplate.remove();

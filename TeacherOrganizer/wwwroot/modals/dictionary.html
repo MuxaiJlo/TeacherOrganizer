@@ -63,7 +63,10 @@
             <div class="modal-body">
                 <div class="mb-3">
                     <label for="dictionaryName" class="form-label">Dictionary Name</label>
-                    <input type="text" class="form-control" id="dictionaryName">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="dictionaryName">
+                        <button class="btn btn-success" type="button" id="createDictionaryButtonModal">Create Dictionary</button>
+                    </div>
                 </div>
                 <div id="wordsContainer">
                     <label>Words:</label>
@@ -78,7 +81,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveDictionaryButton" style="background-color: #FD7A45; border-color: #FD7A45;">Save changes</button>
+                <button type="button" class="btn btn-primary" id="AddWordsToDictionaryButton" style="background-color: #FD7A45; border-color: #FD7A45;">Save words</button>
             </div>
         </div>
     </div>
