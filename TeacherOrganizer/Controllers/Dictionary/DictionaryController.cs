@@ -80,7 +80,7 @@ namespace TeacherOrganizer.Controllers.Dictionary
                 var dictionary = await _dictionaryService.GetDictionaryByIdAsync(id);
                 if (dictionary == null)
                 {
-                    return NotFound(new {Message = "Dictionary not found"});
+                    return NotFound(new { Message = "Dictionary not found" });
                 }
                 return Ok(dictionary);
             }
@@ -118,7 +118,9 @@ namespace TeacherOrganizer.Controllers.Dictionary
         {
             try
             {
-                var dictionary = await _dictionaryService.GetAllDictionaryAsync();
+                var userId = User.FindFirstValue(ClaimTypes.Name);
+                if (string.IsNullOrEmpty(userId)) return Unauthorized(new { Message = "User ID not found in token." });
+                var dictionary = await _dictionaryService.GetAllDictionaryAsync(userId);
                 if (dictionary == null) return NotFound();
                 return Ok(dictionary);
             }

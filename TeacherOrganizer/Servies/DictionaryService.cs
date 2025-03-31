@@ -18,7 +18,7 @@ namespace TeacherOrganizer.Servies
         public async Task<Dictionary> CreateDictionaryAsync(DictionaryCreateModel dictionary, string userId)
         {
             var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.UserName == userId); 
+                .FirstOrDefaultAsync(u => u.UserName == userId);
 
             if (user == null)
                 throw new Exception("User not found");
@@ -60,7 +60,7 @@ namespace TeacherOrganizer.Servies
                 return null;
             }
 
-            dictionary.User = null; 
+            dictionary.User = null;
 
             return dictionary;
         }
@@ -98,12 +98,13 @@ namespace TeacherOrganizer.Servies
             return newDictionary;
         }
 
-        public async Task<IEnumerable<Dictionary>> GetAllDictionaryAsync()
+        public async Task<IEnumerable<Dictionary>> GetAllDictionaryAsync(string userId)
         {
             return await _context.Dictionaries
+                .Where(d => d.User.UserName != userId)
                .Include(d => d.Words)
                .Include(d => d.OriginalDictionary.Words)
-               .ToListAsync(); 
+               .ToListAsync();
         }
     }
 }

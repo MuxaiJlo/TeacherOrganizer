@@ -46,6 +46,7 @@ function setupDictionaryToggle(listItem, dictionary) {
     const toggleBtn = listItem.querySelector(".toggle-btn");
     const contentDiv = listItem.querySelector(".dictionary-content");
     const addWordBtn = listItem.querySelector(".add-word-btn");
+    const actionButtons = listItem.querySelectorAll(".dictionary-action-btn"); // Отримуємо кнопки дій
     let addWordFormSetup = false;
 
     async function toggleDictionaryContent() {
@@ -54,11 +55,15 @@ function setupDictionaryToggle(listItem, dictionary) {
             contentDiv.classList.remove("show");
             toggleBtn.innerHTML = "▼";
             addWordBtn.style.display = "none";
+            console.log("Action buttons found:", actionButtons);
+            actionButtons.forEach(btn => btn.style.display = "none"); // Ховаємо кнопки дій
         } else {
             console.log(`Expanding dictionary ${dictionary.dictionaryId}.`);
             contentDiv.classList.add("show");
             toggleBtn.innerHTML = "▲";
             addWordBtn.style.display = "inline-block";
+            console.log("Action buttons found:", actionButtons);
+            actionButtons.forEach(btn => btn.style.display = "inline-block"); // Показуємо кнопки дій
 
             const wordsTableBody = contentDiv.querySelector(".words-table-body");
 
