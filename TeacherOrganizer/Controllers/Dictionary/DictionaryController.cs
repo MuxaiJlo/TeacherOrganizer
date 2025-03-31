@@ -111,7 +111,7 @@ namespace TeacherOrganizer.Controllers.Dictionary
                 return StatusCode(500, new { Message = "Error copying dictionary", Details = ex.Message });
             }
         }
-        // GET: api/AllDictionary/All
+        // GET: api/Dictionary/all
         [HttpGet("all")]
         [Authorize(Roles = "Teacher, Student")]
         public async Task<IActionResult> GetAllDicitionary()
@@ -128,6 +128,31 @@ namespace TeacherOrganizer.Controllers.Dictionary
             {
                 return StatusCode(500, new { Message = "Error retrieving dictijnaries", Details = ex.Message });
             }
+        }
+        // DELETE: api/Dictionary/{dictionaryId}
+        [HttpDelete("{dictionaryId}")]
+        [Authorize(Roles = "Teacher, Student")]
+        public async Task<IActionResult> DeleteDictionary(int dictionaryId)
+        {
+            await _dictionaryService.DeleteDictionaryAsync(dictionaryId);
+            return Ok();
+        }
+        // PUT: api/Dictionary/{dictionaryId}
+        [HttpPut("{dictionaryId}")]
+        [Authorize(Roles = "Teacher, Student")]
+        public async Task<IActionResult> UpdateDictionary(int dictionaryId, DictionaryUpdateModel model)
+        {
+            if (model == null || string.IsNullOrWhiteSpace(model.Name)) // Перевірка model та Name
+            {
+                return BadRequest("Dictionary name is required.");
+            }
+
+            var dictionary = await _dictionaryService.UpdateDictionaryAsync(dictionaryId, model);
+            if (dictionary != null)
+            {
+                return Ok(dictionary);
+            }
+            return NotFound();
         }
     }
 }

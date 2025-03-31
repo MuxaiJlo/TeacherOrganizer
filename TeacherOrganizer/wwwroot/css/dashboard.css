@@ -207,7 +207,7 @@ body {
 
 #createDictionaryModal .word-input input {
     width: 25%; /* Зменшення ширини полів Word та Translation */
-    margin-right: 5px; /* Додавання відступу між полями */
+    margin-right: 10px; /* Додавання відступу між полями */
 }
 
     #createDictionaryModal .word-input input:last-child {

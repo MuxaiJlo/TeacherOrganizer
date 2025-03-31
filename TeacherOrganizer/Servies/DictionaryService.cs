@@ -106,5 +106,33 @@ namespace TeacherOrganizer.Servies
                .Include(d => d.OriginalDictionary.Words)
                .ToListAsync();
         }
+        public async Task DeleteDictionaryAsync(int dictionaryId)
+        {
+
+            var dictionary = await _context.Dictionaries.FindAsync(dictionaryId);
+            if (dictionary != null)
+            {
+                _context.Dictionaries.Remove(dictionary);
+                await _context.SaveChangesAsync();
+            }
+
+        }
+
+        public async Task<Dictionary> UpdateDictionaryAsync(int dictionaryId, DictionaryUpdateModel model)
+        {
+            if (model == null || string.IsNullOrWhiteSpace(model.Name)) // Перевірка model та Name
+            {
+                return null;
+            }
+
+            var dictionary = await _context.Dictionaries.FindAsync(dictionaryId);
+            if (dictionary != null)
+            {
+                dictionary.Name = model.Name;
+                await _context.SaveChangesAsync();
+                return dictionary;
+            }
+            return null;
+        }
     }
 }

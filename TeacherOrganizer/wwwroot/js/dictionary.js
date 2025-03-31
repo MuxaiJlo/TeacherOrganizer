@@ -53,7 +53,6 @@ async function loadDictionaries(onlyUserDictionaries) {
     try {
         dictionaries = onlyUserDictionaries ? await api.getDictionaries() : await api.getDictionariesAll();
         console.log("📥 Received dictionaries:", dictionaries);
-        // Додайте цей рядок для перевірки даних
         console.log("Type of dictionaries:", typeof dictionaries);
         if (dictionaries) {
             applyFilters();

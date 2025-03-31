@@ -22,16 +22,18 @@ export async function loadDictionaryWords(wordsTableBody, dictionaryId)
                         <div class="btn-group" role="group">
                             <button class="btn btn-sm btn-danger delete-word" title="Delete">
                                 <i class="fas fa-trash"></i>
+                                Delete
                             </button>
                             <button class="btn btn-sm btn-warning edit-word" title="Edit">
                                 <i class="fas fa-edit"></i>
+                                Edit
                             </button>
                             <button class="btn btn-sm btn-primary speak-word" title="Speak word" data-text="${word.text}" data-lang="en">
-                                Wrd
+                                Word
                             </button>
                             ${word.example ? `
                             <button class="btn btn-sm btn-primary speak-word" title="Speak example" data-text="${word.example}" data-lang="en">
-                                Exp
+                                Example
                             </button>
                             ` : ''}
                         </div>
