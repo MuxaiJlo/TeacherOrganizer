@@ -53,6 +53,7 @@ namespace TeacherOrganizer.Servies
             var dictionary = await _context.Dictionaries
                 .Include(d => d.Words)
                 .Include(d => d.OriginalDictionary.Words)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.DictionaryId == dictionaryId);
 
             if (dictionary == null)

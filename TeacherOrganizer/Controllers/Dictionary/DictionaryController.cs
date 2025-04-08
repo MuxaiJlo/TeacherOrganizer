@@ -20,7 +20,22 @@ namespace TeacherOrganizer.Controllers.Dictionary
             _dictionaryService = dictionaryService;
             _context = context;
         }
+        private async Task<bool> IsDictionaryOwnedByUser(int dictionaryId)
+        {
+            var currentUser = await _context.Users
+                .AsNoTracking() // Важно! Предотвращает отслеживание
+                .FirstOrDefaultAsync(u => u.UserName == User.FindFirstValue(ClaimTypes.Name));
 
+            if (currentUser == null)
+                return false;
+
+            // Используем AsNoTracking для предотвращения проблем с отслеживанием
+            var dictionary = await _context.Dictionaries
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.DictionaryId == dictionaryId);
+
+            return dictionary != null && dictionary.UserId == currentUser.Id;
+        }
         // POST: api/Dictionary
         [HttpPost]
         [Authorize(Roles = "Teacher, Student")]
@@ -138,24 +153,32 @@ namespace TeacherOrganizer.Controllers.Dictionary
         [Authorize(Roles = "Teacher, Student")]
         public async Task<IActionResult> DeleteDictionary(int dictionaryId)
         {
+            // Добавляем проверку владения словарем
+            if (!await IsDictionaryOwnedByUser(dictionaryId))
+                return Forbid("You do not own this dictionary.");
+
             await _dictionaryService.DeleteDictionaryAsync(dictionaryId);
             return Ok();
         }
+
         // PUT: api/Dictionary/{dictionaryId}
         [HttpPut("{dictionaryId}")]
         [Authorize(Roles = "Teacher, Student")]
         public async Task<IActionResult> UpdateDictionary(int dictionaryId, [FromBody] DictionaryUpdateModel model)
-
         {
             if (model == null)
             {
                 return BadRequest("Model is null");
             }
 
-            if (model == null || string.IsNullOrWhiteSpace(model.Name)) // Перевірка model та Name
+            if (string.IsNullOrWhiteSpace(model.Name))
             {
                 return BadRequest("Dictionary name is required.");
             }
+
+            // Добавляем проверку владения словарем
+            if (!await IsDictionaryOwnedByUser(dictionaryId))
+                return Forbid("You do not own this dictionary.");
 
             var dictionary = await _dictionaryService.UpdateDictionaryAsync(dictionaryId, model);
             if (dictionary != null)
