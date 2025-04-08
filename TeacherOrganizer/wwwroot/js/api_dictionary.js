@@ -168,3 +168,33 @@ export async function updateDictionary(dictionaryId, model)
         console.error(`Error updating dictionary ${dictionaryId}.`);
     }
 }
+export async function updateWord(wordId, wordData) {
+    try {
+        const response = await fetch(`/api/Word/${wordId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(wordData),
+        });
+
+        if (!response.ok) throw new Error("Failed to update word");
+        return await response.json();
+    } catch (error) {
+        console.error("Error updating word:", error);
+        return null;
+    }
+}
+
+export async function deleteWord(wordId, dictionaryId) {
+    try {
+        const response = await fetch(`/api/Word/${wordId}/Dictionary/${dictionaryId}`, {
+            method: "DELETE",
+        });
+        if (!response.ok) throw new Error("Failed to delete word");
+        return true;
+    } catch (error) {
+        console.error("Error deleting word:", error);
+        return false;
+    }
+}

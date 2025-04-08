@@ -83,15 +83,17 @@ namespace TeacherOrganizer.Servies
                 UserId = user.Id,
                 CreatedAt = DateTime.UtcNow,
                 OriginalDictionaryId = originalDictionary.DictionaryId,
-                Words = originalDictionary.Words.Select(w => new Word
+                Words = originalDictionary.Words?.Select(w => new Word
                 {
                     Text = w.Text,
                     Translation = w.Translation,
                     Example = w.Example
-                }).ToList()
+                }).ToList() ?? new List<Word>()
             };
-            newDictionary.User = null;
-            newDictionary.OriginalDictionary.User = null;
+            if (newDictionary.OriginalDictionary != null)
+            {
+                newDictionary.OriginalDictionary.User = null;
+            }
             _context.Dictionaries.Add(newDictionary);
             await _context.SaveChangesAsync();
 
@@ -120,7 +122,7 @@ namespace TeacherOrganizer.Servies
 
         public async Task<Dictionary> UpdateDictionaryAsync(int dictionaryId, DictionaryUpdateModel model)
         {
-            if (model == null || string.IsNullOrWhiteSpace(model.Name)) // Перевірка model та Name
+            if (model == null || string.IsNullOrWhiteSpace(model.Name)) 
             {
                 return null;
             }

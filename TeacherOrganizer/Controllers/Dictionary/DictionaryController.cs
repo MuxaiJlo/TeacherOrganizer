@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using TeacherOrganizer.Data;
 using TeacherOrganizer.Interefaces;
 using TeacherOrganizer.Models.DataModels;
 using TeacherOrganizer.Models.DictionaryModels;
@@ -13,9 +14,11 @@ namespace TeacherOrganizer.Controllers.Dictionary
     public class DictionaryController : ControllerBase
     {
         private readonly IDictionaryService _dictionaryService;
-        public DictionaryController(IDictionaryService dictionaryService)
+        private readonly ApplicationDbContext _context;
+        public DictionaryController(IDictionaryService dictionaryService, ApplicationDbContext context)
         {
             _dictionaryService = dictionaryService;
+            _context = context;
         }
 
         // POST: api/Dictionary
@@ -96,14 +99,15 @@ namespace TeacherOrganizer.Controllers.Dictionary
         [Authorize(Roles = "Teacher, Student")]
         public async Task<IActionResult> CopyDictionary(int id)
         {
-            var userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+            var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (string.IsNullOrEmpty(userId))
+
+            if (string.IsNullOrEmpty(user))
                 return Unauthorized(new { Message = "User ID not found in token." });
 
             try
             {
-                var copiedDictionary = await _dictionaryService.CopyDictionaryAsync(id, userId);
+                var copiedDictionary = await _dictionaryService.CopyDictionaryAsync(id, user);
                 return CreatedAtAction(nameof(GetDictionaryById), new { id = copiedDictionary.DictionaryId }, copiedDictionary);
             }
             catch (Exception ex)
@@ -140,8 +144,14 @@ namespace TeacherOrganizer.Controllers.Dictionary
         // PUT: api/Dictionary/{dictionaryId}
         [HttpPut("{dictionaryId}")]
         [Authorize(Roles = "Teacher, Student")]
-        public async Task<IActionResult> UpdateDictionary(int dictionaryId, DictionaryUpdateModel model)
+        public async Task<IActionResult> UpdateDictionary(int dictionaryId, [FromBody] DictionaryUpdateModel model)
+
         {
+            if (model == null)
+            {
+                return BadRequest("Model is null");
+            }
+
             if (model == null || string.IsNullOrWhiteSpace(model.Name)) // Перевірка model та Name
             {
                 return BadRequest("Dictionary name is required.");
