@@ -1,7 +1,7 @@
 ﻿import * as api from "./api_dictionary.js";
 import { dictionaries, loadDictionaries, applyFilters } from "./dictionary.js";
 import { loadDictionaryWords } from "./dictionary_words.js";
-
+import { getUserById } from "./api_user.js";
 export function setupDictionaryList(filteredDictionaries)
 {
     console.log("Setting up dictionary list...");
@@ -26,7 +26,7 @@ export function setupDictionaryList(filteredDictionaries)
 
         try
         {
-            const author = await api.getUserById(dictionary.userId);
+            const author = await getUserById(dictionary.userId);
             listItem.querySelector(".dictionary-meta").textContent = `Author: ${author?.userName || "Unknown"}`;
         } catch (error)
         {

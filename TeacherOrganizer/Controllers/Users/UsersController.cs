@@ -17,7 +17,7 @@ namespace TeacherOrganizer.Controllers.Users
         public UsersController(UserManager<User> userManager, ApplicationDbContext context)
         {
             _userManager = userManager;
-            _context = context; 
+            _context = context;
         }
 
         [HttpGet("Students")]
@@ -30,7 +30,7 @@ namespace TeacherOrganizer.Controllers.Users
             foreach (var user in users)
             {
                 var roles = await _userManager.GetRolesAsync(user);
-                if (roles.Contains("Student"))  
+                if (roles.Contains("Student"))
                 {
                     students.Add(new
                     {
@@ -57,12 +57,24 @@ namespace TeacherOrganizer.Controllers.Users
             var userDto = new UserDto
             {
                 UserName = user.UserName,
-                FirstName = user.FirstName, 
-                LastName = user.LastName 
+                FirstName = user.FirstName,
+                LastName = user.LastName
             };
 
             return Ok(userDto);
         }
 
+        [HttpGet("{userId}/roles")]
+        public async Task<IActionResult> GetUserRoles(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            return Ok(roles);
+        }
     }
 }

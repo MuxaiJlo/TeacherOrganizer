@@ -1,6 +1,6 @@
 ﻿import * as api from "./api_dictionary.js";
 import { loadDictionaries } from "./dictionary.js";
-
+import { getUserById } from "./api_user.js";
 export function setupDictionaryModal() {
     console.log("Setting up dictionary modal...");
     let currentDictionaryId = null;

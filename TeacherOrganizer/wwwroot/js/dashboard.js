@@ -29,6 +29,19 @@
                 }
             } else if (page === "settings") {
                 contentPlaceholder.innerHTML = "<h2>Settings Page</h2>";
+            } else if (page === "student-list") {
+                try {
+                    const studentListModule = await import("./student-list.js");
+                    console.log("🧑‍🎓 Student List module loaded");
+                    studentListModule.initializeStudentList(contentPlaceholder);
+                } catch (error) {
+                    console.error("❌ Error loading student list module:", error);
+                    contentPlaceholder.innerHTML = "<p>Error loading student list.</p>";
+                }
+            } else if (page === "reschedule-requests") {
+                contentPlaceholder.innerHTML = "<h2>Reschedule Requests</h2><p>Content for reschedule requests will go here.</p>";
+            } else if (page === "lesson-notes") {
+                contentPlaceholder.innerHTML = "<h2>Lesson Notes</h2><p>Content for lesson notes will go here.</p>";
             }
         });
     });

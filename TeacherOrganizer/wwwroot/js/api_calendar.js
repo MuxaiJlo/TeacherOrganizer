@@ -21,19 +21,6 @@
     }
 }
 
-
-
-export async function fetchStudents() {
-    try {
-        let response = await fetch("/api/Users/Students");
-        if (!response.ok) throw new Error("Failed to fetch students");
-        return await response.json();
-    } catch (error) {
-        console.error("❌ Error fetching students:", error);
-        return [];
-    }
-}
-
 export async function createLesson(lessonData) {
     try {
         console.log("Fetching URL:", "/api/Lesson"); 
