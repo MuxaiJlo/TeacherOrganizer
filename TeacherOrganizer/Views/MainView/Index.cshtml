@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.css" rel="stylesheet">
     <link rel="stylesheet" href="~/css/dashboard.css" />
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
@@ -29,9 +29,10 @@
                     <li><a href="#" data-page="calendar">📅 Calendar</a></li>
                     <li><a href="#" data-page="dictionary">📖 Dictionary</a></li>
                     <li><a href="#" data-page="settings">⚙️ Settings</a></li>
-                    <li><a href="/AuthView/Logout" class="logout">🚪 Logout</a></li>
+                    <li><a href="#" class="logout" onclick="handleLogout(); return false;">🚪 Logout</a></li>
                 </ul>
             </nav>
+        </aside>
         </aside>
         <main class="content">
             <div id="content-placeholder">
@@ -50,5 +51,6 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.js"></script>
     <script src="~/js/dashboard.js" defer></script>
     <script type="module" src="~/js/calendar.js" defer></script>
-    <script type="module" src="~/js/api.js" defer></script>
+    <script type="module" src="~/js/api_calendar.js" defer></script>
+    <script type="module" src="~/js/api_dictionary.js" defer></script>
 </body>

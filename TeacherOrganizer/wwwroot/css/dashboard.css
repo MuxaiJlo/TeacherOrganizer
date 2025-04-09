@@ -155,3 +155,66 @@ body {
     width: 100% !important;
     table-layout: fixed !important;
 }
+/* ... (інші стилі) ... */
+
+.logout-form {
+    margin: 10px 0; /* Додаємо відступи, як у інших елементів меню */
+}
+
+.logout {
+    background: none;
+    border: none;
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background 0.3s;
+    width: 100%; /* Додаємо ширину, щоб кнопка займала весь простір */
+    text-align: left; /* Вирівнюємо текст по лівому краю */
+}
+
+.logout:hover {
+    background: #495057;
+    cursor: pointer; /* Змінюємо курсор на руку при наведенні */
+}
+
+.dictionary-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px; /* Відступ між кнопками */
+}
+
+.filters {
+    display: flex;
+    gap: 10px; /* Відступ між полями */
+}
+
+    .filters .form-control {
+        width: 200px; /* Фіксована ширина для рівномірного вигляду */
+    }
+
+#createDictionaryModal .modal-dialog {
+    max-width: 800px; /* Збільшення ширини модального вікна */
+}
+
+#createDictionaryModal .word-input input {
+    width: 25%; /* Зменшення ширини полів Word та Translation */
+    margin-right: 10px; /* Додавання відступу між полями */
+}
+
+    #createDictionaryModal .word-input input:last-child {
+        margin-right: 0; /* Видалення відступу для останнього поля */
+    }
+
+#addWordButton {
+    background-color: #FD7A45;
+    border-color: #FD7A45;
+}

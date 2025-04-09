@@ -85,7 +85,7 @@ namespace TeacherOrganizer.Controllers.Auth
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Index", "Home");
+            return Ok(new { message = "Logout successful.", redirectUrl = "/" });
         }
 
         private async Task<string> GenerateJwtTokenAsync(User user)

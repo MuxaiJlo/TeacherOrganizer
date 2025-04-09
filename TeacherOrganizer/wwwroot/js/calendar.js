@@ -1,4 +1,4 @@
-﻿import { fetchLessons, fetchStudents, createLesson, fetchLessonById, updateLesson, deleteLesson, rescheduleLesson } from "./api.js";
+﻿import { fetchLessons, fetchStudents, createLesson, fetchLessonById, updateLesson, deleteLesson, rescheduleLesson } from "./api_calendar.js";
 let calendar = null;
 let modal = null;
 let dateStart = null;
