@@ -1,7 +1,7 @@
-﻿import * as api from "./api_dictionary.js";
+﻿import * as api from "../api/api_dictionary.js";
 import { dictionaries, loadDictionaries, applyFilters } from "./dictionary.js";
 import { loadDictionaryWords } from "./dictionary_words.js";
-import { getUserById } from "./api_user.js";
+import { getUserById } from "../api/api_user.js";
 export function setupDictionaryList(filteredDictionaries)
 {
     console.log("Setting up dictionary list...");
@@ -111,11 +111,7 @@ function setupDictionaryToggle(listItem, dictionary)
         const editDictionaryName = modal.querySelector("#editDictionaryName");
 
         editDictionaryName.value = dictionary.name;
-
-        // Store dictionaryId in a data attribute of the modal itself
         modal.dataset.dictionaryId = dictionary.dictionaryId;
-
-        // Use Bootstrap's modal API to show the modal
         const bsModal = new bootstrap.Modal(modal);
         bsModal.show();
     });
@@ -127,14 +123,23 @@ function setupDictionaryToggle(listItem, dictionary)
         alert("Dictionary copied successfully.");
     });
 
-    deleteDictionaryBtn.addEventListener("click", async () =>
-    {
+    deleteDictionaryBtn.addEventListener("click", async () => {
         console.log(`Delete dictionary button clicked for dictionary ${dictionary.dictionaryId}.`);
-        if (confirm(`Are you sure you want to delete dictionary ${dictionary.dictionaryId}?`))
-        {
-            await api.deleteDictionary(dictionary.dictionaryId);
-            alert("Dictionary deleted successfully.");
-            listItem.remove();
+        if (confirm(`Are you sure you want to delete dictionary ${dictionary.dictionaryId}?`)) {
+            try {
+                const response = await api.deleteDictionary(dictionary.dictionaryId);
+                if (response.ok) {
+                    alert("Dictionary deleted successfully.");
+                    listItem.remove();
+                } else if (response.status === 500) {
+                    alert("You do not own this dictionary.");
+                } else {
+                    alert(`Failed to delete dictionary. Server responded with status: ${response.status}`);
+                }
+            } catch (error) {
+                console.error("Error deleting dictionary:", error);
+                alert("An unexpected error occurred while deleting the dictionary.");
+            }
         }
     });
 

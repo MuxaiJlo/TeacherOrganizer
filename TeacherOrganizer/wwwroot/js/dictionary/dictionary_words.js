@@ -1,5 +1,5 @@
-﻿import * as api from "./api_dictionary.js";
-import { getUserById } from "./api_user.js";
+﻿import * as api from "../api/api_dictionary.js";
+import { getUserById } from "../api/api_user.js";
 export async function loadDictionaryWords(wordsTableBody, dictionaryId) {
     console.log(`Loading words for dictionary ${dictionaryId}...`);
     try {

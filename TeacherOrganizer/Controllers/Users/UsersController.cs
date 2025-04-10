@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Models.DataModels;
-using TeacherOrganizer.Models.DictionaryModels;
+using TeacherOrganizer.Models.DataModels.UserModels;
 
 namespace TeacherOrganizer.Controllers.Users
 {

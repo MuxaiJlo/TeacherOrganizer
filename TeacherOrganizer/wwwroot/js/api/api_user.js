@@ -1,4 +1,4 @@
-﻿// File: TeacherOrganizer/wwwroot/js/api_user.js
+﻿// File: TeacherOrganizer/wwwroot/js/api/api_user.js
 
 export async function getUserById(userId) {
     try {

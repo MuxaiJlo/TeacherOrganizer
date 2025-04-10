@@ -151,50 +151,5 @@ namespace TeacherOrganizer.Controllers.Lesson
             return NoContent();
         }
 
-
-        //POST: api/Lesson/{lessonId}/Reschedule
-        [HttpPost("{lessonId}/Reschedule")]
-        [Authorize(Roles = "Teacher,Student")]
-        public async Task<IActionResult> ProposeReschedule(int lessonId, [FromBody] ResheduleModel dto)
-        {
-            try
-            {
-                var initiatorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (initiatorId == null)
-                {
-                    Console.WriteLine("User.Identity.Name: " + User.Identity?.Name);
-                    initiatorId = User.Identity?.Name; 
-                }
-
-
-                var lesson = await _lessonService.ProposeRescheduleAsync(lessonId, dto.ProposedStartTime, dto.ProposedEndTime, initiatorId);
-
-                if (lesson == null)
-                {
-                    return NotFound(new { Message = "Lesson not found" });
-                }
-
-                return Ok(new
-                {
-                    LessonId = lesson.LessonId,
-                    lesson.StartTime,
-                    lesson.EndTime,
-                    lesson.Description,
-                    lesson.Status,
-                    Teacher = new { lesson.Teacher.Id, lesson.Teacher.UserName },
-                    Students = lesson.Students.Select(s => new { s.Id, s.UserName })
-                });
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error proposing reschedule: {ex.Message}");
-                return StatusCode(StatusCodes.Status500InternalServerError, new
-                {
-                    Message = "An error occurred while proposing the reschedule.",
-                    Details = ex.Message
-                });
-            }
-        }
-
     }
 }

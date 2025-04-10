@@ -218,3 +218,23 @@ body {
     background-color: #FD7A45;
     border-color: #FD7A45;
 }
+.reschedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1em;
+}
+
+    .reschedule-table th,
+    .reschedule-table td {
+        padding: 0.5em;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    .reschedule-table button {
+        margin-right: 0.5em;
+    }
+.edit-controls {
+    display: flex;
+    gap: 5px;
+}

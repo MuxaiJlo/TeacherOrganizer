@@ -53,7 +53,13 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.js"></script>
     <script src="~/js/dashboard.js" defer></script>
-    <script type="module" src="~/js/calendar.js" defer></script>
-    <script type="module" src="~/js/api_calendar.js" defer></script>
-    <script type="module" src="~/js/api_dictionary.js" defer></script>
+    <script type="module" src="~/js/calendar/calendar.js" defer></script>
+    <script type="module" src="~/js/api/api_lessons.js" defer></script>
+    <script type="module" src="~/js/api/api_dictionary.js" defer></script>
+    <script type="module" src="~/js/reschedule/reschedule.js" defer></script>
+    <script>
+        window.currentUserName = "@Model.Username";
+        window.currentUserRole = "@Model.Role";
+    </script>
+
 </body>

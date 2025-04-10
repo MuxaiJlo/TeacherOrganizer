@@ -11,7 +11,7 @@
 
             if (page === "calendar") {
                 try {
-                    const calendarModule = await import("./calendar.js");
+                    const calendarModule = await import("./calendar/calendar.js");
                     console.log("📅 Calendar module loaded");
                     calendarModule.initializeCalendar(contentPlaceholder);
                 } catch (error) {
@@ -20,7 +20,7 @@
                 }
             } else if (page === "dictionary") {
                 try {
-                    const dictionaryModule = await import("./dictionary.js");
+                    const dictionaryModule = await import("./dictionary/dictionary.js");
                     console.log("📖 Dictionary module loaded");
                     dictionaryModule.initializeDictionary(contentPlaceholder);
                 } catch (error) {
@@ -39,8 +39,16 @@
                     contentPlaceholder.innerHTML = "<p>Error loading student list.</p>";
                 }
             } else if (page === "reschedule-requests") {
-                contentPlaceholder.innerHTML = "<h2>Reschedule Requests</h2><p>Content for reschedule requests will go here.</p>";
-            } else if (page === "lesson-notes") {
+                try {
+                    const rescheduleModule = await import("./reschedule/reschedule.js");
+                    console.log("🔄 Reschedule module loaded");
+                    rescheduleModule.initializeRescheduleRequests(contentPlaceholder);
+                } catch (error) {
+                    console.error("❌ Error loading reschedule module:", error);
+                    contentPlaceholder.innerHTML = "<p>Error loading reschedule requests.</p>";
+                }
+            }
+            else if (page === "lesson-notes") {
                 contentPlaceholder.innerHTML = "<h2>Lesson Notes</h2><p>Content for lesson notes will go here.</p>";
             }
         });

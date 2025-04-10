@@ -5,6 +5,7 @@ using TeacherOrganizer.Interefaces;
 using TeacherOrganizer.Models.CalendarModels;
 using TeacherOrganizer.Models.DataModels;
 using TeacherOrganizer.Models.Lessons;
+using TeacherOrganizer.Models.RescheduleModels;
 
 namespace TeacherOrganizer.Servies
 {
@@ -92,7 +93,7 @@ namespace TeacherOrganizer.Servies
                 throw new UnauthorizedAccessException("Initiator not found");
             }
 
-
+            // Создаём запрос на перенос
             var rescheduleRequest = new RescheduleRequest
             {
                 Lesson = lesson,
@@ -105,9 +106,14 @@ namespace TeacherOrganizer.Servies
 
             _context.RescheduleRequests.Add(rescheduleRequest);
 
+            // ⬇ Меняем статус урока
+            lesson.Status = LessonStatus.RescheduledRequest;
+            lesson.UpdatedAt = DateTime.UtcNow;
+
             await _context.SaveChangesAsync();
             return lesson;
         }
+
 
 
         public async Task<Lesson> UpdateLessonAsync(int lessonId, LessonUpdateModel updatedLesson)

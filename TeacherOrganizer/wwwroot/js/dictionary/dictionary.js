@@ -1,7 +1,7 @@
-﻿import * as api from "./api_dictionary.js";
+﻿import * as api from "../api/api_dictionary.js";
 import { setupDictionaryModal } from "./dictionary_modal.js";
 import { setupDictionaryList } from "./dictionary_list.js";
-import { getUserById } from "./api_user.js";
+import { getUserById } from "../api/api_user.js";
 async function loadDictionaryView() {
     console.log("Loading dictionary view...");
     const response = await fetch('/modals/dictionary.html');

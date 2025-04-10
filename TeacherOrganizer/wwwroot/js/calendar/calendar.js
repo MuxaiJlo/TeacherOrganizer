@@ -1,14 +1,16 @@
-﻿
+﻿// File: TeacherOrganizer/wwwroot/js/calendar/calendar.js
 
-import { fetchLessons, createLesson, fetchLessonById, updateLesson, deleteLesson, rescheduleLesson } from "./api_calendar.js";
-import { fetchStudents } from "./api_user.js";
+import { fetchLessons, createLesson, fetchLessonById, updateLesson, deleteLesson } from "../api/api_lessons.js";
+import { fetchStudents } from "../api/api_user.js";
+import { rescheduleLesson } from "../api/api_reschedule.js";
+
 let calendar = null;
 let modal = null;
 let dateStart = null;
 let dateEnd = null;
 let currentLessonId = null;
 let modalDetails = null;
-
+const currentUserRole = window.currentUserRole;
 export function initializeCalendar(contentPlaceholder) {
     contentPlaceholder.innerHTML = `<div id="calendar"></div>`;
     console.log("📅 Initializing calendar...");
@@ -300,18 +302,19 @@ async function deleteCurrentLesson() {
 }
 
 async function rescheduleCurrentLesson() {
-    console.log(`🔄 Rescheduling lesson with ID: ${currentLessonId}`); 
+    console.log(`🔄 Rescheduling lesson with ID: ${currentLessonId}`);
     try {
         const rescheduleData = {
             proposedStartTime: document.getElementById("rescheduleLessonDate").value + "T" + document.getElementById("rescheduleLessonStartTime").value,
             proposedEndTime: document.getElementById("rescheduleLessonDate").value + "T" + document.getElementById("rescheduleLessonEndTime").value,
         };
 
+        //  Використовуємо оновлену функцію з api_lessons.js
         let rescheduledLesson = await rescheduleLesson(currentLessonId, rescheduleData);
-        console.log("✅ Lesson rescheduled: ", rescheduleLesson); 
+        console.log("✅ Lesson reschedule proposed: ", rescheduledLesson); //  Змінено повідомлення
         modalDetails.hide();
         updateCalendarEvents(dateStart, dateEnd);
     } catch (error) {
-        alert(error.message || "Failed to reschedule lesson");
+        alert(error.message || "Failed to propose reschedule"); //  Змінено повідомлення
     }
 }

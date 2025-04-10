@@ -88,21 +88,3 @@ export async function deleteLesson(lessonId) {
         throw error;
     }
 }
-
-export async function rescheduleLesson(lessonId, rescheduleData) {
-    try {
-        const response = await fetch(`/api/Lesson/${lessonId}/Reschedule`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(rescheduleData),
-        });
-        if (!response.ok) {
-            let errorData = await response.json();
-            throw new Error(errorData.message || "Failed to reschedule lesson");
-        }
-        return await response.json();
-    } catch (error) {
-        console.error("Error rescheduling lesson:", error);
-        throw error;
-    }
-}
