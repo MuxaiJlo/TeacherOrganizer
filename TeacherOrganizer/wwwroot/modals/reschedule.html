@@ -1,0 +1,45 @@
+﻿<h2>Reschedule Requests</h2>
+<div id="reschedule-table-wrapper">
+    <div class="filter-container">
+        <label for="filterStartDate">From:</label>
+        <input type="datetime-local" id="filterStartDate">
+        <label for="filterEndDate">To:</label>
+        <input type="datetime-local" id="filterEndDate">
+        <label for="filterUsername">Username:</label>
+        <input type="text" id="filterUsername" placeholder="Filter by username">
+    </div>
+    <table class="reschedule-table">
+        <thead>
+            <tr>
+                <th>Lesson Date</th>
+                <th>Username</th>
+                <th>Requested New Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td colspan="4">Loading...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="editRescheduleModal" tabindex="-1" aria-labelledby="editRescheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editRescheduleModalLabel">Edit Reschedule Request</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <label for="editStartTime">New Start Time:</label>
+                <input type="datetime-local" id="editStartTime" class="form-control mb-2">
+                <label for="editEndTime">New End Time:</label>
+                <input type="datetime-local" id="editEndTime" class="form-control mb-2">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveEditButton">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>

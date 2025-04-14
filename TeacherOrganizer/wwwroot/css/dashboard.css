@@ -238,3 +238,54 @@ body {
     display: flex;
     gap: 5px;
 }
+.reschedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Тень для эффекта "непрозрачности" */
+    background-color: white; /* Белый фон */
+}
+
+    .reschedule-table th, .reschedule-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #ddd;
+        text-align: left;
+    }
+
+    .reschedule-table th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+    }
+
+    .reschedule-table tr:hover {
+        background-color: #f1f1f1;
+    }
+
+.btn-primary {
+    background-color: #FD7A45 !important;
+    border-color: #FD7A45 !important;
+}
+
+.btn-success {
+    color: white;
+}
+
+.modal-dialog {
+    max-width: 800px; /* Увеличим ширину модального окна */
+    margin: 1.75rem auto;
+}
+
+/* Стили для фильтров */
+.filter-container {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+    .filter-container label {
+        margin-right: 10px;
+    }
+
+    .filter-container input {
+        margin-right: 10px;
+    }

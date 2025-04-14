@@ -1,4 +1,6 @@
-﻿namespace TeacherOrganizer.Models.RescheduleModels
+﻿using TeacherOrganizer.Models.DataModels;
+
+namespace TeacherOrganizer.Models.RescheduleModels
 {
     public class RescheduleRequestDto
     {

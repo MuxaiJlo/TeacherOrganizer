@@ -1,4 +1,4 @@
-﻿namespace TeacherOrganizer.Controllers.Reschedule
+﻿namespace TeacherOrganizer.Models.RescheduleModels
 {
     public class UpdateRescheduleRequestDto
     {

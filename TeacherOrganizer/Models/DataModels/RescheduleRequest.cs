@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using TeacherOrganizer.Models.DataModels;
 
-namespace TeacherOrganizer.Models.RescheduleModels
+namespace TeacherOrganizer.Models.DataModels
 {
     public enum RescheduleRequestStatus
     {

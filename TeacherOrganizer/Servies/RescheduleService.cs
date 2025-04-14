@@ -9,10 +9,11 @@ namespace TeacherOrganizer.Servies
     public class RescheduleService : IRescheduleService
     {
         private readonly ApplicationDbContext _context;
-
-        public RescheduleService(ApplicationDbContext context)
+        private readonly ILessonService _lessonService;
+        public RescheduleService(ApplicationDbContext context, ILessonService lessonService) 
         {
             _context = context;
+            _lessonService = lessonService;
         }
 
         public async Task<Lesson?> ProposeRescheduleAsync(int lessonId, DateTime proposedStart, DateTime proposedEnd, string initiatorId)
@@ -82,29 +83,37 @@ namespace TeacherOrganizer.Servies
             }).ToList();
         }
 
-        public async Task<bool> UpdateRequestStatusAsync(int requestId, RescheduleRequestStatus newStatus, string currentUserName)
+        public async Task<bool> UpdateRequestStatusAsync(int requestId, RescheduleRequestStatus newStatus, string username)
         {
             var request = await _context.RescheduleRequests
                 .Include(r => r.Lesson)
                 .Include(r => r.Initiator)
                 .FirstOrDefaultAsync(r => r.Id == requestId);
 
-            if (request == null) return false;
-            if (request.Initiator.UserName == currentUserName) return false;
+            if (request == null)
+                return false;
 
-            request.RequestStatus = newStatus;
+            // Проверка, что пользователь имеет право изменять статус
+            // (если пользователь не является инициатором запроса)
+            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.UserName == username);
+            if (currentUser == null || request.InitiatorId == currentUser.Id)
+                return false;
 
+            // Если запрос одобрен, обновляем время урока
             if (newStatus == RescheduleRequestStatus.Approved)
             {
-                request.Lesson.StartTime = request.ProposedStartTime;
-                request.Lesson.EndTime = request.ProposedEndTime;
-                request.Lesson.UpdatedAt = DateTime.UtcNow;
-                request.Lesson.Status = LessonStatus.Scheduled;
+                // Обновляем урок
+                var lesson = request.Lesson;
+                lesson.StartTime = request.ProposedStartTime;
+                lesson.EndTime = request.ProposedEndTime;
+                lesson.UpdatedAt = DateTime.UtcNow;
+
+                _context.Lessons.Update(lesson);
             }
-            else if (newStatus == RescheduleRequestStatus.Rejected)
-            {
-                request.Lesson.Status = LessonStatus.Scheduled;
-            }
+
+            // Обновляем статус запроса
+            request.RequestStatus = newStatus;
+            _context.RescheduleRequests.Update(request);
 
             await _context.SaveChangesAsync();
             return true;

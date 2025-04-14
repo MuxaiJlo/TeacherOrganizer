@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TeacherOrganizer.Models.DataModels;
-using TeacherOrganizer.Models.RescheduleModels;
 
 namespace TeacherOrganizer.Data
 {

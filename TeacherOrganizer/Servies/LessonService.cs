@@ -4,8 +4,7 @@ using TeacherOrganizer.Data;
 using TeacherOrganizer.Interefaces;
 using TeacherOrganizer.Models.CalendarModels;
 using TeacherOrganizer.Models.DataModels;
-using TeacherOrganizer.Models.Lessons;
-using TeacherOrganizer.Models.RescheduleModels;
+using TeacherOrganizer.Models.LessonModels;
 
 namespace TeacherOrganizer.Servies
 {

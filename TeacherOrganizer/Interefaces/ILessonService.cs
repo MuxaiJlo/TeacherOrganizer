@@ -1,6 +1,6 @@
 ﻿using TeacherOrganizer.Models.CalendarModels;
 using TeacherOrganizer.Models.DataModels;
-using TeacherOrganizer.Models.Lessons;
+using TeacherOrganizer.Models.LessonModels;
 
 namespace TeacherOrganizer.Interefaces
 {

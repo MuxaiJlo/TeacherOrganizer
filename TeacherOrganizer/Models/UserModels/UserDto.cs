@@ -1,4 +1,4 @@
-﻿namespace TeacherOrganizer.Models.DataModels.UserModels
+﻿namespace TeacherOrganizer.Models.UserModels
 {
     public class UserDto
     {

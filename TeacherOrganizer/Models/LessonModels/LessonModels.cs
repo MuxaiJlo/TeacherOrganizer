@@ -1,9 +1,10 @@
 ﻿using TeacherOrganizer.Models.DataModels;
 
-namespace TeacherOrganizer.Models.Lessons
+namespace TeacherOrganizer.Models.LessonModels
 {
-    public class LessonModelsInput
+    public class LessonModels
     {
+        public string TeacherId { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public string Description { get; set; }
