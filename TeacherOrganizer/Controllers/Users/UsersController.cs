@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Models.DataModels;
-using TeacherOrganizer.Models.DataModels.UserModels;
+using TeacherOrganizer.Models.UserModels;
 
 namespace TeacherOrganizer.Controllers.Users
 {
@@ -76,5 +77,19 @@ namespace TeacherOrganizer.Controllers.Users
             var roles = await _userManager.GetRolesAsync(user);
             return Ok(roles);
         }
+
+        [HttpPost("{userId}/add-paid-lessons")]
+        [Authorize(Roles = "Teacher")]
+        public async Task<IActionResult> AddPaidLessons(string userId, [FromQuery] int count)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return NotFound();
+
+            user.PaidLessons += count;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { user.Id, user.PaidLessons });
+        }
+
     }
 }

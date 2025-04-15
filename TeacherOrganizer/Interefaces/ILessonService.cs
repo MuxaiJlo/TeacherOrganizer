@@ -12,5 +12,6 @@ namespace TeacherOrganizer.Interefaces
         Task<bool> DeleteLessonAsync(int lessonId);
         Task<Lesson> ProposeRescheduleAsync(int lessonId, DateTime proposedStart, DateTime proposedEnd, string initiatorId);
         Task<List<Lesson>> GetLessonsForUserAsync(string userId, DateTime start, DateTime end);
+        Task AutoCompleteLessons();
     }
 }

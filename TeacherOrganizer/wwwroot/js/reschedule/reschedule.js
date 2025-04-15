@@ -28,12 +28,10 @@ export async function initializeRescheduleRequests(container) {
             return;
         }
 
-        // Функция для обновления таблицы (остается без изменений)
         function updateTable(requests) {
             const currentUserName = window.currentUserName;
             let filteredRequests = [...requests];
 
-            // Применяем фильтры
             if (filterStartDateInput.value) {
                 filteredRequests = filteredRequests.filter(r => new Date(r.lesson.startTime) >= new Date(filterStartDateInput.value));
             }
@@ -76,43 +74,35 @@ export async function initializeRescheduleRequests(container) {
                 </tr>
             `).join('');
 
-            // Добавляем обработчики событий
             table.querySelectorAll(".approve-btn").forEach(btn => btn.addEventListener("click", handleApprove));
             table.querySelectorAll(".reject-btn").forEach(btn => btn.addEventListener("click", handleReject));
             table.querySelectorAll(".edit-btn").forEach(btn => btn.addEventListener("click", handleEdit));
         }
 
-        // Обработчики событий для фильтров
         filterStartDateInput.addEventListener("change", () => updateTable(requests));
         filterEndDateInput.addEventListener("change", () => updateTable(requests));
         filterUsernameInput.addEventListener("input", () => updateTable(requests));
 
-        let editingRow = null; // Переменная для хранения редактируемой строки
+        let editingRow = null; 
 
-        // Функция для обработки Edit (остается почти без изменений)
-        // Функция для обработки Edit
         function handleEdit(e) {
             const row = e.target.closest("tr");
-            editingRow = row; // Сохраняем ссылку на редактируемую строку
+            editingRow = row; 
             const requestId = row.getAttribute("data-id");
             const startTimeValue = row.getAttribute("proposed-start-time");
             const endTimeValue = row.getAttribute("proposed-end-time");
 
-            // Очищаем поля модального окна перед заполнением
             const editStartTimeInput = document.getElementById("editStartTime");
             const editEndTimeInput = document.getElementById("editEndTime");
             editStartTimeInput.value = "";
             editEndTimeInput.value = "";
 
-            // Заполняем модальное окно данными
             editStartTimeInput.value = startTimeValue;
             editEndTimeInput.value = endTimeValue;
 
-            // Показываем модальное окно
             const editModal = new bootstrap.Modal(document.getElementById('editRescheduleModal'));
             editModal.show();
 
-            // Обработчик для кнопки Save в модальном окне
             document.getElementById("saveEditButton").onclick = async () => {
                 const startTime = document.getElementById("editStartTime").value;
                 const endTime = document.getElementById("editEndTime").value;
@@ -122,7 +112,6 @@ export async function initializeRescheduleRequests(container) {
                     return;
                 }
 
-                // Проверка валидности дат
                 const startDate = new Date(startTime);
                 const endDate = new Date(endTime);
 
@@ -143,14 +132,12 @@ export async function initializeRescheduleRequests(container) {
                         newInitiatorId: window.currentUserName
                     });
 
-                    // Обновляем атрибуты строки
                     editingRow.setAttribute("data-original-start-time", startTime);
                     editingRow.setAttribute("data-original-end-time", endTime);
 
-                    // Обновляем отображение в таблице
                     updateTable(requests);
                     alert("Reschedule request updated successfully!");
-                    editModal.hide(); // Скрываем модальное окно
+                    editModal.hide(); 
                 } catch (error) {
                     console.error("Error updating reschedule request:", error);
                     alert("Failed to update reschedule request");
@@ -158,23 +145,18 @@ export async function initializeRescheduleRequests(container) {
             };
         }
 
-        // Функция для одобрения запроса
         async function handleApprove(e) {
             const row = e.target.closest("tr");
             const requestId = row.getAttribute("data-id");
             const lessonId = row.getAttribute("data-lesson-id");
 
             try {
-                // Запрос на обновление статуса (бэкенд обновит время урока автоматически)
                 await updateRescheduleRequestStatus(requestId, 1);
 
-                // Показываем сообщение об успехе
-                alert("Reschedule request approved!"); // Алерт про схвалення
+                alert("Reschedule request approved!"); 
 
-                // Удаляем строку из таблицы
                 row.remove();
 
-                // При необходимости можно обновить календарь, если он есть на странице
                 if (typeof updateCalendar === 'function') {
                     updateCalendar();
                 }
@@ -185,7 +167,6 @@ export async function initializeRescheduleRequests(container) {
             }
         }
 
-        // Функция для отклонения запроса
         async function handleReject(e) {
             const row = e.target.closest("tr");
             const requestId = row.getAttribute("data-id");

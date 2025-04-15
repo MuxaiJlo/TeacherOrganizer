@@ -113,6 +113,33 @@ namespace TeacherOrganizer.Servies
             return lesson;
         }
 
+        public async Task AutoCompleteLessons()
+        {
+            var now = DateTime.UtcNow;
+
+            var lessonsToComplete = await _context.Lessons
+                .Include(l => l.Students)
+                .Where(l => l.EndTime <= now && l.Status == LessonStatus.Scheduled)
+                .ToListAsync();
+
+            foreach (var lesson in lessonsToComplete)
+            {
+                lesson.Status = LessonStatus.Completed;
+                foreach (var student in lesson.Students)
+                {
+                    if (student.PaidLessons > 0)
+                    {
+                        student.PaidLessons -= 1;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Student {student.UserName} has no paid lessons left!");
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
 
 
         public async Task<Lesson> UpdateLessonAsync(int lessonId, LessonUpdateModel updatedLesson)
