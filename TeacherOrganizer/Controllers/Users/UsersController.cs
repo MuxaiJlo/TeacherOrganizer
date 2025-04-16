@@ -42,6 +42,7 @@ namespace TeacherOrganizer.Controllers.Users
                         user.Email,
                         user.PaidLessons
                     });
+
                 }
             }
 
@@ -66,6 +67,7 @@ namespace TeacherOrganizer.Controllers.Users
                 PaidLessons = user.PaidLessons,
                 Email = user.Email
             };
+
 
             return Ok(userDto);
         }
