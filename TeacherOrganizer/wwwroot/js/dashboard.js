@@ -31,7 +31,7 @@
                 contentPlaceholder.innerHTML = "<h2>Settings Page</h2>";
             } else if (page === "student-list") {
                 try {
-                    const studentListModule = await import("./student-list.js");
+                    const studentListModule = await import("./student/studentList.js");
                     console.log("🧑‍🎓 Student List module loaded");
                     studentListModule.initializeStudentList(contentPlaceholder);
                 } catch (error) {

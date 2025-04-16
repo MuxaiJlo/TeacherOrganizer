@@ -37,7 +37,10 @@ namespace TeacherOrganizer.Controllers.Users
                     {
                         user.Id,
                         user.UserName,
-                        user.Email
+                        user.FirstName,
+                        user.LastName,
+                        user.Email,
+                        user.PaidLessons
                     });
                 }
             }
@@ -59,7 +62,9 @@ namespace TeacherOrganizer.Controllers.Users
             {
                 UserName = user.UserName,
                 FirstName = user.FirstName,
-                LastName = user.LastName
+                LastName = user.LastName,
+                PaidLessons = user.PaidLessons,
+                Email = user.Email
             };
 
             return Ok(userDto);

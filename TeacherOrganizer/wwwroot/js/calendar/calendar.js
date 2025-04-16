@@ -14,6 +14,18 @@ const currentUserRole = window.currentUserRole;
 export function initializeCalendar(contentPlaceholder) {
     contentPlaceholder.innerHTML = `<div id="calendar"></div>`;
     console.log("📅 Initializing calendar...");
+    const filterHtml = `
+<div class="filter-container mt-3 mb-2">
+    <label for="statusFilter" class="me-2">Filter by status:</label>
+    <select id="statusFilter" class="form-select" style="width: 200px;">
+        <option value="all">All</option>
+        <option value="Scheduled">Sheduled</option>
+        <option value="Canceled">Cancelled</option>
+        <option value="RescheduledRequest">Reschedule requested</option>
+    </select>
+`;
+    contentPlaceholder.insertAdjacentHTML("beforeend", filterHtml);
+
 
     const calendarEl = document.getElementById("calendar");
     if (!calendarEl) {
@@ -51,6 +63,9 @@ export function initializeCalendar(contentPlaceholder) {
     });
 
     calendar.render();
+    document.getElementById("statusFilter").addEventListener("change", () => {
+        updateCalendarEvents(dateStart, dateEnd);
+    });
 
     loadModal();
     loadStudentsList();
@@ -71,16 +86,48 @@ async function updateCalendarEvents(start, end) {
         const formattedStart = start.toISOString().split(".")[0];
         const formattedEnd = end.toISOString().split(".")[0];
 
-        console.log("Fetching URL:", `/api/Lesson/Calendar?start=${formattedStart}&end=${formattedEnd}`);
-
+        // Сначала получаем все события
         const events = await fetchLessons(formattedStart, formattedEnd);
+        console.log("📥 Received events:", events);
+
+        // Получаем выбранный статус
+        const selectedStatus = document.getElementById("statusFilter")?.value || "all";
+
+        // Фильтруем, если выбран конкретный статус
+        let filtered = events;
+        if (selectedStatus !== "all") {
+            filtered = events.filter(ev => ev.status === selectedStatus);
+        }
+
+        // Назначаем цвета по статусу
+        const coloredEvents = filtered.map(ev => {
+            let color = "#3788d8"; // Scheduled
+
+            if (ev.status === "Canceled" || ev.status === 1) {
+                color = "#dc3545"; // отменён
+            } else if (ev.status === "Completed" || ev.status === 2) {
+                color = "#00ff00"; // перенос
+            } else if (ev.status === "RescheduledRequest" || ev.status === 3) {
+                color = "#ffc107"; // перенос
+            }
+
+            return {
+                ...ev,
+                backgroundColor: color,
+                borderColor: color,
+                textColor: "#fff"
+            };
+        });
+
+        // Очищаем старые события и добавляем новые
         calendar.getEvents().forEach(event => event.remove());
-        console.log("📥 Received events:", events); 
-        calendar.addEventSource(events);
+        calendar.addEventSource(coloredEvents);
+
     } catch (error) {
         console.error("❌ Error fetching events:", error);
     }
 }
+
 
 async function loadModal() {
     try {
@@ -134,7 +181,7 @@ async function loadStudentsList() {
         studentsSelect.append(option);
     });
 
-    console.log("👥 Loaded students:", studentsSelect); 
+    console.log("👥 Loaded students:", studentsSelect);
 
     $(document).ready(function () {
         if ($.fn.select2) {
@@ -188,7 +235,19 @@ async function loadModalDetails() {
 
         modalDetails = new bootstrap.Modal(modalEl);
 
+        let previouslyFocusedElement = null; // Store the element that had focus before the modal
+
         modalEl.addEventListener("shown.bs.modal", () => {
+            previouslyFocusedElement = document.activeElement; // Save the currently focused element
+
+            // Focus on the first focusable element within the modal (adjust as needed)
+            const firstFocusableElement = modalEl.querySelector("button:not([disabled])"); // Example: first enabled button
+            if (firstFocusableElement) {
+                firstFocusableElement.focus();
+            }
+
+            modalEl.removeAttribute("aria-hidden"); // Ensure modal is not hidden when shown
+
             const actionSelect = document.getElementById("actionSelect");
             actionSelect.addEventListener("change", handleActionChange);
 
@@ -204,13 +263,19 @@ async function loadModalDetails() {
             document.getElementById("deleteLessonBtn").addEventListener("click", deleteCurrentLesson);
         });
 
+        modalEl.addEventListener("hidden.bs.modal", () => {
+            if (previouslyFocusedElement) {
+                previouslyFocusedElement.focus(); // Restore focus to the original element
+            }
+            modalEl.setAttribute("aria-hidden", "true"); // Hide the modal from assistive tech
+        });
+
         return modalDetails;
     } catch (error) {
         console.error("❌ Error loading modal details:", error);
         return null;
     }
 }
-
 async function openLessonDetailsModal(lessonId) {
     if (!lessonId) {
         console.error("❌ lessonId is undefined or null");
@@ -272,7 +337,7 @@ function handleActionChange() {
 
 
 async function saveLessonDetails() {
-    console.log(`🔄 Updating lesson with ID: ${currentLessonId}`); 
+    console.log(`🔄 Updating lesson with ID: ${currentLessonId}`);
     try {
         const updatedLessonData = {
             startTime: document.getElementById("updateLessonDate").value + "T" + document.getElementById("updateLessonStartTime").value,
@@ -290,10 +355,10 @@ async function saveLessonDetails() {
 }
 
 async function deleteCurrentLesson() {
-    console.log(`🗑️ Deleting lesson with ID: ${currentLessonId}`); 
+    console.log(`🗑️ Deleting lesson with ID: ${currentLessonId}`);
     try {
         await deleteLesson(currentLessonId);
-        console.log("✅ Lesson deleted"); 
+        console.log("✅ Lesson deleted");
         modalDetails.hide();
         updateCalendarEvents(dateStart, dateEnd);
     } catch (error) {
