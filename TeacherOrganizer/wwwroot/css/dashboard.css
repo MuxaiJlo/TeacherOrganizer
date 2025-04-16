@@ -298,8 +298,6 @@ body {
         background-color: #f5f5f5;
     }
 
-=======
->>>>>>> Bug
 #student-details-modal.modal {
     position: fixed;
     z-index: 1000;
@@ -332,7 +330,7 @@ body {
 .hidden {
     display: none !important;
 }
-<<<<<<< HEAD
+
 
 .btn {
     padding: 10px 15px;
@@ -364,7 +362,6 @@ body {
     }
 
 /* Другие стили кнопок */
-=======
 .table {
     background-color: white;
     border-radius: 10px;
@@ -380,4 +377,4 @@ body {
     .table th {
         background-color: #f5f5f5;
     }
->>>>>>> Bug
+

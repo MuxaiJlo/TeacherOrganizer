@@ -16,22 +16,13 @@ export function initializeCalendar(contentPlaceholder) {
     console.log("📅 Initializing calendar...");
     const filterHtml = `
 <div class="filter-container mt-3 mb-2">
-<<<<<<< HEAD
+
     <label for="statusFilter" class="me-2">Filter by status:</label>
     <select id="statusFilter" class="form-select" style="width: 200px;">
         <option value="all">All</option>
         <option value="Scheduled">Sheduled</option>
         <option value="Canceled">Cancelled</option>
         <option value="RescheduledRequest">Reschedule requested</option>
-=======
-    <label for="statusFilter" class="me-2">Фильтр по статусу:</label>
-    <select id="statusFilter" class="form-select" style="width: 200px;">
-        <option value="all">Все</option>
-        <option value="Scheduled">Запланированные</option>
-        <option value="Canceled">Отменённые</option>
-        <option value="RescheduledRequest">Запрос на перенос</option>
->>>>>>> Bug
-    </select>
 `;
     contentPlaceholder.insertAdjacentHTML("beforeend", filterHtml);
 
@@ -284,11 +275,8 @@ async function loadModalDetails() {
         console.error("❌ Error loading modal details:", error);
         return null;
     }
-<<<<<<< HEAD
 }
-=======
-}  
->>>>>>> Bug
+
 async function openLessonDetailsModal(lessonId) {
     if (!lessonId) {
         console.error("❌ lessonId is undefined or null");
