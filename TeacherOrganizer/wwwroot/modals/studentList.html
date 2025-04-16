@@ -1,10 +1,35 @@
-﻿<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
+﻿<!-- partials/studentList.html -->
+<h2>Stuent Lsit</h2>
+<div class="filter-container">
+    <label for="filter-input">Filter:</label>
+    <input type="text" id="filter-input" placeholder="Name, Surname, Username">
+</div>
 
-</body>
-</html>
+<table id="student-table" class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Username</th>
+            <th>Paid lessons</th>
+            <th>Add</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Заполняется через studentList.js -->
+    </tbody>
+</table>
+
+<!-- Модалка -->
+<div id="student-details-modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content p-4">
+            <h3>Информация об ученике</h3>
+            <p><strong>Name:</strong> <span id="modal-firstname"></span></p>
+            <p><strong>Surname:</strong> <span id="modal-lastname"></span></p>
+            <p><strong>Username:</strong> <span id="modal-username"></span></p>
+            <p><strong>Email:</strong> <span id="modal-email"></span></p>
+            <button id="close-modal-btn" class="btn btn-primary mt-3">Close</button>
+        </div>
+    </div>
+</div>
