@@ -22,6 +22,21 @@ namespace TeacherOrganizer.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("LessonDetailsUser", b =>
+                {
+                    b.Property<string>("AccessibleUsersId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("LessonDetailsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AccessibleUsersId", "LessonDetailsId");
+
+                    b.HasIndex("LessonDetailsId");
+
+                    b.ToTable("LessonDetailsUsers", (string)null);
+                });
+
             modelBuilder.Entity("LessonUser", b =>
                 {
                     b.Property<int>("AttendedLessonsLessonId")
@@ -239,6 +254,35 @@ namespace TeacherOrganizer.Migrations
                     b.ToTable("Lessons");
                 });
 
+            modelBuilder.Entity("TeacherOrganizer.Models.DataModels.LessonDetails", b =>
+                {
+                    b.Property<int>("LessonDetailsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LessonDetailsId"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LessonId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("LessonDetailsId");
+
+                    b.HasIndex("LessonId")
+                        .IsUnique();
+
+                    b.ToTable("LessonDetails");
+                });
+
             modelBuilder.Entity("TeacherOrganizer.Models.DataModels.RescheduleRequest", b =>
                 {
                     b.Property<int>("Id")
@@ -381,6 +425,21 @@ namespace TeacherOrganizer.Migrations
                     b.ToTable("Words");
                 });
 
+            modelBuilder.Entity("LessonDetailsUser", b =>
+                {
+                    b.HasOne("TeacherOrganizer.Models.DataModels.User", null)
+                        .WithMany()
+                        .HasForeignKey("AccessibleUsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TeacherOrganizer.Models.DataModels.LessonDetails", null)
+                        .WithMany()
+                        .HasForeignKey("LessonDetailsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("LessonUser", b =>
                 {
                     b.HasOne("TeacherOrganizer.Models.DataModels.Lesson", null)
@@ -476,6 +535,17 @@ namespace TeacherOrganizer.Migrations
                     b.Navigation("Teacher");
                 });
 
+            modelBuilder.Entity("TeacherOrganizer.Models.DataModels.LessonDetails", b =>
+                {
+                    b.HasOne("TeacherOrganizer.Models.DataModels.Lesson", "Lesson")
+                        .WithOne("Details")
+                        .HasForeignKey("TeacherOrganizer.Models.DataModels.LessonDetails", "LessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Lesson");
+                });
+
             modelBuilder.Entity("TeacherOrganizer.Models.DataModels.RescheduleRequest", b =>
                 {
                     b.HasOne("TeacherOrganizer.Models.DataModels.User", "Initiator")
@@ -511,6 +581,12 @@ namespace TeacherOrganizer.Migrations
                     b.Navigation("CopiedDictionaries");
 
                     b.Navigation("Words");
+                });
+
+            modelBuilder.Entity("TeacherOrganizer.Models.DataModels.Lesson", b =>
+                {
+                    b.Navigation("Details")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("TeacherOrganizer.Models.DataModels.User", b =>

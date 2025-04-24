@@ -15,6 +15,7 @@ namespace TeacherOrganizer.Data
         public DbSet<Dictionary> Dictionaries { get; set; }
         public DbSet<Word> Words { get; set; }
         public DbSet<RescheduleRequest> RescheduleRequests { get; set; }
+        public DbSet<LessonDetails> LessonDetails { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -51,6 +52,16 @@ namespace TeacherOrganizer.Data
                 .WithMany(d => d.CopiedDictionaries)
                 .HasForeignKey(d => d.OriginalDictionaryId)
                 .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<LessonDetails>()
+                .HasOne(d => d.Lesson)
+                .WithOne(l => l.Details)
+                .HasForeignKey<LessonDetails>(d => d.LessonId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<LessonDetails>()
+                .HasMany(d => d.AccessibleUsers)
+                .WithMany()
+                .UsingEntity(j => j.ToTable("LessonDetailsUsers"));
         }
     }
 }
