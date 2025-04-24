@@ -107,7 +107,7 @@ namespace TeacherOrganizer.Servies
                 lesson.StartTime = request.ProposedStartTime;
                 lesson.EndTime = request.ProposedEndTime;
                 lesson.UpdatedAt = DateTime.UtcNow;
-
+                lesson.Status = LessonStatus.Scheduled; 
                 _context.Lessons.Update(lesson);
             }
 

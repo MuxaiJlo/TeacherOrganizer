@@ -51,7 +51,7 @@ namespace TeacherOrganizer.Controllers.Reschedule
             var success = await _rescheduleService.UpdateRequestStatusAsync(id, dto.NewStatus, username);
             if (!success) return Forbid("Access denied or invalid request.");
 
-            return Ok();
+            return Ok(new { success = true, message = "Status updated successfully" }); 
         }
         // DELETE /api/Reschedule/{id}
         [HttpDelete("{id}")]

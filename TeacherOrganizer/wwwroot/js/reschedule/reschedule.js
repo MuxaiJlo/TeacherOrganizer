@@ -162,8 +162,7 @@ export async function initializeRescheduleRequests(container) {
                 }
             } catch (error) {
                 console.error("Error approving request:", error);
-                alert("Failed to approve the request.");
-                showNotification("Failed to approve the request.", "error");
+                alert("Failed to approve the request.", error);
             }
         }
 

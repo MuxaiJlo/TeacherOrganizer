@@ -35,7 +35,7 @@ export async function fetchPendingRescheduleRequests() {
 export async function updateRescheduleRequestStatus(requestId, newStatus) {
     try {
         const response = await fetch(`/api/Reschedule/${requestId}/UpdateStatus`, {
-            method: "POST", //  Або PUT, залежно від вашого API
+            method: "POST", 
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ newStatus: newStatus }),
         });
