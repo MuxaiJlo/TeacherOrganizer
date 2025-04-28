@@ -14,16 +14,16 @@ namespace TeacherOrganizer.Servies
             _context = context;
         }
 
-        public async Task<IEnumerable<LessonDetails>> GetAllAccessibleForUserAsync(string userId)
+        public async Task<IEnumerable<LessonDetail>> GetAllAccessibleForUserAsync(string userId)
         {
             return await _context.LessonDetails
                 .Include(ld => ld.Lesson)
                 .Include(ld => ld.AccessibleUsers)
-                .Where(ld => ld.AccessibleUsers.Any(u => u.Id == userId))
+                .Where(ld => ld.AccessibleUsers.Any(u => u.UserName == userId))
                 .ToListAsync();
         }
 
-        public async Task<LessonDetails> GetByIdAsync(int id)
+        public async Task<LessonDetail> GetByIdAsync(int id)
         {
             return await _context.LessonDetails
                 .Include(ld => ld.Lesson)
@@ -40,10 +40,10 @@ namespace TeacherOrganizer.Servies
             if (lessonDetails == null)
                 return false;
 
-            return lessonDetails.AccessibleUsers.Any(u => u.Id == userId);
+            return lessonDetails.AccessibleUsers.Any(u => u.UserName == userId);
         }
 
-        public async Task<LessonDetails> CreateAsync(LessonDetails lessonDetails, List<string> accessibleUserIds)
+        public async Task<LessonDetail> CreateAsync(LessonDetail lessonDetails, List<string> accessibleUserIds)
         {
             lessonDetails.CreatedAt = DateTime.UtcNow;
             lessonDetails.UpdatedAt = DateTime.UtcNow;
@@ -60,7 +60,7 @@ namespace TeacherOrganizer.Servies
             return lessonDetails;
         }
 
-        public async Task<LessonDetails> UpdateAsync(LessonDetails lessonDetails)
+        public async Task<LessonDetail> UpdateAsync(LessonDetail lessonDetails)
         {
             var existingDetails = await _context.LessonDetails.FindAsync(lessonDetails.LessonDetailsId);
 
@@ -91,7 +91,7 @@ namespace TeacherOrganizer.Servies
             if (userIds != null && userIds.Any())
             {
                 var users = await _context.Users
-                    .Where(u => userIds.Contains(u.Id))
+                    .Where(u => userIds.Contains(u.UserName))
                     .ToListAsync();
 
                 foreach (var user in users)
@@ -130,7 +130,7 @@ namespace TeacherOrganizer.Servies
             if (user == null)
                 throw new KeyNotFoundException($"User with ID {userId} not found");
 
-            if (!lessonDetails.AccessibleUsers.Any(u => u.Id == userId))
+            if (!lessonDetails.AccessibleUsers.Any(u => u.UserName == userId))
             {
                 lessonDetails.AccessibleUsers.Add(user);
                 await _context.SaveChangesAsync();
@@ -146,7 +146,7 @@ namespace TeacherOrganizer.Servies
             if (lessonDetails == null)
                 throw new KeyNotFoundException($"LessonDetails with ID {lessonDetailsId} not found");
 
-            var user = lessonDetails.AccessibleUsers.FirstOrDefault(u => u.Id == userId);
+            var user = lessonDetails.AccessibleUsers.FirstOrDefault(u => u.UserName == userId);
 
             if (user != null)
             {

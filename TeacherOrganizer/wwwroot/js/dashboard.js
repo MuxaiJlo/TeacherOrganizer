@@ -49,7 +49,14 @@
                 }
             }
             else if (page === "lesson-notes") {
-                contentPlaceholder.innerHTML = "<h2>Lesson Notes</h2><p>Content for lesson notes will go here.</p>";
+                try {
+                    const lessonDetailsModule = await import("./lessonDetails/lessonDetails.js");
+                    console.log("📚 Lesson Details module loaded");
+                    lessonDetailsModule.initializeLessonDetails(contentPlaceholder);
+                } catch (error) {
+                    console.error("❌ Error loading lesson details module:", error);
+                    contentPlaceholder.innerHTML = "<p>Error loading lesson details.</p>";
+                }
             }
         });
     });

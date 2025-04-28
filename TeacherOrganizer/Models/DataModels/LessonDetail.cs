@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace TeacherOrganizer.Models.DataModels
 {
-    public class LessonDetails
+    public class LessonDetail
     {
         [Key]
         public int LessonDetailsId { get; set; }

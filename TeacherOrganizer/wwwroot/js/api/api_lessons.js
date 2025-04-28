@@ -1,4 +1,5 @@
-﻿export async function fetchLessons(start, end) {
+﻿
+export async function fetchLessons(start, end) {
     if (!start || !end) {
         console.warn("⚠️ Skipping fetchLessons due to missing start or end");
         return [];
@@ -88,3 +89,18 @@ export async function deleteLesson(lessonId) {
         throw error;
     }
 }
+
+export const getScheduledLessons = async () => {
+    try {
+        const response = await fetch('/api/Lesson/scheduled');
+        if (!response.ok) {
+            const message = `Error HTTP: ${response.status}`;
+            throw new Error(message);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error retrieving scheduled lessons:', error);
+        throw error;
+    }
+};

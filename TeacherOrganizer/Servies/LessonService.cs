@@ -166,6 +166,24 @@ namespace TeacherOrganizer.Servies
                 .Include(l => l.Students)
                 .FirstOrDefaultAsync(l => l.LessonId == lessonId);
         }
+        public async Task<IEnumerable<LessonDto>> GetScheduledLessonsForUserAsync(string userId)
+        {
+            var lessons = await _context.Lessons
+                .Include(l => l.Students)
+                .Include(l => l.Teacher)
+                .Where(l => l.Status == LessonStatus.Scheduled &&
+                            (l.Teacher.UserName == userId || l.Students.Any(s => s.UserName == userId)))
+                .ToListAsync();
 
+
+            return lessons.Select(l => new LessonDto
+            {
+                LessonId = l.LessonId,
+                StartTime = l.StartTime,
+                EndTime = l.EndTime,
+                Description = l.Description
+            }).ToList();
+
+        }
     }
 }

@@ -1,6 +1,4 @@
-﻿import axios from 'axios';
-
-const API_URL = '/api/LessonDetails';
+﻿const API_URL = '/api/LessonDetails';
 
 /**
  * Отримати всі деталі уроків, доступні поточному користувачу
@@ -8,8 +6,13 @@ const API_URL = '/api/LessonDetails';
  */
 export const getAccessibleLessonDetails = async () => {
     try {
-        const response = await axios.get(`${API_URL}/accessible`);
-        return response.data;
+        const response = await fetch(`${API_URL}/accessible`);
+        if (!response.ok) {
+            const message = `Помилка HTTP: ${response.status}`;
+            throw new Error(message);
+        }
+        const data = await response.json();
+        return data;
     } catch (error) {
         console.error('Error fetching lesson details:', error);
         throw error;
@@ -23,8 +26,13 @@ export const getAccessibleLessonDetails = async () => {
  */
 export const getLessonDetailsById = async (id) => {
     try {
-        const response = await axios.get(`${API_URL}/${id}`);
-        return response.data;
+        const response = await fetch(`${API_URL}/${id}`);
+        if (!response.ok) {
+            const message = `Помилка HTTP: ${response.status}`;
+            throw new Error(message);
+        }
+        const data = await response.json();
+        return data;
     } catch (error) {
         console.error(`Error fetching lesson details with id ${id}:`, error);
         throw error;
@@ -41,12 +49,19 @@ export const getLessonDetailsById = async (id) => {
  */
 export const createLessonDetails = async ({ lessonId, content, accessibleUserIds = [] }) => {
     try {
-        const response = await axios.post(API_URL, {
-            lessonId,
-            content,
-            accessibleUserIds
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ lessonId, content, accessibleUserIds }),
         });
-        return response.data;
+        if (!response.ok) {
+            const message = `Помилка HTTP: ${response.status}`;
+            throw new Error(message);
+        }
+        const data = await response.json();
+        return data;
     } catch (error) {
         console.error('Error creating lesson details:', error);
         throw error;
@@ -61,7 +76,17 @@ export const createLessonDetails = async ({ lessonId, content, accessibleUserIds
  */
 export const updateLessonDetails = async (id, content) => {
     try {
-        await axios.put(`${API_URL}/${id}`, { content });
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ content }),
+        });
+        if (!response.ok) {
+            const message = `Помилка HTTP: ${response.status}`;
+            throw new Error(message);
+        }
     } catch (error) {
         console.error(`Error updating lesson details with id ${id}:`, error);
         throw error;
@@ -76,7 +101,17 @@ export const updateLessonDetails = async (id, content) => {
  */
 export const updateLessonDetailsAccess = async (id, userIds) => {
     try {
-        await axios.put(`${API_URL}/${id}/access`, { userIds });
+        const response = await fetch(`${API_URL}/${id}/access`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userIds }),
+        });
+        if (!response.ok) {
+            const message = `Помилка HTTP: ${response.status}`;
+            throw new Error(message);
+        }
     } catch (error) {
         console.error(`Error updating access for lesson details with id ${id}:`, error);
         throw error;
@@ -90,7 +125,13 @@ export const updateLessonDetailsAccess = async (id, userIds) => {
  */
 export const deleteLessonDetails = async (id) => {
     try {
-        await axios.delete(`${API_URL}/${id}`);
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: 'DELETE',
+        });
+        if (!response.ok) {
+            const message = `Помилка HTTP: ${response.status}`;
+            throw new Error(message);
+        }
     } catch (error) {
         console.error(`Error deleting lesson details with id ${id}:`, error);
         throw error;
@@ -105,7 +146,13 @@ export const deleteLessonDetails = async (id) => {
  */
 export const addUserAccess = async (lessonDetailsId, userId) => {
     try {
-        await axios.post(`${API_URL}/${lessonDetailsId}/users/${userId}`);
+        const response = await fetch(`${API_URL}/${lessonDetailsId}/users/${userId}`, {
+            method: 'POST',
+        });
+        if (!response.ok) {
+            const message = `Помилка HTTP: ${response.status}`;
+            throw new Error(message);
+        }
     } catch (error) {
         console.error(`Error adding user access for user ${userId} to lesson details ${lessonDetailsId}:`, error);
         throw error;
@@ -120,7 +167,13 @@ export const addUserAccess = async (lessonDetailsId, userId) => {
  */
 export const removeUserAccess = async (lessonDetailsId, userId) => {
     try {
-        await axios.delete(`${API_URL}/${lessonDetailsId}/users/${userId}`);
+        const response = await fetch(`${API_URL}/${lessonDetailsId}/users/${userId}`, {
+            method: 'DELETE',
+        });
+        if (!response.ok) {
+            const message = `Помилка HTTP: ${response.status}`;
+            throw new Error(message);
+        }
     } catch (error) {
         console.error(`Error removing user access for user ${userId} from lesson details ${lessonDetailsId}:`, error);
         throw error;
@@ -151,5 +204,5 @@ export default {
     deleteLessonDetails,
     addUserAccess,
     removeUserAccess,
-    getLessonDetailsByLessonId
+    getLessonDetailsByLessonId,
 };

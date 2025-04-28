@@ -151,6 +151,15 @@ namespace TeacherOrganizer.Controllers.Lesson
             if (!result) return NotFound(new { Message = "Lesson not found" });
             return NoContent();
         }
+        [HttpGet("scheduled")]
+        [Authorize(Roles = "Teacher, Student")]
+        public async Task<ActionResult<IEnumerable<LessonDto>>> GetScheduledLessons()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var lessons = await _lessonService.GetScheduledLessonsForUserAsync(userId);
+            return Ok(lessons);
+        }
+
 
     }
 }

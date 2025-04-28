@@ -33,7 +33,7 @@ namespace TeacherOrganizer.Controllers.LessonDetails
                 Content = ld.Content,
                 CreatedAt = ld.CreatedAt,
                 UpdatedAt = ld.UpdatedAt,
-                AccessibleUserIds = ld.AccessibleUsers.Select(u => u.Id).ToList()
+                AccessibleUserIds = ld.AccessibleUsers.Select(u => u.UserName).ToList()
             });
 
             return Ok(lessonDetailsDto);
@@ -61,7 +61,7 @@ namespace TeacherOrganizer.Controllers.LessonDetails
                 Content = lessonDetails.Content,
                 CreatedAt = lessonDetails.CreatedAt,
                 UpdatedAt = lessonDetails.UpdatedAt,
-                AccessibleUserIds = lessonDetails.AccessibleUsers.Select(u => u.Id).ToList()
+                AccessibleUserIds = lessonDetails.AccessibleUsers.Select(u => u.UserName).ToList()
             };
 
             return Ok(lessonDetailsDto);
@@ -79,7 +79,7 @@ namespace TeacherOrganizer.Controllers.LessonDetails
                 createDto.AccessibleUserIds.Add(userId);
             }
 
-            var lessonDetails = new LessonDetails
+            var lessonDetails = new LessonDetail
             {
                 LessonId = createDto.LessonId,
                 Content = createDto.Content

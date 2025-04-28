@@ -41,7 +41,7 @@ namespace TeacherOrganizer
             builder.Services.AddScoped<IDictionaryService, DictionaryService>();
             builder.Services.AddScoped<IWordService, WordService>();
             builder.Services.AddScoped<IRescheduleService, RescheduleService>();
-
+            builder.Services.AddScoped<ILessonDetailsService, LessonDetailsService>();
 
 
             builder.Services.AddAuthentication(options =>

@@ -36,6 +36,6 @@ namespace TeacherOrganizer.Models.DataModels
         [JsonIgnore]
         public ICollection<User> Students { get; set; }
         [JsonIgnore]
-        public LessonDetails Details { get; set; }
+        public LessonDetail Details { get; set; }
     }
 }

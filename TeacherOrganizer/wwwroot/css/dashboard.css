@@ -378,3 +378,6 @@ body {
         background-color: #f5f5f5;
     }
 
+.table-dark th {
+    color: black;
+}
