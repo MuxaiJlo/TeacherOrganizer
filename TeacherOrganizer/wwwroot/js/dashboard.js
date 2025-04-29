@@ -28,7 +28,14 @@
                     contentPlaceholder.innerHTML = "<p>Error loading dictionary.</p>";
                 }
             } else if (page === "settings") {
-                contentPlaceholder.innerHTML = "<h2>Settings Page</h2>";
+                try {
+                    const settingsModule = await import("./settings/settings.js");
+                    console.log("⚙️ Settings module loaded");
+                    settingsModule.initializeSettings(contentPlaceholder, window.currentUserName); // передаємо ім’я користувача
+                } catch (error) {
+                    console.error("❌ Error loading settings module:", error);
+                    contentPlaceholder.innerHTML = "<p>Error loading settings.</p>";
+                }
             } else if (page === "student-list") {
                 try {
                     const studentListModule = await import("./student/studentList.js");

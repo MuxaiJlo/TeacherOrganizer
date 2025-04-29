@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeacherOrganizer.Data;
+using TeacherOrganizer.Interefaces;
 using TeacherOrganizer.Models.DataModels;
 using TeacherOrganizer.Models.UserModels;
 
@@ -12,76 +13,56 @@ namespace TeacherOrganizer.Controllers.Users
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly UserManager<User> _userManager;
-        private readonly ApplicationDbContext _context;
+        private readonly IUserService _userService;
 
-        public UsersController(UserManager<User> userManager, ApplicationDbContext context)
+        public UsersController(IUserService userService)
         {
-            _userManager = userManager;
-            _context = context;
+            _userService = userService;
         }
 
         [HttpGet("Students")]
         public async Task<IActionResult> GetStudents()
         {
-            var users = await _userManager.Users.ToListAsync();
-
-            var students = new List<object>();
-
-            foreach (var user in users)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                if (roles.Contains("Student"))
-                {
-                    students.Add(new
-                    {
-                        user.Id,
-                        user.UserName,
-                        user.FirstName,
-                        user.LastName,
-                        user.Email,
-                        user.PaidLessons
-                    });
-
-                }
-            }
-
+            var students = await _userService.GetStudentsAsync();
             return Ok(students);
         }
 
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetUserById(string userId)
         {
-            var user = await _context.Users.FindAsync(userId);
+            var user = await _userService.GetUserByIdAsync(userId);
 
             if (user == null)
             {
                 return NotFound();
             }
 
-            var userDto = new UserDto
-            {
-                UserName = user.UserName,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                PaidLessons = user.PaidLessons,
-                Email = user.Email
-            };
-
-
-            return Ok(userDto);
+            return Ok(user);
         }
+        [HttpGet("by-username/{username}")]
+        [Authorize]
+        public async Task<IActionResult> GetUserByUsername(string username)
+        {
+            var user = await _userService.GetUserByUsernameAsync(username);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user);
+        }
+
 
         [HttpGet("{userId}/roles")]
         public async Task<IActionResult> GetUserRoles(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
+            var roles = await _userService.GetUserRolesAsync(userId);
+            if (roles == null)
             {
                 return NotFound();
             }
 
-            var roles = await _userManager.GetRolesAsync(user);
             return Ok(roles);
         }
 
@@ -89,14 +70,82 @@ namespace TeacherOrganizer.Controllers.Users
         [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> AddPaidLessons(string userId, [FromQuery] int count)
         {
-            var user = await _context.Users.FindAsync(userId);
-            if (user == null) return NotFound();
+            var result = await _userService.AddPaidLessonsAsync(userId, count);
+            if (result == null)
+            {
+                return NotFound();
+            }
 
-            user.PaidLessons += count;
-            await _context.SaveChangesAsync();
-
-            return Ok(new { user.Id, user.PaidLessons });
+            return Ok(result);
         }
 
+        // Нові методи для роботи зі сторінкою налаштувань
+
+        [HttpGet("{userId}/settings")]
+        [Authorize]
+        public async Task<IActionResult> GetUserSettings(string userId)
+        {
+            // Перевірка, щоб користувач міг отримати тільки свої налаштування або адміністратор/вчитель
+            if (userId != User.FindFirst("sub")?.Value && !User.IsInRole("Admin") && !User.IsInRole("Teacher"))
+            {
+                return Forbid();
+            }
+
+            var settings = await _userService.GetUserSettingsAsync(userId);
+            if (settings == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(settings);
+        }
+
+        [HttpPut("{userId}/settings")]
+        [Authorize]
+        public async Task<IActionResult> UpdateUserSettings(string userId, [FromBody] UserSettingsUpdateDto updateDto)
+        {
+            // Перевірка, щоб користувач міг змінювати тільки свої налаштування або адміністратор/вчитель
+            if (userId != User.FindFirst("sub")?.Value && !User.IsInRole("Admin") && !User.IsInRole("Teacher"))
+            {
+                return Forbid();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var updatedSettings = await _userService.UpdateUserSettingsAsync(userId, updateDto);
+            if (updatedSettings == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedSettings);
+        }
+
+        [HttpPost("{userId}/change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(string userId, [FromBody] ChangePasswordDto changePasswordDto)
+        {
+            // Користувач може змінювати тільки свій пароль
+            if (userId != User.FindFirst("sub")?.Value)
+            {
+                return Forbid();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _userService.ChangePasswordAsync(userId, changePasswordDto);
+            if (!result)
+            {
+                return BadRequest(new { Message = "Failed to change password. Please check your current password." });
+            }
+
+            return Ok(new { Message = "Password changed successfully" });
+        }
     }
 }
