@@ -21,20 +21,18 @@ namespace TeacherOrganizer.Servies
 
         public async Task<Lesson> AddLessonAsync(LessonModels lessonDto)
         {
-            Console.WriteLine($"🔍 Searching for teacher with ID: {lessonDto.TeacherId}");
-
             var teacher = await _userManager.FindByNameAsync(lessonDto.TeacherId);
-
-            Console.WriteLine($"Searching for teacher with ID after FindByNameAsync: {teacher}");
             if (teacher == null)
-                throw new Exception("Teacher not found");
+                throw new ArgumentException("Teacher not found");
 
             var students = await _context.Users
                 .Where(u => lessonDto.StudentIds.Contains(u.Id))
                 .ToListAsync();
 
             if (students.Count != lessonDto.StudentIds.Distinct().Count())
-                throw new Exception("One or more students not found");
+                throw new ArgumentException("One or more students not found");
+
+            await ValidateLessonDto(lessonDto, teacher, students);
 
             var lesson = new Lesson
             {
@@ -52,12 +50,64 @@ namespace TeacherOrganizer.Servies
             return lesson;
         }
 
+        public async Task<Lesson> UpdateLessonAsync(int lessonId, LessonUpdateModel updatedLesson)
+        {
+            var lesson = await _context.Lessons
+                .Include(l => l.Teacher)
+                .Include(l => l.Students)
+                .FirstOrDefaultAsync(l => l.LessonId == lessonId);
+
+            if (lesson == null)
+                return null;
+
+            // Валідую нові дати
+            var tempDto = new LessonModels
+            {
+                StartTime = updatedLesson.StartTime,
+                EndTime = updatedLesson.EndTime,
+                Description = updatedLesson.Description,
+                TeacherId = lesson.Teacher.UserName,
+                StudentIds = lesson.Students.Select(s => s.Id).ToList()
+            };
+
+            await ValidateLessonDto(tempDto, lesson.Teacher, lesson.Students);
+
+            lesson.StartTime = updatedLesson.StartTime;
+            lesson.EndTime = updatedLesson.EndTime;
+            lesson.Description = updatedLesson.Description;
+            lesson.Status = LessonStatus.Scheduled;
+
+            await _context.SaveChangesAsync();
+            return lesson;
+        }
+
+        private async Task ValidateLessonDto(LessonModels dto, User teacher, ICollection<User> students)
+        {
+            if (dto.StartTime >= dto.EndTime)
+                throw new ArgumentException("Start time must be earlier than end time.");
+
+            if (dto.StartTime < DateTime.UtcNow)
+                throw new ArgumentException("Cannot schedule a lesson in the past.");
+
+            if (!string.IsNullOrWhiteSpace(dto.Description) && dto.Description.Length > 500)
+                throw new ArgumentException("Description is too long (max 500 characters).");
+
+            bool hasConflict = await _context.Lessons
+                .Where(l =>
+                    l.Status == LessonStatus.Scheduled &&
+                    l.StartTime < dto.EndTime &&
+                    l.EndTime > dto.StartTime &&
+                    (l.Teacher.Id == teacher.Id || l.Students.Any(s => students.Select(st => st.Id).Contains(s.Id))))
+                .AnyAsync();
+
+            if (hasConflict)
+                throw new InvalidOperationException("The teacher or one of the students already has a lesson at this time.");
+        }
 
         public async Task<bool> DeleteLessonAsync(int lessonId)
         {
             var lesson = await _context.Lessons.FindAsync(lessonId);
             if (lesson == null) return false;
-            Console.WriteLine($"=====================Lesson: {lesson}=======================");
 
             _context.Lessons.Remove(lesson);
             await _context.SaveChangesAsync();
@@ -75,7 +125,6 @@ namespace TeacherOrganizer.Servies
             return await query.ToListAsync();
         }
 
-
         public async Task<Lesson?> ProposeRescheduleAsync(int lessonId, DateTime proposedStart, DateTime proposedEnd, string initiatorId)
         {
             var lesson = await _context.Lessons
@@ -87,12 +136,8 @@ namespace TeacherOrganizer.Servies
 
             var initiator = await _context.Users.FirstOrDefaultAsync(u => u.UserName == initiatorId);
             if (initiator == null)
-            {
-                Console.WriteLine($"Initiator with ID '{initiatorId}' not found in the database.");
                 throw new UnauthorizedAccessException("Initiator not found");
-            }
 
-            // Создаём запрос на перенос
             var rescheduleRequest = new RescheduleRequest
             {
                 Lesson = lesson,
@@ -105,7 +150,6 @@ namespace TeacherOrganizer.Servies
 
             _context.RescheduleRequests.Add(rescheduleRequest);
 
-            // ⬇ Меняем статус урока
             lesson.Status = LessonStatus.RescheduledRequest;
             lesson.UpdatedAt = DateTime.UtcNow;
 
@@ -141,24 +185,6 @@ namespace TeacherOrganizer.Servies
             await _context.SaveChangesAsync();
         }
 
-
-        public async Task<Lesson> UpdateLessonAsync(int lessonId, LessonUpdateModel updatedLesson)
-        {
-            var lesson = await _context.Lessons
-                .Include(l => l.Teacher)
-                .Include(l => l.Students)
-                .FirstOrDefaultAsync(l => l.LessonId == lessonId);
-
-            if (lesson == null) return null;
-
-            lesson.StartTime = updatedLesson.StartTime;
-            lesson.EndTime = updatedLesson.EndTime;
-            lesson.Description = updatedLesson.Description;
-            lesson.Status = LessonStatus.Scheduled;
-
-            await _context.SaveChangesAsync();
-            return lesson;
-        }
         public async Task<Lesson?> GetLessonByIdAsync(int lessonId)
         {
             return await _context.Lessons
@@ -166,6 +192,7 @@ namespace TeacherOrganizer.Servies
                 .Include(l => l.Students)
                 .FirstOrDefaultAsync(l => l.LessonId == lessonId);
         }
+
         public async Task<IEnumerable<LessonDto>> GetScheduledLessonsForUserAsync(string userId)
         {
             var lessons = await _context.Lessons
@@ -175,7 +202,6 @@ namespace TeacherOrganizer.Servies
                             (l.Teacher.UserName == userId || l.Students.Any(s => s.UserName == userId)))
                 .ToListAsync();
 
-
             return lessons.Select(l => new LessonDto
             {
                 LessonId = l.LessonId,
@@ -183,7 +209,7 @@ namespace TeacherOrganizer.Servies
                 EndTime = l.EndTime,
                 Description = l.Description
             }).ToList();
-
         }
     }
+
 }

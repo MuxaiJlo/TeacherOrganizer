@@ -44,9 +44,27 @@
     document.getElementById('loginForm').addEventListener('submit', function (event) {
         event.preventDefault();
 
+        const username = document.getElementById('Username').value.trim();
+        const password = document.getElementById('Password').value.trim();
+
+        let errors = [];
+
+        if (!username || username.length < 3) {
+            errors.push("Username must be at least 3 characters long.");
+        }
+
+        if (!password || password.length < 6) {
+            errors.push("Password must be at least 6 characters long.");
+        }
+
+        if (errors.length > 0) {
+            alert(errors.join("\n"));
+            return;
+        }
+
         const formData = {
-            Username: document.getElementById('Username').value,
-            Password: document.getElementById('Password').value
+            Username: username,
+            Password: password
         };
 
         fetch('/api/Auth/login', {
@@ -54,17 +72,20 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) return response.json().then(err => Promise.reject(err));
+                return response.json();
+            })
             .then(data => {
-                if (data.token) {
-                    window.location.href = '/Main/Index';
-                } else {
-                    alert(data.message || 'Login failed');
-                }
+                window.location.href = data.redirectUrl || '/Main/Index';
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Error during login');
+                if (error.message) {
+                    alert(error.message);
+                } else {
+                    alert('Login failed. Please check your credentials.');
+                }
             });
     });
 </script>
+

@@ -4,10 +4,10 @@ namespace TeacherOrganizer.Models.AuthModels
 {
     public class LoginModel
     {
-        [Required]
+        [Required(ErrorMessage = "Username is required!")]
         public string Username { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Password is required!")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
     }

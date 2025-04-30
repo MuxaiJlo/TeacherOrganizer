@@ -53,17 +53,51 @@
 
    
 </body>
-
 <script>
     document.getElementById('registerForm').addEventListener('submit', function (event) {
         event.preventDefault();
 
+        const firstName = document.getElementById('FirstName').value.trim();
+        const lastName = document.getElementById('LastName').value.trim();
+        const username = document.getElementById('Username').value.trim();
+        const email = document.getElementById('Email').value.trim();
+        const password = document.getElementById('Password').value.trim();
+
+        let errors = [];
+
+        if (firstName.length < 2 || firstName.length > 50) {
+            errors.push("First name must be between 2 and 50 characters.");
+        }
+
+        if (lastName.length < 2 || lastName.length > 50) {
+            errors.push("Last name must be between 2 and 50 characters.");
+        }
+
+        if (username.length < 3 || username.length > 50) {
+            errors.push("Username must be between 3 and 50 characters.");
+        }
+
+        const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+        if (!emailPattern.test(email)) {
+            errors.push("Please enter a valid email address.");
+        }
+
+        const passwordPattern = /^(?=.*[a-zA-Z])(?=.*\d).{6,}$/;
+        if (!passwordPattern.test(password)) {
+            errors.push("Password must be at least 6 characters long and contain at least one letter and one number.");
+        }
+
+        if (errors.length > 0) {
+            alert(errors.join("\n"));
+            return;
+        }
+
         const formData = {
-            FirstName: document.getElementById('FirstName').value,
-            LastName: document.getElementById('LastName').value,
-            Username: document.getElementById('Username').value,
-            Email: document.getElementById('Email').value,
-            Password: document.getElementById('Password').value
+            FirstName: firstName,
+            LastName: lastName,
+            Username: username,
+            Email: email,
+            Password: password
         };
 
         fetch('/api/Auth/register', {
@@ -71,18 +105,22 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) return response.json().then(err => Promise.reject(err));
+                return response.json();
+            })
             .then(data => {
-                if (data.message) {
-                    alert(data.message);
-                    window.location.href = '/AuthView/Login';
-                } else {
-                    alert('Registration failed');
-                }
+                alert(data.message || 'Registration successful');
+                window.location.href = '/AuthView/Login';
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Error during registration');
+                if (error.errors) {
+                    const serverErrors = Object.values(error.errors).flat();
+                    alert(serverErrors.join("\n"));
+                } else {
+                    alert('Error during registration');
+                }
             });
     });
 </script>
+
