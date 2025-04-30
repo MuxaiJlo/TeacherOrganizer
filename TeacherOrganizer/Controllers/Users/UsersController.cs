@@ -104,12 +104,6 @@ namespace TeacherOrganizer.Controllers.Users
         [Authorize]
         public async Task<IActionResult> UpdateUserSettings(string userId, [FromBody] UserSettingsUpdateDto updateDto)
         {
-            // Перевірка, щоб користувач міг змінювати тільки свої налаштування або адміністратор/вчитель
-            if (userId != User.FindFirst("sub")?.Value && !User.IsInRole("Admin") && !User.IsInRole("Teacher"))
-            {
-                return Forbid();
-            }
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

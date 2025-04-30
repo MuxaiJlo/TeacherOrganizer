@@ -61,26 +61,31 @@ function setupEventHandlers() {
     const actionSelect = document.getElementById("actionSelect");
     actionSelect.addEventListener("change", handleActionChange);
 
+
     document.getElementById("saveChangesBtn").addEventListener("click", () => {
         const selectedAction = actionSelect.value;
         if (selectedAction === "update") {
             saveLessonDetails();
-        } else if (selectedAction === "reschedule" && currentUserRole === "student") {
-            alert("You can only propose a reschedule, not save it directly.");
         } else if (selectedAction === "reschedule") {
             rescheduleCurrentLesson();
         }
     });
 
+
     document.getElementById("deleteLessonBtn").addEventListener("click", deleteCurrentLesson);
 
-    // Disable reschedule and delete for students
+
+    // Фільтруємо опції для студента
     if (currentUserRole === "student") {
-        actionSelect.querySelectorAll('option[value="update"], option[value="delete"]').forEach(option => {
-            option.disabled = true;
-        });
-        document.getElementById("saveChangesBtn").disabled = true;
-        document.getElementById("deleteLessonBtn").disabled = true;
+        for (let i = actionSelect.options.length - 1; i >= 0; i--) {
+            if (actionSelect.options[i].value !== "reschedule" && actionSelect.options[i].value !== "none") {
+                actionSelect.remove(i);
+            }
+        }
+        document.getElementById("updateFields").style.display = "none";
+        document.getElementById("deleteConfirmation").style.display = "none";
+        document.getElementById("saveChangesBtn").textContent = "Propose Reschedule";
+        document.getElementById("deleteLessonBtn").style.display = "none";
     }
 }
 

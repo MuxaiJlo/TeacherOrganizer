@@ -1,91 +1,83 @@
 ﻿@model TeacherOrganizer.Models.AuthModels.LoginModel
-@{
-    ViewData["Title"] = "Login";
-}
-<link rel="stylesheet" href="~/css/auth.css" />
+ @{
+     ViewData["Title"] = "Login";
+ }
+ <link rel="stylesheet" href="~/css/auth.css" />
 
-<body>
-    <!-- Wave -->
-    <svg class="wave" viewBox="0 0 1440 400">
-        <path fill="#FFA07A" fill-opacity="1"
-              d="M0,200L80,180C160,160,320,120,480,150C640,180,800,260,960,275C1120,290,1280,240,1360,220L1440,200V400H0Z">
-        </path>
-    </svg>
+ <body>
+     <svg class="wave" viewBox="0 0 1440 400">
+         <path fill="#FFA07A" fill-opacity="1"
+               d="M0,200L80,180C160,160,320,120,480,150C640,180,800,260,960,275C1120,290,1280,240,1360,220L1440,200V400H0Z">
+         </path>
+     </svg>
 
-    <div class="d-flex justify-content-center align-items-center vh-200">
-        <div class="login-container p-4 shadow rounded">
-            <h2 class="text-center">Welcome Back!</h2>
-            <p class="text-center text-muted">Log in to continue your learning journey.</p>
+     <div class="d-flex justify-content-center align-items-center vh-200">
+         <div class="login-container p-4 shadow rounded">
+             <h2 class="text-center">Welcome Back!</h2>
+             <p class="text-center text-muted">Log in to continue your learning journey.</p>
 
-            <form id="loginForm">
-                <div class="mb-3">
-                    <label for="Username" class="form-label">Username</label>
-                    <input type="text" id="Username" name="Username" class="form-control" required />
-                </div>
-                <div class="mb-3">
-                    <label for="Password" class="form-label">Password</label>
-                    <input type="password" id="Password" name="Password" class="form-control" required />
-                </div>
+             <form id="loginForm">
+                 <div class="mb-3">
+                     <label for="Username" class="form-label">Username</label>
+                     <input type="text" id="Username" name="Username" class="form-control" required />
+                     <span asp-validation-for="Username" class="text-danger"></span>
+                 </div>
+                 <div class="mb-3">
+                     <label for="Password" class="form-label">Password</label>
+                     <input type="password" id="Password" name="Password" class="form-control" required />
+                     <span asp-validation-for="Password" class="text-danger"></span>
+                 </div>
 
-                <button type="submit" class="btn btn-primary w-100">Login</button>
-            </form>
+                 <button type="submit" class="btn btn-primary w-100">Login</button>
+             </form>
 
-            <div class="text-center mt-3">
-                <a href="/AuthView/Register" class="text-decoration-none">Don't have an account? Register</a>
-            </div>
-            <div class="text-center mt-3">
-                <a href="/" class="btn btn-outline-secondary w-100">Return to Home</a>
-            </div>
-        </div>
-    </div>
-</body>
+             <div class="text-center mt-3">
+                 <a href="/AuthView/Register" class="text-decoration-none">Don't have an account? Register</a>
+             </div>
+             <div class="text-center mt-3">
+                 <a href="/" class="btn btn-outline-secondary w-100">Return to Home</a>
+             </div>
+         </div>
+     </div>
+ </body>
 
-<script>
-    document.getElementById('loginForm').addEventListener('submit', function (event) {
-        event.preventDefault();
+ @section Scripts {
+     <script>
+         document.getElementById('loginForm').addEventListener('submit', function (event) {
+             event.preventDefault();
 
-        const username = document.getElementById('Username').value.trim();
-        const password = document.getElementById('Password').value.trim();
+             const username = document.getElementById('Username').value.trim();
+             const password = document.getElementById('Password').value.trim();
 
-        let errors = [];
+             const formData = {
+                 Username: username,
+                 Password: password
+             };
 
-        if (!username || username.length < 3) {
-            errors.push("Username must be at least 3 characters long.");
-        }
-
-        if (!password || password.length < 6) {
-            errors.push("Password must be at least 6 characters long.");
-        }
-
-        if (errors.length > 0) {
-            alert(errors.join("\n"));
-            return;
-        }
-
-        const formData = {
-            Username: username,
-            Password: password
-        };
-
-        fetch('/api/Auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
-        })
-            .then(response => {
-                if (!response.ok) return response.json().then(err => Promise.reject(err));
-                return response.json();
-            })
-            .then(data => {
-                window.location.href = data.redirectUrl || '/Main/Index';
-            })
-            .catch(error => {
-                if (error.message) {
-                    alert(error.message);
-                } else {
-                    alert('Login failed. Please check your credentials.');
-                }
-            });
-    });
-</script>
-
+             fetch('/api/Auth/login', {
+                 method: 'POST',
+                 headers: { 'Content-Type': 'application/json' },
+                 body: JSON.stringify(formData)
+             })
+                 .then(response => {
+                     if (!response.ok) return response.json().then(err => Promise.reject(err));
+                     return response.json();
+                 })
+                 .then(data => {
+                     window.location.href = data.redirectUrl || '/Main/Index';
+                 })
+                 .catch(error => {
+                     if (error.errors) {
+                         const serverErrors = Object.values(error.errors).flat();
+                         alert(serverErrors.join("\n"));
+                     }
+                      else if (error.message) {
+                         alert(error.message);
+                     }
+                      else {
+                         alert('Login failed. Please check your credentials.');
+                     }
+                 });
+         });
+     </script>
+ }
