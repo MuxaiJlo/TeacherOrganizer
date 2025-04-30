@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TeacherOrganizer.Models.DataModels;
-using TeacherOrganizer.Models.CalendarModels;
 
 namespace TeacherOrganizer.Data
 {
@@ -16,6 +15,7 @@ namespace TeacherOrganizer.Data
         public DbSet<Dictionary> Dictionaries { get; set; }
         public DbSet<Word> Words { get; set; }
         public DbSet<RescheduleRequest> RescheduleRequests { get; set; }
+        public DbSet<LessonDetail> LessonDetails { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -52,6 +52,16 @@ namespace TeacherOrganizer.Data
                 .WithMany(d => d.CopiedDictionaries)
                 .HasForeignKey(d => d.OriginalDictionaryId)
                 .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<LessonDetail>()
+                .HasOne(d => d.Lesson)
+                .WithOne(l => l.Details)
+                .HasForeignKey<LessonDetail>(d => d.LessonId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<LessonDetail>()
+                .HasMany(d => d.AccessibleUsers)
+                .WithMany()
+                .UsingEntity(j => j.ToTable("LessonDetailsUsers"));
         }
     }
 }

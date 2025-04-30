@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -40,6 +40,9 @@ namespace TeacherOrganizer
             builder.Services.AddScoped<ILessonService, LessonService>();
             builder.Services.AddScoped<IDictionaryService, DictionaryService>();
             builder.Services.AddScoped<IWordService, WordService>();
+            builder.Services.AddScoped<IRescheduleService, RescheduleService>();
+            builder.Services.AddScoped<ILessonDetailsService, LessonDetailsService>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
 
             builder.Services.AddAuthentication(options =>
@@ -116,6 +119,16 @@ namespace TeacherOrganizer
                 await SeedRolesAsync(roleManager);
             }
 
+            /*
+                string adminEmail = "admin@example.com";
+                string adminPassword = "Admin123!";
+                UserName = "admin",
+                Email = adminEmail,
+                EmailConfirmed = true,
+                FirstName = "System",
+                LastName = "Administrator",
+                CreatedAt = DateTime.UtcNow
+            */
             await app.RunAsync();
         }
 
@@ -128,6 +141,10 @@ namespace TeacherOrganizer
             if (!await roleManager.RoleExistsAsync("Student"))
             {
                 await roleManager.CreateAsync(new IdentityRole("Student"));
+            }
+            if (!await roleManager.RoleExistsAsync("Admin"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("Admin"));
             }
         }
     }

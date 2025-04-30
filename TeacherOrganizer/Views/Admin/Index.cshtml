@@ -1,0 +1,50 @@
+﻿@model List<TeacherOrganizer.Models.UserModels.UserWithRolesDto>
+@{
+    ViewData["Title"] = "Admin Panel";
+    var roles = new List<string> { "Student", "Teacher", "Admin" };
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Admin Panel - User Management</h2>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>UserName</th>
+                <th>Email</th>
+                <th>Full Name</th>
+                <th>Role</th>
+                <th>Created At</th>
+                <th style="width: 200px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.UserName</td>
+                    <td>@user.Email</td>
+                    <td>@($"{user.FirstName} {user.LastName}")</td>
+                    <td>@string.Join(", ", user.Roles)</td>
+                    <td>@user.CreatedAt.ToShortDateString()</td>
+                    <td>
+                        <form asp-action="ChangeRole" method="post" class="d-inline">
+                            <input type="hidden" name="userId" value="@user.Id" />
+                            <select name="newRole" class="form-select form-select-sm d-inline w-auto">
+                                @foreach (var role in roles)
+                                {
+                                    <option value="@role" selected="@(user.Roles.Contains(role) ? "selected" : null)">@role</option>
+                                }
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary">Change</button>
+                        </form>
+
+                        <form asp-action="DeleteUser" method="post" class="d-inline ms-2">
+                            <input type="hidden" name="userId" value="@user.Id" />
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -37,7 +37,11 @@ namespace TeacherOrganizer.Controllers.Main
             var model = new MainViewModel
             {
                 Username = user.UserName,
-                LoginTime = DateTime.UtcNow
+                LoginTime = DateTime.UtcNow,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault()
             };
 
             return View("Index", model);

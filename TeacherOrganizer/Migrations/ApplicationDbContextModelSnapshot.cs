@@ -22,6 +22,21 @@ namespace TeacherOrganizer.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("LessonDetailsUser", b =>
+                {
+                    b.Property<string>("AccessibleUsersId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("LessonDetailsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AccessibleUsersId", "LessonDetailsId");
+
+                    b.HasIndex("LessonDetailsId");
+
+                    b.ToTable("LessonDetailsUsers", (string)null);
+                });
+
             modelBuilder.Entity("LessonUser", b =>
                 {
                     b.Property<int>("AttendedLessonsLessonId")
@@ -170,39 +185,6 @@ namespace TeacherOrganizer.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("TeacherOrganizer.Models.CalendarModels.RescheduleRequest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("InitiatorId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("LessonId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("ProposedEndTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ProposedStartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("RequestStatus")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InitiatorId");
-
-                    b.HasIndex("LessonId");
-
-                    b.ToTable("RescheduleRequests");
-                });
-
             modelBuilder.Entity("TeacherOrganizer.Models.DataModels.Dictionary", b =>
                 {
                     b.Property<int>("DictionaryId")
@@ -272,6 +254,68 @@ namespace TeacherOrganizer.Migrations
                     b.ToTable("Lessons");
                 });
 
+            modelBuilder.Entity("TeacherOrganizer.Models.DataModels.LessonDetails", b =>
+                {
+                    b.Property<int>("LessonDetailsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LessonDetailsId"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LessonId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("LessonDetailsId");
+
+                    b.HasIndex("LessonId")
+                        .IsUnique();
+
+                    b.ToTable("LessonDetails");
+                });
+
+            modelBuilder.Entity("TeacherOrganizer.Models.DataModels.RescheduleRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("InitiatorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("LessonId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ProposedEndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ProposedStartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("RequestStatus")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InitiatorId");
+
+                    b.HasIndex("LessonId");
+
+                    b.ToTable("RescheduleRequests");
+                });
+
             modelBuilder.Entity("TeacherOrganizer.Models.DataModels.User", b =>
                 {
                     b.Property<string>("Id")
@@ -315,6 +359,9 @@ namespace TeacherOrganizer.Migrations
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<int>("PaidLessons")
+                        .HasColumnType("int");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
@@ -376,6 +423,21 @@ namespace TeacherOrganizer.Migrations
                     b.HasIndex("DictionaryId");
 
                     b.ToTable("Words");
+                });
+
+            modelBuilder.Entity("LessonDetailsUser", b =>
+                {
+                    b.HasOne("TeacherOrganizer.Models.DataModels.User", null)
+                        .WithMany()
+                        .HasForeignKey("AccessibleUsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TeacherOrganizer.Models.DataModels.LessonDetails", null)
+                        .WithMany()
+                        .HasForeignKey("LessonDetailsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("LessonUser", b =>
@@ -444,25 +506,6 @@ namespace TeacherOrganizer.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TeacherOrganizer.Models.CalendarModels.RescheduleRequest", b =>
-                {
-                    b.HasOne("TeacherOrganizer.Models.DataModels.User", "Initiator")
-                        .WithMany()
-                        .HasForeignKey("InitiatorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TeacherOrganizer.Models.DataModels.Lesson", "Lesson")
-                        .WithMany()
-                        .HasForeignKey("LessonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Initiator");
-
-                    b.Navigation("Lesson");
-                });
-
             modelBuilder.Entity("TeacherOrganizer.Models.DataModels.Dictionary", b =>
                 {
                     b.HasOne("TeacherOrganizer.Models.DataModels.Dictionary", "OriginalDictionary")
@@ -492,6 +535,36 @@ namespace TeacherOrganizer.Migrations
                     b.Navigation("Teacher");
                 });
 
+            modelBuilder.Entity("TeacherOrganizer.Models.DataModels.LessonDetails", b =>
+                {
+                    b.HasOne("TeacherOrganizer.Models.DataModels.Lesson", "Lesson")
+                        .WithOne("Details")
+                        .HasForeignKey("TeacherOrganizer.Models.DataModels.LessonDetails", "LessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Lesson");
+                });
+
+            modelBuilder.Entity("TeacherOrganizer.Models.DataModels.RescheduleRequest", b =>
+                {
+                    b.HasOne("TeacherOrganizer.Models.DataModels.User", "Initiator")
+                        .WithMany()
+                        .HasForeignKey("InitiatorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TeacherOrganizer.Models.DataModels.Lesson", "Lesson")
+                        .WithMany()
+                        .HasForeignKey("LessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Initiator");
+
+                    b.Navigation("Lesson");
+                });
+
             modelBuilder.Entity("TeacherOrganizer.Models.DataModels.Word", b =>
                 {
                     b.HasOne("TeacherOrganizer.Models.DataModels.Dictionary", "Dictionary")
@@ -508,6 +581,12 @@ namespace TeacherOrganizer.Migrations
                     b.Navigation("CopiedDictionaries");
 
                     b.Navigation("Words");
+                });
+
+            modelBuilder.Entity("TeacherOrganizer.Models.DataModels.Lesson", b =>
+                {
+                    b.Navigation("Details")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("TeacherOrganizer.Models.DataModels.User", b =>
