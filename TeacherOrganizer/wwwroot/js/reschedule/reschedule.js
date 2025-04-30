@@ -114,14 +114,31 @@ export async function initializeRescheduleRequests(container) {
 
                 const startDate = new Date(startTime);
                 const endDate = new Date(endTime);
+                const now = new Date();
 
                 if (isNaN(startDate) || isNaN(endDate)) {
                     alert("Invalid date format");
                     return;
                 }
 
+                if (startDate <= now || endDate <= now) {
+                    alert("Both start and end time must be in the future");
+                    return;
+                }
+
                 if (startDate >= endDate) {
                     alert("End time must be after start time");
+                    return;
+                }
+
+                const durationMinutes = (endDate - startDate) / (1000 * 60);
+                if (durationMinutes < 30) {
+                    alert("Lesson duration must be at least 30 minutes");
+                    return;
+                }
+
+                if (durationMinutes > 480) {
+                    alert("Lesson duration cannot be more than 8 hours");
                     return;
                 }
 
@@ -137,12 +154,13 @@ export async function initializeRescheduleRequests(container) {
 
                     updateTable(requests);
                     alert("Reschedule request updated successfully!");
-                    editModal.hide(); 
+                    editModal.hide();
                 } catch (error) {
                     console.error("Error updating reschedule request:", error);
                     alert("Failed to update reschedule request");
                 }
             };
+
         }
 
         async function handleApprove(e) {
