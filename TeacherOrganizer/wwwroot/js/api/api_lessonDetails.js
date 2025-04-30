@@ -1,9 +1,6 @@
 ﻿const API_URL = '/api/LessonDetails';
 
-/**
- * Отримати всі деталі уроків, доступні поточному користувачу
- * @returns {Promise<Array>} Масив доступних деталей уроків
- */
+
 export const getAccessibleLessonDetails = async () => {
     try {
         const response = await fetch(`${API_URL}/accessible`);
@@ -19,11 +16,7 @@ export const getAccessibleLessonDetails = async () => {
     }
 };
 
-/**
- * Отримати конкретні деталі уроку за ідентифікатором
- * @param {number} id - ID деталей уроку
- * @returns {Promise<Object>} Об'єкт деталей уроку
- */
+
 export const getLessonDetailsById = async (id) => {
     try {
         const response = await fetch(`${API_URL}/${id}`);
@@ -39,14 +32,7 @@ export const getLessonDetailsById = async (id) => {
     }
 };
 
-/**
- * Створити нові деталі уроку
- * @param {Object} lessonDetails - Об'єкт з даними деталей уроку
- * @param {number} lessonDetails.lessonId - ID уроку
- * @param {string} lessonDetails.content - Вміст деталей уроку
- * @param {Array<string>} lessonDetails.accessibleUserIds - Масив ID користувачів з доступом
- * @returns {Promise<Object>} Створені деталі уроку
- */
+
 export const createLessonDetails = async ({ lessonId, content, accessibleUserIds = [] }) => {
     try {
         const response = await fetch(API_URL, {
@@ -68,12 +54,6 @@ export const createLessonDetails = async ({ lessonId, content, accessibleUserIds
     }
 };
 
-/**
- * Оновити вміст деталей уроку
- * @param {number} id - ID деталей уроку
- * @param {string} content - Новий вміст деталей уроку
- * @returns {Promise<void>}
- */
 export const updateLessonDetails = async (id, content) => {
     try {
         const response = await fetch(`${API_URL}/${id}`, {
@@ -93,12 +73,6 @@ export const updateLessonDetails = async (id, content) => {
     }
 };
 
-/**
- * Оновити список користувачів з доступом до деталей уроку
- * @param {number} id - ID деталей уроку
- * @param {Array<string>} userIds - Масив ID користувачів, які матимуть доступ
- * @returns {Promise<void>}
- */
 export const updateLessonDetailsAccess = async (id, userIds) => {
     try {
         const response = await fetch(`${API_URL}/${id}/access`, {
@@ -118,11 +92,7 @@ export const updateLessonDetailsAccess = async (id, userIds) => {
     }
 };
 
-/**
- * Видалити деталі уроку
- * @param {number} id - ID деталей уроку
- * @returns {Promise<void>}
- */
+
 export const deleteLessonDetails = async (id) => {
     try {
         const response = await fetch(`${API_URL}/${id}`, {
@@ -138,12 +108,7 @@ export const deleteLessonDetails = async (id) => {
     }
 };
 
-/**
- * Додати користувача до списку з доступом
- * @param {number} lessonDetailsId - ID деталей уроку
- * @param {string} userId - ID користувача
- * @returns {Promise<void>}
- */
+
 export const addUserAccess = async (lessonDetailsId, userId) => {
     try {
         const response = await fetch(`${API_URL}/${lessonDetailsId}/users/${userId}`, {
@@ -159,12 +124,7 @@ export const addUserAccess = async (lessonDetailsId, userId) => {
     }
 };
 
-/**
- * Видалити користувача зі списку з доступом
- * @param {number} lessonDetailsId - ID деталей уроку
- * @param {string} userId - ID користувача
- * @returns {Promise<void>}
- */
+
 export const removeUserAccess = async (lessonDetailsId, userId) => {
     try {
         const response = await fetch(`${API_URL}/${lessonDetailsId}/users/${userId}`, {
@@ -180,11 +140,7 @@ export const removeUserAccess = async (lessonDetailsId, userId) => {
     }
 };
 
-/**
- * Отримати деталі уроку за ID уроку
- * @param {number} lessonId - ID уроку
- * @returns {Promise<Object|null>} Об'єкт деталей уроку або null, якщо не знайдено
- */
+
 export const getLessonDetailsByLessonId = async (lessonId) => {
     try {
         const allDetails = await getAccessibleLessonDetails();

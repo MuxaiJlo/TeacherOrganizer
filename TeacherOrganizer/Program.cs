@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -119,6 +119,16 @@ namespace TeacherOrganizer
                 await SeedRolesAsync(roleManager);
             }
 
+            /*
+                string adminEmail = "admin@example.com";
+                string adminPassword = "Admin123!";
+                UserName = "admin",
+                Email = adminEmail,
+                EmailConfirmed = true,
+                FirstName = "System",
+                LastName = "Administrator",
+                CreatedAt = DateTime.UtcNow
+            */
             await app.RunAsync();
         }
 
@@ -131,6 +141,10 @@ namespace TeacherOrganizer
             if (!await roleManager.RoleExistsAsync("Student"))
             {
                 await roleManager.CreateAsync(new IdentityRole("Student"));
+            }
+            if (!await roleManager.RoleExistsAsync("Admin"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("Admin"));
             }
         }
     }

@@ -14,5 +14,8 @@ namespace TeacherOrganizer.Interefaces
         Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto changePasswordDto);
 
         Task<UserDto> AddPaidLessonsAsync(string userId, int count);
+        Task<List<UserWithRolesDto>> GetAllUsersAsync();
+        Task<bool> ChangeUserRoleAsync(string userId, string newRole);
+        Task<bool> DeleteUserAsync(string userId);
     }
 }
