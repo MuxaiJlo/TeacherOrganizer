@@ -1,0 +1,53 @@
+﻿/* Margin&Padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Global */
+body {
+    background-color: white; /* Фон сторінки */
+    min-height: 100vh; /* Мінімальна висота екрану */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Щоб хвиля була внизу */
+    overflow: hidden; /* Забороняємо прокрутку */
+}
+
+.login-container {
+    max-width: 600px;
+    background: white;
+    position: relative;
+    z-index: 10;
+    margin-left: 780px;
+    margin-top: 70px;
+}
+
+.register-container{
+    max-width: 600px;
+    background: white;
+    position: relative;
+    z-index: 10;
+    margin-left: 780px;
+}
+/* Wave */
+.wave {
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    width: 100vw;
+    height: auto;
+}
+.btn-primary {
+    background-color: #FF4500;
+    border-color: #FF6347;
+}
+
+    .btn-primary:hover {
+        background-color: #FF6347;
+        border-color: #FF4500;
+    }
+.text-decoration-none {
+    color: #FF4500;
+}
