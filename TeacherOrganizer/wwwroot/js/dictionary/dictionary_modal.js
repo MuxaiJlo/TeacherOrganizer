@@ -1,4 +1,6 @@
-﻿import * as api from "../api/api_dictionary.js";
+﻿// dictionary_modal.js
+
+import * as api from "../api/api_dictionary.js";
 import { loadDictionaries } from "./dictionary.js";
 import { getUserById } from "../api/api_user.js";
 export function setupDictionaryModal() {
@@ -40,74 +42,71 @@ export function setupDictionaryModal() {
 
     if (createDictionaryButtonModal) {
         createDictionaryButtonModal.addEventListener("click", async () => {
-            console.log("Create dictionary button clicked.");
-            const dictionaryName = dictionaryNameInput.value;
+            const dictionaryName = dictionaryNameInput.value.trim();
 
             if (!dictionaryName) {
-                alert("Please enter a dictionary name.");
+                alert("Please enter a name for your dictionary.");
                 return;
             }
 
-            const dictionaryData = { Name: dictionaryName };
+            if (dictionaryName.length < 3 || dictionaryName.length > 50) {
+                alert("Dictionary name must be between 3 and 50 characters.");
+                return;
+            }
 
             try {
-                const newDictionary = await api.createDictionary(dictionaryData);
+                const newDictionary = await api.createDictionary({ Name: dictionaryName });
 
                 if (newDictionary) {
                     currentDictionaryId = newDictionary.dictionaryId;
-                    console.log("Dictionary ID CURRENT: ", currentDictionaryId);
-
-                    alert("Dictionary created. You can now add words.");
+                    alert("Dictionary created successfully. Now you can add words.");
                     dictionaryNameInput.disabled = true;
                     createDictionaryButtonModal.disabled = true;
                 } else {
-                    alert("Error creating dictionary.");
+                    alert("Failed to create dictionary. Please try again.");
                 }
             } catch (error) {
                 console.error("Error creating dictionary:", error);
-                alert("An error occurred while creating the dictionary.");
+                alert("An error occurred while creating the dictionary. Please try again.");
             }
         });
     }
 
     if (addWordsToDictionaryButton) {
         addWordsToDictionaryButton.addEventListener("click", async () => {
-            console.log("Save dictionary button clicked.");
-
-            const createDictionaryModal = bootstrap.Modal.getInstance(document.getElementById('createDictionaryModal'));
-            if (createDictionaryModal) {
-                createDictionaryModal.hide();
-            }
-
-            // Use currentDictionaryId instead of dictionaryId
             const dictionaryId = currentDictionaryId;
-            console.log("Dictionary ID save words btn: ", dictionaryId);
 
             const wordInputs = wordsContainer.querySelectorAll(".word-input");
             const words = [];
 
             wordInputs.forEach(input => {
-                const word = input.querySelector("input:nth-child(1)").value;
-                const translation = input.querySelector("input:nth-child(2)").value;
-                const example = input.querySelector("input:nth-child(3)").value;
+                const word = input.querySelector("input:nth-child(1)").value.trim();
+                const translation = input.querySelector("input:nth-child(2)").value.trim();
+                const example = input.querySelector("input:nth-child(3)").value.trim();
 
                 if (word && translation) {
                     words.push({ Text: word, Translation: translation, Example: example });
                 }
             });
 
-            if (dictionaryId && words.length > 0) {
-                try {
-                    for (const word of words) {
-                        await api.addWord({ ...word, DictionaryId: dictionaryId });
-                    }
-                    alert("Words added to dictionary.");
-                } catch (error) {
-                    console.error("Error adding words:", error);
-                    alert("An error occurred while adding words.");
+            if (!dictionaryId) {
+                alert("Please create a dictionary before adding words.");
+                return;
+            }
+
+            if (words.length === 0) {
+                alert("Please enter at least one word with its translation.");
+                return;
+            }
+
+            try {
+                for (const word of words) {
+                    await api.addWord({ ...word, DictionaryId: dictionaryId });
                 }
-            } else {
-                alert("No dictionary selected or no words to add.");
+                alert("Words added successfully.");
+            } catch (error) {
+                console.error("Error adding words:", error);
+                alert("An error occurred while adding words. Please try again.");
             }
 
             await loadDictionaries(true);

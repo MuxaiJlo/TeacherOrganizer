@@ -216,7 +216,11 @@ async function openLessonNoteEditor(container, lessonDetailsId) {
             e.preventDefault();
 
             const content = quill.root.innerHTML;
-
+            const plainText = quill.getText().trim();
+            if (!plainText) {
+                alert("Please enter some content before saving!");
+                return;
+            }
             try {
                 if (lessonDetailsId) {
                     await updateLessonDetails(lessonDetailsId, content);
@@ -229,19 +233,15 @@ async function openLessonNoteEditor(container, lessonDetailsId) {
                         return;
                     }
 
-                    // Get lesson details to extract teacher and student IDs
                     const lessonDetails = await fetchLessonById(parseInt(selectedLessonId));
 
-                    // Create array of accessible user IDs
                     const accessibleUserIds = [];
 
-                    // Add teacher username if exists
                     if (lessonDetails.teacher && lessonDetails.teacher.userName) {
                         console.log("Adding teacher username:", lessonDetails.teacher.userName);
                         accessibleUserIds.push(lessonDetails.teacher.userName);
                     }
 
-                    // Add student usernames
                     if (lessonDetails.students && Array.isArray(lessonDetails.students)) {
                         const studentUsernames = lessonDetails.students.map(student => student.userName);
                         console.log("Adding student usernames:", studentUsernames);
@@ -250,7 +250,6 @@ async function openLessonNoteEditor(container, lessonDetailsId) {
 
                     console.log("Final accessible user IDs (usernames):", accessibleUserIds);
 
-                    // Create lesson details with accessible users (using usernames)
                     const result = await createLessonDetails({
                         lessonId: parseInt(selectedLessonId),
                         content: content,

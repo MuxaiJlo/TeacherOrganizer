@@ -1,4 +1,6 @@
-﻿import * as api from "../api/api_dictionary.js";
+﻿// dictionary_list.js
+
+import * as api from "../api/api_dictionary.js";
 import { dictionaries, loadDictionaries, applyFilters } from "./dictionary.js";
 import { loadDictionaryWords } from "./dictionary_words.js";
 import { getUserById } from "../api/api_user.js";
@@ -119,8 +121,21 @@ function setupDictionaryToggle(listItem, dictionary)
     copyDictionaryBtn.addEventListener("click", async () =>
     {
         console.log(`Copy dictionary button clicked for dictionary ${dictionary.dictionaryId}.`);
-        await api.copyDictionary(dictionary.dictionaryId);
-        alert("Dictionary copied successfully.");
+        if (!dictionaryId) {
+            alert("Dictionary ID is missing.");
+            return;
+        }
+        try {
+            const copied = await api.copyDictionary(dictionaryId);
+            if (copied) {
+                alert("Dictionary copied successfully.");
+            } else {
+                alert("Failed to copy dictionary.");
+            }
+        } catch (error) {
+            console.error("Error copying dictionary:", error);
+            alert("An error occurred while copying the dictionary. Please try again.");
+        }
     });
 
     deleteDictionaryBtn.addEventListener("click", async () => {

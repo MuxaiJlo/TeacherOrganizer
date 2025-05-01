@@ -1,4 +1,6 @@
-﻿import * as api from "../api/api_dictionary.js";
+﻿// dictionary.js
+
+import * as api from "../api/api_dictionary.js";
 import { setupDictionaryModal } from "./dictionary_modal.js";
 import { setupDictionaryList } from "./dictionary_list.js";
 import { getUserById } from "../api/api_user.js";
@@ -84,6 +86,10 @@ async function applyFilters() {
 
     console.log("Filtered dictionaries:", filteredDictionaries);
     setupDictionaryList(filteredDictionaries);
+    if (filteredDictionaries.length === 0) {
+        listContainer.innerHTML = "<p>No dictionaries found.</p>";
+    }
+
 }
 
 

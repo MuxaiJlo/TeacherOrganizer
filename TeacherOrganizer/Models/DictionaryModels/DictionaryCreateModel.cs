@@ -5,7 +5,9 @@ namespace TeacherOrganizer.Models.DictionaryModels
     public class DictionaryCreateModel
     {
         [Required]
+        [StringLength(100, ErrorMessage = "Name must be less than 100 characters.")]
         public string Name { get; set; }
+
         public int? OriginalDictionaryId { get; set; }
     }
 }

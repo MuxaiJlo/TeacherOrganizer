@@ -1,4 +1,6 @@
-﻿import * as api from "../api/api_dictionary.js";
+﻿// dictionary_words.js
+
+import * as api from "../api/api_dictionary.js";
 import { getUserById } from "../api/api_user.js";
 export async function loadDictionaryWords(wordsTableBody, dictionaryId) {
     console.log(`Loading words for dictionary ${dictionaryId}...`);
@@ -61,7 +63,6 @@ export async function loadDictionaryWords(wordsTableBody, dictionaryId) {
     }
 }
 
-// Функция удаления слова
 async function deleteWord(wordId, row, dictionaryId) {
     if (confirm("Are you sure you want to delete this word?")) {
         const success = await api.deleteWord(wordId, dictionaryId);
@@ -74,7 +75,6 @@ async function deleteWord(wordId, row, dictionaryId) {
     }
 }
 
-// Функция редактирования слова
 function editWord(wordId, row, dictionaryId) {
     const editButton = row.querySelector(".edit-word");
     const isEditing = editButton.innerText === "Save";
@@ -89,11 +89,25 @@ function editWord(wordId, row, dictionaryId) {
     }
 }
 
-// Функция сохранения слова
 async function saveWord(wordId, row, dictionaryId) {
-    const wordText = row.querySelector(".word-text").innerText;
-    const wordTranslation = row.querySelector(".word-translation").innerText;
-    const wordExample = row.querySelector(".word-example").innerText;
+    const wordText = row.querySelector(".word-text").innerText.trim();
+    const wordTranslation = row.querySelector(".word-translation").innerText.trim();
+    const wordExample = row.querySelector(".word-example").innerText.trim();
+
+    if (!wordText || wordText.length > 100) {
+        alert("Word is required and must be less than 100 characters.");
+        return;
+    }
+
+    if (!wordTranslation || wordTranslation.length > 100) {
+        alert("Translation is required and must be less than 100 characters.");
+        return;
+    }
+
+    if (wordExample && wordExample.length > 250) {
+        alert("Example must be less than 250 characters.");
+        return;
+    }
 
     const wordData = {
         dictionaryId: dictionaryId,
@@ -102,15 +116,21 @@ async function saveWord(wordId, row, dictionaryId) {
         example: wordExample
     };
 
-    const updatedWord = await api.updateWord(wordId, wordData);
-    if (updatedWord) {
-        console.log(`Word ${wordId} updated.`);
-    } else {
-        console.error(`Error updating word ${wordId}.`);
+    try {
+        const updatedWord = await api.updateWord(wordId, wordData);
+        if (updatedWord) {
+            console.log(`Word ${wordId} updated.`);
+            alert("Word updated successfully.");
+        } else {
+            console.error(`Error updating word ${wordId}.`);
+            alert("Failed to update word. Please try again.");
+        }
+    } catch (error) {
+        console.error(`Error while saving word ${wordId}:`, error);
+        alert("An error occurred while updating the word.");
     }
 }
 
-// Функция озвучивания слова с использованием Web Speech API
 function speakWord(text, lang = "en") {
     if ('speechSynthesis' in window) {
         const utterance = new SpeechSynthesisUtterance(text);
