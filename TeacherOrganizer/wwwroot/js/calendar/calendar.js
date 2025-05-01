@@ -36,7 +36,7 @@ export function initializeCalendar(contentPlaceholder) {
         },
         dateClick: function (info) {
             // Only allow teachers to create lessons
-            if (currentUserRole === "teacher") {
+            if (currentUserRole === "Teacher") {
                 openLessonModal(info.dateStr);
             } else {
                 alert("You don't have permission to create lessons.");
