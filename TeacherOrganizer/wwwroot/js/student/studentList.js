@@ -1,7 +1,8 @@
 ﻿import { fetchStudents, getUserById } from "../api/api_user.js";
+
 export async function initializeStudentList(container) {
     try {
-        // Загружаем HTML-шаблон
+        // Load HTML template
         const html = await fetch("/modals/studentList.html").then(res => res.text());
         container.innerHTML = html;
 
@@ -18,31 +19,37 @@ export async function initializeStudentList(container) {
                 <td><button class="add-btn btn btn-primary btn-sm" data-id="${student.id}">➕</button></td>
             `;
 
-            // По клику на строку — показать детали
+            // Click on row — show details
             row.addEventListener("click", () => openStudentDetails(student.id));
             tbody.appendChild(row);
         });
 
-        // Кнопки ➕ для добавления уроков
+        // Add lessons buttons
         tbody.querySelectorAll(".add-btn").forEach(button => {
             button.addEventListener("click", async (e) => {
-                e.stopPropagation(); // не открывать детали
+                e.stopPropagation(); // don't open details
                 const userId = button.dataset.id;
-                const count = prompt("Сколько уроков добавить?", "1");
-                if (!count || isNaN(count)) return;
+                const count = prompt("How many lessons to add?", "1");
+                const numCount = Number(count);
 
-                const res = await fetch(`/api/Users/${userId}/add-paid-lessons?count=${count}`, { method: "POST" });
+                if (!Number.isInteger(numCount) || numCount <= 0) {
+                    alert("Please enter a valid integer number");
+                    return;
+                }
+                
+
+                const res = await fetch(`/api/Users/${userId}/add-paid-lessons?count=${numCount}`, { method: "POST" });
                 if (res.ok) {
                     const data = await res.json();
                     const span = document.querySelector(`#lessons-${userId}`);
                     if (span) span.textContent = data.paidLessons;
                 } else {
-                    alert("Не удалось пополнить уроки.");
+                    alert("Failed to add lessons.");
                 }
             });
         });
 
-        // Инициализация обработчика закрытия модального окна
+        // Close modal
         const closeBtn = document.getElementById("close-modal-btn");
         if (closeBtn) {
             closeBtn.addEventListener("click", () => {
@@ -51,6 +58,7 @@ export async function initializeStudentList(container) {
             });
         }
 
+        // Filter students
         document.getElementById("filter-input").addEventListener("input", function () {
             const value = this.value.toLowerCase();
             document.querySelectorAll("#student-table tbody tr").forEach(row => {
@@ -60,17 +68,17 @@ export async function initializeStudentList(container) {
         });
 
     } catch (err) {
-        console.error("Ошибка загрузки student list:", err);
-        container.innerHTML = "<p>Ошибка загрузки списка студентов.</p>";
+        console.error("Error loading student list:", err);
+        container.innerHTML = "<p>Error loading student list.</p>";
     }
-} // Добавлена закрывающая скобка для функции initializeStudentList
+}
 
+// Function to open student details
 async function openStudentDetails(userId) {
     console.log("openStudentDetails called with userId:", userId);
     const user = await getUserById(userId);
     if (!user) return;
 
-    // Обратите внимание на правильные ID, соответствующие вашему HTML
     document.getElementById("modal-list-firstname").textContent = user.firstName || "";
     document.getElementById("modal-list-lastname").textContent = user.lastName || "";
     document.getElementById("modal-list-username").textContent = user.userName;
@@ -79,10 +87,9 @@ async function openStudentDetails(userId) {
     const modal = document.getElementById("student-details-modal");
     modal.classList.remove("hidden");
 
-    // Переинициализация обработчика кнопки закрытия
+    // Reinitialize close button handler
     const closeBtn = document.getElementById("close-modal-btn");
     if (closeBtn) {
-        // Удаляем старые обработчики, чтобы избежать дублирования
         const newCloseBtn = closeBtn.cloneNode(true);
         closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
 
@@ -91,7 +98,7 @@ async function openStudentDetails(userId) {
         });
     }
 
-    // Добавляем возможность закрытия по клику вне модального окна
+    // Close modal when clicked outside
     const clickOutsideHandler = function (e) {
         if (!modal.contains(e.target) && !modal.classList.contains("hidden")) {
             modal.classList.add("hidden");
@@ -99,7 +106,7 @@ async function openStudentDetails(userId) {
         }
     };
 
-    // Добавляем обработчик с небольшой задержкой, чтобы избежать срабатывания при открытии
+    // Add event listener with a slight delay to prevent triggering on modal open
     setTimeout(() => {
         document.addEventListener("click", clickOutsideHandler);
     }, 100);

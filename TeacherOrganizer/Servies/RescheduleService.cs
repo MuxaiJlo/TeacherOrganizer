@@ -18,6 +18,12 @@ namespace TeacherOrganizer.Servies
 
         public async Task<Lesson?> ProposeRescheduleAsync(int lessonId, DateTime proposedStart, DateTime proposedEnd, string initiatorId)
         {
+            if (proposedStart >= proposedEnd)
+                throw new InvalidOperationException("Proposed start time must be before end time.");
+
+            if (proposedStart <= DateTime.UtcNow)
+                throw new InvalidOperationException("Proposed start time must be in the future.");
+
             var lesson = await _context.Lessons
                 .Include(l => l.Teacher)
                 .Include(l => l.Students)
@@ -27,6 +33,29 @@ namespace TeacherOrganizer.Servies
 
             var initiator = await _context.Users.FirstOrDefaultAsync(u => u.UserName == initiatorId);
             if (initiator == null) throw new UnauthorizedAccessException("Initiator not found");
+
+            // Перевірка на конфлікт часу для вчителя
+            bool teacherConflict = await _context.Lessons.AnyAsync(l =>
+                l.Teacher.Id == lesson.Teacher.Id &&
+                l.LessonId != lesson.LessonId &&
+                l.StartTime < proposedEnd &&
+                l.EndTime > proposedStart);
+
+            if (teacherConflict)
+                throw new InvalidOperationException("Teacher has another lesson at this time.");
+
+            // Перевірка на конфлікт часу для студентів
+            foreach (var student in lesson.Students)
+            {
+                bool studentConflict = await _context.Lessons.AnyAsync(l =>
+                    l.Students.Any(s => s.Id == student.Id) &&
+                    l.LessonId != lesson.LessonId &&
+                    l.StartTime < proposedEnd &&
+                    l.EndTime > proposedStart);
+
+                if (studentConflict)
+                    throw new InvalidOperationException($"Student {student.UserName} has another lesson at this time.");
+            }
 
             var rescheduleRequest = new RescheduleRequest
             {
@@ -46,6 +75,7 @@ namespace TeacherOrganizer.Servies
             await _context.SaveChangesAsync();
             return lesson;
         }
+
 
         public async Task<List<RescheduleRequestDto>> GetPendingRequestsForUserAsync(string userName)
         {
@@ -132,10 +162,54 @@ namespace TeacherOrganizer.Servies
             var request = await _context.RescheduleRequests
                 .Include(r => r.Initiator)
                 .Include(r => r.Lesson)
+                    .ThenInclude(l => l.Students)
+                .Include(r => r.Lesson.Teacher)
                 .FirstOrDefaultAsync(r => r.Id == requestId);
 
             if (request == null) return false;
 
+            // Якщо обидва часу передані, перевіряємо послідовність
+            if (proposedStartTime.HasValue && proposedEndTime.HasValue)
+            {
+                if (proposedStartTime.Value >= proposedEndTime.Value)
+                    throw new InvalidOperationException("Proposed start time must be before end time.");
+            }
+
+            // Якщо тільки початок переданий — перевіряємо, що він у майбутньому
+            if (proposedStartTime.HasValue && proposedStartTime.Value <= DateTime.UtcNow)
+                throw new InvalidOperationException("Proposed start time must be in the future.");
+
+            if (proposedEndTime.HasValue && proposedEndTime.Value <= DateTime.UtcNow)
+                throw new InvalidOperationException("Proposed end time must be in the future.");
+
+            // Отримуємо нові часи або залишаємо старі
+            var newStart = proposedStartTime ?? request.ProposedStartTime;
+            var newEnd = proposedEndTime ?? request.ProposedEndTime;
+
+            // Перевірка конфліктів для вчителя
+            bool teacherConflict = await _context.Lessons.AnyAsync(l =>
+                l.Teacher.Id == request.Lesson.Teacher.Id &&
+                l.LessonId != request.Lesson.LessonId &&
+                l.StartTime < newEnd &&
+                l.EndTime > newStart);
+
+            if (teacherConflict)
+                throw new InvalidOperationException("Teacher has another lesson at this time.");
+
+            // Перевірка конфліктів для студентів
+            foreach (var student in request.Lesson.Students)
+            {
+                bool studentConflict = await _context.Lessons.AnyAsync(l =>
+                    l.Students.Any(s => s.Id == student.Id) &&
+                    l.LessonId != request.Lesson.LessonId &&
+                    l.StartTime < newEnd &&
+                    l.EndTime > newStart);
+
+                if (studentConflict)
+                    throw new InvalidOperationException($"Student {student.UserName} has another lesson at this time.");
+            }
+
+            // Оновлюємо дані
             if (proposedStartTime.HasValue)
             {
                 request.ProposedStartTime = proposedStartTime.Value;
@@ -147,18 +221,19 @@ namespace TeacherOrganizer.Servies
             if (newInitiatorName != null)
             {
                 var newInitiator = await _context.Users.FirstOrDefaultAsync(u => u.UserName == newInitiatorName);
-                if (newInitiator == null) return false; // Или можно выбросить исключение
+                if (newInitiator == null) return false;
                 request.Initiator = newInitiator;
                 request.InitiatorId = newInitiatorName;
             }
 
-            request.RequestStatus = RescheduleRequestStatus.Pending; // При редактировании возвращаем статус в "Pending"
-            request.Lesson.Status = LessonStatus.RescheduledRequest; // Обновляем статус урока
+            request.RequestStatus = RescheduleRequestStatus.Pending;
+            request.Lesson.Status = LessonStatus.RescheduledRequest;
             request.Lesson.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
             return true;
         }
+
     }
 
 }

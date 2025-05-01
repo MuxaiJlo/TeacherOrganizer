@@ -28,15 +28,7 @@ namespace TeacherOrganizer.Services
                 var roles = await _userManager.GetRolesAsync(user);
                 if (roles.Contains("Student"))
                 {
-                    students.Add(new UserDto
-                    {
-                        Id = user.Id,
-                        UserName = user.UserName,
-                        FirstName = user.FirstName,
-                        LastName = user.LastName,
-                        Email = user.Email,
-                        PaidLessons = user.PaidLessons
-                    });
+                    students.Add(MapToUserDto(user));
                 }
             }
 
@@ -45,47 +37,26 @@ namespace TeacherOrganizer.Services
 
         public async Task<UserDto> GetUserByIdAsync(string userId)
         {
+            if (string.IsNullOrWhiteSpace(userId)) return null;
+
             var user = await _context.Users.FindAsync(userId);
-
-            if (user == null)
-            {
-                return null;
-            }
-
-            return new UserDto
-            {
-                Id = user.Id,
-                UserName = user.UserName,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                PaidLessons = user.PaidLessons
-            };
+            return user == null ? null : MapToUserDto(user);
         }
+
         public async Task<UserDto> GetUserByUsernameAsync(string username)
         {
+            if (string.IsNullOrWhiteSpace(username)) return null;
+
             var user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName == username);
-            if (user == null) return null;
-
-            return new UserDto
-            {
-                Id = user.Id,
-                UserName = user.UserName,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                PaidLessons = user.PaidLessons
-            };
+            return user == null ? null : MapToUserDto(user);
         }
-
 
         public async Task<List<string>> GetUserRolesAsync(string userId)
         {
+            if (string.IsNullOrWhiteSpace(userId)) return null;
+
             var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return null;
-            }
+            if (user == null) return null;
 
             var roles = await _userManager.GetRolesAsync(user);
             return roles.ToList();
@@ -93,11 +64,10 @@ namespace TeacherOrganizer.Services
 
         public async Task<UserSettingsDto> GetUserSettingsAsync(string userId)
         {
+            if (string.IsNullOrWhiteSpace(userId)) return null;
+
             var user = await _context.Users.FindAsync(userId);
-            if (user == null)
-            {
-                return null;
-            }
+            if (user == null) return null;
 
             var roles = await _userManager.GetRolesAsync(user);
 
@@ -116,44 +86,37 @@ namespace TeacherOrganizer.Services
 
         public async Task<UserSettingsDto> UpdateUserSettingsAsync(string userId, UserSettingsUpdateDto updateDto)
         {
+            if (string.IsNullOrWhiteSpace(userId) || updateDto == null) return null;
+
             var user = await _context.Users.FindAsync(userId);
-            if (user == null)
-            {
-                return null;
-            }
+            if (user == null) return null;
 
             // Оновлення даних користувача
             user.FirstName = updateDto.FirstName;
             user.LastName = updateDto.LastName;
             user.Email = updateDto.Email;
 
-            if (!string.IsNullOrEmpty(updateDto.UserName) && user.UserName != updateDto.UserName)
+            if (!string.IsNullOrWhiteSpace(updateDto.UserName) && user.UserName != updateDto.UserName)
             {
                 user.UserName = updateDto.UserName;
             }
 
             await _context.SaveChangesAsync();
 
-            // Отримання оновлених даних
             return await GetUserSettingsAsync(userId);
         }
 
         public async Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto changePasswordDto)
         {
+            if (string.IsNullOrWhiteSpace(userId) || changePasswordDto == null) return false;
+
             var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return false;
-            }
+            if (user == null) return false;
 
             // Перевірка поточного паролю
             var checkPassword = await _userManager.CheckPasswordAsync(user, changePasswordDto.CurrentPassword);
-            if (!checkPassword)
-            {
-                return false;
-            }
+            if (!checkPassword) return false;
 
-            // Зміна паролю
             var result = await _userManager.ChangePasswordAsync(
                 user,
                 changePasswordDto.CurrentPassword,
@@ -165,25 +128,17 @@ namespace TeacherOrganizer.Services
 
         public async Task<UserDto> AddPaidLessonsAsync(string userId, int count)
         {
+            if (string.IsNullOrWhiteSpace(userId) || count <= 0) return null;
+
             var user = await _context.Users.FindAsync(userId);
-            if (user == null)
-            {
-                return null;
-            }
+            if (user == null) return null;
 
             user.PaidLessons += count;
             await _context.SaveChangesAsync();
 
-            return new UserDto
-            {
-                Id = user.Id,
-                UserName = user.UserName,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                PaidLessons = user.PaidLessons
-            };
+            return MapToUserDto(user);
         }
+
         public async Task<List<UserWithRolesDto>> GetAllUsersAsync()
         {
             var users = await _userManager.Users.ToListAsync();
@@ -209,11 +164,14 @@ namespace TeacherOrganizer.Services
 
         public async Task<bool> ChangeUserRoleAsync(string userId, string newRole)
         {
+            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(newRole)) return false;
+
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return false;
 
             var currentRoles = await _userManager.GetRolesAsync(user);
             await _userManager.RemoveFromRolesAsync(user, currentRoles);
+
             var result = await _userManager.AddToRoleAsync(user, newRole);
 
             return result.Succeeded;
@@ -221,6 +179,8 @@ namespace TeacherOrganizer.Services
 
         public async Task<bool> DeleteUserAsync(string userId)
         {
+            if (string.IsNullOrWhiteSpace(userId)) return false;
+
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return false;
 
@@ -228,5 +188,17 @@ namespace TeacherOrganizer.Services
             return result.Succeeded;
         }
 
+        private UserDto MapToUserDto(User user)
+        {
+            return new UserDto
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                PaidLessons = user.PaidLessons
+            };
+        }
     }
 }

@@ -45,13 +45,30 @@ namespace TeacherOrganizer.Servies
 
         public async Task<LessonDetail> CreateAsync(LessonDetail lessonDetails, List<string> accessibleUserIds)
         {
+            // Перевірка, що LessonId валідний
+            var lessonExists = await _context.Lessons.AnyAsync(l => l.LessonId == lessonDetails.LessonId);
+            if (!lessonExists)
+                throw new ArgumentException($"Lesson with ID {lessonDetails.LessonId} does not exist");
+
+            // Перевірка, що Content не пустий
+            if (string.IsNullOrWhiteSpace(lessonDetails.Content))
+                throw new ArgumentException("Content cannot be empty");
+
+            // Перевірка максимальної довжини контенту (наприклад, 5000 символів)
+            if (lessonDetails.Content.Length > 5000)
+                throw new ArgumentException("Content is too long (max 5000 characters)");
+
+            // Опціонально: перевірка унікальності LessonDetails для уроку
+            var existingDetails = await _context.LessonDetails.AnyAsync(ld => ld.LessonId == lessonDetails.LessonId);
+            if (existingDetails)
+                throw new InvalidOperationException("Lesson details already exist for this lesson");
+
             lessonDetails.CreatedAt = DateTime.UtcNow;
             lessonDetails.UpdatedAt = DateTime.UtcNow;
 
             _context.LessonDetails.Add(lessonDetails);
             await _context.SaveChangesAsync();
 
-            // Додаємо користувачів з доступом
             if (accessibleUserIds != null && accessibleUserIds.Any())
             {
                 await UpdateAccessibleUsersAsync(lessonDetails.LessonDetailsId, accessibleUserIds);
