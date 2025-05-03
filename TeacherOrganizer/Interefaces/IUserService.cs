@@ -7,6 +7,7 @@ namespace TeacherOrganizer.Interefaces
         // Отримання користувачів
         Task<List<UserDto>> GetStudentsAsync();
         Task<UserDto> GetUserByIdAsync(string userId);
+        Task<UserDto> GetUserWithLessonCountsAsync(string userId);
         Task<List<string>> GetUserRolesAsync(string userId);
         Task<UserDto> GetUserByUsernameAsync(string username);
         Task<UserSettingsDto> GetUserSettingsAsync(string userId);

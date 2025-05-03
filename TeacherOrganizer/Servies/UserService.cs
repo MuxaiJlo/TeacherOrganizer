@@ -28,7 +28,17 @@ namespace TeacherOrganizer.Services
                 var roles = await _userManager.GetRolesAsync(user);
                 if (roles.Contains("Student"))
                 {
-                    students.Add(MapToUserDto(user));
+                    int completedLessonsCount = _context.Lessons
+                        .Count(l => l.Students.Contains(user) && l.Status == LessonStatus.Completed);
+
+                    int scheduledLessonsCount = _context.Lessons
+                        .Count(l => l.Students.Contains(user) && l.Status == LessonStatus.Scheduled);
+
+                    var studentDto = MapToUserDto(user);
+                    studentDto.CompletedLessonsCount = completedLessonsCount;
+                    studentDto.ScheduledLessonsCount = scheduledLessonsCount;
+
+                    students.Add(studentDto);
                 }
             }
 
@@ -187,6 +197,25 @@ namespace TeacherOrganizer.Services
             var result = await _userManager.DeleteAsync(user);
             return result.Succeeded;
         }
+        public async Task<UserDto> GetUserWithLessonCountsAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId)) return null;
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return null;
+
+            int completedLessonsCount = _context.Lessons
+                .Count(l => l.Students.Contains(user) && l.Status == LessonStatus.Completed);
+
+            int scheduledLessonsCount = _context.Lessons
+                .Count(l => l.Students.Contains(user) && l.Status == LessonStatus.Scheduled);
+
+            var userDto = MapToUserDto(user);
+            userDto.CompletedLessonsCount = completedLessonsCount;
+            userDto.ScheduledLessonsCount = scheduledLessonsCount;
+
+            return userDto;
+        }
 
         private UserDto MapToUserDto(User user)
         {
@@ -197,7 +226,9 @@ namespace TeacherOrganizer.Services
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
-                PaidLessons = user.PaidLessons
+                PaidLessons = user.PaidLessons,
+                CompletedLessonsCount = 0, 
+                ScheduledLessonsCount = 0  
             };
         }
     }

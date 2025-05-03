@@ -76,13 +76,15 @@ export async function initializeStudentList(container) {
 // Function to open student details
 async function openStudentDetails(userId) {
     console.log("openStudentDetails called with userId:", userId);
-    const user = await getUserById(userId);
+    const user = await getUserById(userId); // Fetch user details with counts
     if (!user) return;
 
     document.getElementById("modal-list-firstname").textContent = user.firstName || "";
     document.getElementById("modal-list-lastname").textContent = user.lastName || "";
     document.getElementById("modal-list-username").textContent = user.userName;
     document.getElementById("modal-list-email").textContent = user.email || "-";
+    document.getElementById("modal-list-completed-lessons").textContent = user.completedLessonsCount ?? 0; // New lines
+    document.getElementById("modal-list-scheduled-lessons").textContent = user.scheduledLessonsCount ?? 0; // New lines
 
     const modal = document.getElementById("student-details-modal");
     modal.classList.remove("hidden");

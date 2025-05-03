@@ -1,4 +1,5 @@
-﻿<div class="modal fade" id="lessonDetailsModal" tabindex="-1" aria-labelledby="lessonDetailsModalLabel" aria-hidden="true">
+﻿<div class="modal fade" id="lessonDetailsModal" tabindex="-1" aria-labelledby="lessonDetailsModalLabel"
+     aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -22,6 +23,8 @@
                     <label for="detailLessonDescription" class="form-label">Description</label>
                     <textarea class="form-control" id="detailLessonDescription" readonly></textarea>
                 </div>
+
+                <div id="students-container"></div>
 
                 <div class="mb-3">
                     <label for="actionSelect" class="form-label">Select Action</label>
@@ -72,7 +75,10 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveChangesBtn" style="display: none;">Save changes</button>
+                <button type="button" class="btn btn-primary" id="saveChangesBtn" style="display: none;">
+                    Save
+                    changes
+                </button>
                 <button type="button" class="btn btn-danger" id="deleteLessonBtn" style="display: none;">Delete</button>
             </div>
         </div>
