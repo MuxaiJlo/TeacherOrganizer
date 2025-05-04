@@ -1,4 +1,19 @@
-﻿/* Мягкі скруглення і тінь */
+﻿.content.expanded {
+    margin-left: 80px; 
+}
+
+.calendar {
+    margin-left: 250px; 
+    transition: margin-left 0.3s ease, width 0.3s ease;
+    will-change: transform; 
+}
+
+    .calendar.expanded {
+        transform: translateX(-170px); 
+    }
+
+
+/* Мягкі скруглення і тінь */
 .fc {
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
@@ -8,7 +23,7 @@
     background: white;
 }
 
-/* Шапка — тепер персиковий колір */
+/* Шапка */
 .fc-toolbar {
     background: #FFA07A;
     color: #fff;
@@ -240,5 +255,28 @@
     .fc-daygrid-event {
         padding: 1px 3px;
         font-size: 0.75em;
+    }
+}
+/* Горизонтальний скрол тільки для таблиці на мобілці */
+@media (max-width: 768px) {
+    /* Включаємо горизонтальний скрол на всю сітку календаря */
+    .fc-scrollgrid {
+        overflow-x: auto;
+        display: block;
+    }
+
+    /* Внутрішню таблицю робимо ширшою, щоб з'явився скрол */
+    .fc-scrollgrid-sync-table {
+        min-width: 800px; /* Ширина по твоїм потребам */
+    }
+}
+
+@media (max-width: 768px) {
+    .fc-daygrid-event {
+        font-size: 0.7em;
+        padding: 1px 3px;
+        border-radius: 3px;
+        max-height: 3em;
+        line-height: 1.1em;
     }
 }

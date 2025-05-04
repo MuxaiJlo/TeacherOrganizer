@@ -80,11 +80,19 @@ export function initializeCalendar(contentPlaceholder) {
     fetch('/modals/calendary.html')
         .then(response => response.text())
         .then(filterHtml => {
+            // Найдем хедер и контейнер вида календаря
             const headerElement = calendar.el.querySelector('.fc-header-toolbar');
-            if (headerElement) {
-                headerElement.insertAdjacentHTML('afterend', filterHtml);
+            const viewHarness = calendar.el.querySelector('.fc-view-harness');
 
-                // Після вставки HTML, підключаємо обробники подій
+            if (headerElement && viewHarness) {
+                // Создаем контейнер для фильтров
+                const filterContainer = document.createElement('div');
+                filterContainer.innerHTML = filterHtml;
+
+                // Вставляем фильтры между шапкой и ячейками календаря
+                headerElement.parentNode.insertBefore(filterContainer, viewHarness);
+
+                // Подключаем обработчики фильтров
                 document.getElementById("statusFilter").addEventListener("change", () => {
                     updateCalendarEvents(calendar, dateStart, dateEnd);
                 });
@@ -97,6 +105,7 @@ export function initializeCalendar(contentPlaceholder) {
         .catch(error => {
             console.error('Failed to load filter form:', error);
         });
+
 
     // Initialize modals
     initLessonModal();

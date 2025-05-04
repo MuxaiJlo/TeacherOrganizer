@@ -1,21 +1,13 @@
-﻿// File: TeacherOrganizer/wwwroot/js/sidebar-toggle.js
-document.addEventListener("DOMContentLoaded", function () {
+﻿document.addEventListener("DOMContentLoaded", function () {
     // Add sidebar toggle button
     const sidebar = document.querySelector('.sidebar');
     const content = document.querySelector('.content');
-    const calendar = document.querySelector('.calendar'); 
-
-
-    // Create toggle button
-    const toggleButton = document.createElement('div');
-    toggleButton.className = 'sidebar-toggle';
-    toggleButton.innerHTML = '<i class="bi bi-chevron-left"></i>';
-    sidebar.appendChild(toggleButton);
+    const calendar = document.querySelector('.calendar');
 
     // Create mobile navbar
     const mobileNav = document.createElement('div');
     mobileNav.className = 'mobile-nav';
-    mobileNav.innerHTML = `
+    mobileNav.innerHTML = ` 
         <button class="mobile-nav-toggle">
             <i class="bi bi-list"></i>
         </button>
@@ -29,10 +21,22 @@ document.addEventListener("DOMContentLoaded", function () {
     overlay.className = 'sidebar-overlay';
     document.body.appendChild(overlay);
 
+    // Create toggle button
+    const toggleButton = document.createElement('div');
+    toggleButton.className = 'sidebar-toggle';
+    toggleButton.innerHTML = '<i class="bi bi-chevron-left"></i>';
+    sidebar.appendChild(toggleButton);
+
     // Toggle sidebar on button click
     toggleButton.addEventListener('click', function () {
-        sidebar.classList.toggle('collapsed');
-        content.classList.toggle('expanded');
+        // Check if sidebar is collapsed or mobile-visible
+        if (window.innerWidth <= 768) {
+            sidebar.classList.toggle('mobile-visible');
+            overlay.classList.toggle('active');
+        } else {
+            sidebar.classList.toggle('collapsed');
+            content.classList.toggle('expanded');
+        }
 
         // Переворот стрелки
         toggleButton.querySelector('i').classList.toggle('rotated');
@@ -40,20 +44,19 @@ document.addEventListener("DOMContentLoaded", function () {
         // Save state to localStorage
         localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
 
-        // Перерисовать календарь при изменении размеров
         if (window.calendar && typeof window.calendar.updateSize === 'function') {
-            setTimeout(() => window.calendar.updateSize(), 300); // задержка для плавности
+            // Используем requestAnimationFrame для синхронизации с браузерной анимацией
+            requestAnimationFrame(() => {
+                setTimeout(() => window.calendar.updateSize(), 300); // Задержка после анимации
+            });
         }
     });
-
-
 
     if (localStorage.getItem('sidebarCollapsed') === 'true') {
         sidebar.classList.add('collapsed');
         content.classList.add('expanded');
         if (calendar) calendar.classList.add('expanded'); // календарь тоже сдвинем
     }
-
 
     // Toggle sidebar on mobile menu button click
     document.querySelector('.mobile-nav-toggle').addEventListener('click', function () {
@@ -66,12 +69,6 @@ document.addEventListener("DOMContentLoaded", function () {
         sidebar.classList.remove('mobile-visible');
         overlay.classList.remove('active');
     });
-
-    // Load saved state
-    if (localStorage.getItem('sidebarCollapsed') === 'true') {
-        sidebar.classList.add('collapsed');
-        content.classList.add('expanded');
-    }
 
     // Close sidebar when clicking on a menu item on mobile
     document.querySelectorAll('.menu a').forEach(item => {
