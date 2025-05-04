@@ -69,6 +69,7 @@ namespace TeacherOrganizer.Controllers.Lesson
                 start = l.StartTime.ToString("yyyy-MM-ddTHH:mm:ss"),
                 end = l.EndTime.ToString("yyyy-MM-ddTHH:mm:ss"),
                 status = l.Status.ToString(),
+                userName = string.Join(", ", l.Students.Select(s => s.UserName)), 
             });
             await _lessonService.AutoCompleteLessons();
             Console.WriteLine($"\"=========================== Found {lessons.Count} lessons. \"===========================");

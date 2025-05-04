@@ -1,0 +1,121 @@
+﻿/* Мягкі скруглення і тінь */
+.fc {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    overflow: hidden;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: white;
+}
+
+/* Шапка — тепер персиковий колір */
+.fc-toolbar {
+    background: #FFA07A;
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+    .fc-toolbar .fc-button {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: #fff;
+        border-radius: 6px;
+        margin: 0 4px;
+        padding: 6px 12px;
+    }
+
+        .fc-toolbar .fc-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+    .fc-toolbar .fc-button-active {
+        background: #fff;
+        color: #FFA07A;
+    }
+.fc-col-header-cell-cushion {
+    color: #FD7A45;
+    font-weight: bold;
+    padding: 8px 4px !important;
+}
+/* Дні тижня */
+.fc-col-header-cell {
+    background-color: #fff5f0;
+    color: #FFA07A;
+    font-weight: 600;
+    padding: 10px 0;
+    border: 1px solid #f3f3f3;
+}
+
+/* Ячейки днів */
+.fc-daygrid-day, .fc-timegrid-slot {
+    border: 1px solid #f3f3f3;
+    transition: background-color 0.3s ease;
+}
+
+    /* Підсвітка при наведенні */
+    .fc-daygrid-day:hover {
+        background-color: #ffe5dc;
+        cursor: pointer;
+    }
+
+    .fc-daygrid-day.fc-day-today {
+        background-color: #ffe0b2;
+    }
+
+.fc-daygrid-day-number {
+    font-size: 1.2rem !important;
+    color: #FD7A45 !important;
+    padding: 4px !important;
+}
+/* Івенти */
+.fc-daygrid-event {
+    background-color: #FFA07A;
+    color: #fff !important;
+    border: none;
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 0.85em;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    white-space: normal !important;
+    max-height: 4.5em;
+    line-height: 1.2em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fc-event:hover {
+    filter: brightness(1.1);
+}
+
+/* Вьюшки день/тиждень */
+.fc-timegrid-event {
+    border-radius: 6px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background-color: #FFA07A;
+    color: #fff !important;
+}
+
+/* Сітка без зазорів */
+.fc-scrollgrid {
+    width: 100% !important;
+    table-layout: fixed;
+}
+
+/* Назви івентів без обрізання */
+.fc-event-title {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+}
+
+/* Респонсив */
+@media (max-width: 768px) {
+    .fc-toolbar {
+        flex-direction: column;
+    }
+}

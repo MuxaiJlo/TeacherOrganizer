@@ -14,37 +14,41 @@ export function initializeCalendar(contentPlaceholder) {
     contentPlaceholder.innerHTML = `<div id="calendar"></div>`;
     console.log("📅 Initializing calendar...");
 
-    // Add filter container
-    addFilterContainer(contentPlaceholder);
-
     const calendarEl = document.getElementById("calendar");
     if (!calendarEl) {
         console.error("❌ Calendar element not found!");
         return;
     }
 
-    // Create calendar with improved configuration
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: "dayGridMonth",
-        height: 'auto', // Allows calendar to adjust height based on content
-        aspectRatio: 1.35, // Better proportions for calendar
+        height: 'auto',
+        contentHeight: 'auto',
+        expandRows: true, // Розтягує рядки під контент
+        aspectRatio: 1.6, // Зробити календар ширше
         headerToolbar: {
             left: "prev,next today",
             center: "title",
             right: "dayGridMonth,timeGridWeek,timeGridDay"
         },
-        // Improved event display settings
+        customButtons: {
+            filters: {
+                text: 'Filters',
+                click: function () {
+                    // Це все ще може бути використано для чогось іншого, якщо потрібно
+                }
+            }
+        },
         eventDisplay: 'block',
         eventTimeFormat: {
             hour: '2-digit',
             minute: '2-digit',
             meridiem: false
         },
-        // Make text in cells more readable
         dayMaxEventRows: true,
         views: {
             dayGridMonth: {
-                dayMaxEventRows: 3 // Limit number of events displayed per day
+                dayMaxEventRows: 5 // Збільшу кількість видимих івентів
             }
         },
         eventClick: function (info) {
@@ -52,7 +56,6 @@ export function initializeCalendar(contentPlaceholder) {
             openLessonDetailsModal(info.event.id);
         },
         dateClick: function (info) {
-            // Only allow teachers to create lessons
             if (currentUserRole === "Teacher") {
                 openLessonModal(info.dateStr);
             } else {
@@ -73,9 +76,27 @@ export function initializeCalendar(contentPlaceholder) {
 
     calendar.render();
 
-    document.getElementById("statusFilter").addEventListener("change", () => {
-        updateCalendarEvents(calendar, dateStart, dateEnd);
-    });
+    // Завантажуємо та вставляємо форму фільтрів
+    fetch('/modals/calendary.html')
+        .then(response => response.text())
+        .then(filterHtml => {
+            const headerElement = calendar.el.querySelector('.fc-header-toolbar');
+            if (headerElement) {
+                headerElement.insertAdjacentHTML('afterend', filterHtml);
+
+                // Після вставки HTML, підключаємо обробники подій
+                document.getElementById("statusFilter").addEventListener("change", () => {
+                    updateCalendarEvents(calendar, dateStart, dateEnd);
+                });
+
+                document.getElementById("usernameFilter").addEventListener("input", () => {
+                    updateCalendarEvents(calendar, dateStart, dateEnd);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Failed to load filter form:', error);
+        });
 
     // Initialize modals
     initLessonModal();
@@ -87,21 +108,6 @@ export function initializeCalendar(contentPlaceholder) {
     });
 }
 
-// Improved filter container with better styling
-function addFilterContainer(contentPlaceholder) {
-    const filterHtml = `
-    <div class="filter-container mt-3 mb-2">
-        <label for="statusFilter" class="me-2">Filter by status:</label>
-        <select id="statusFilter" class="form-select" style="width: 200px; max-width: 100%;">
-            <option value="all">All</option>
-            <option value="Scheduled">Scheduled</option>
-            <option value="Canceled">Cancelled</option>
-            <option value="RescheduledRequest">Reschedule requested</option>
-        </select>
-    </div>`;
-
-    contentPlaceholder.insertAdjacentHTML("beforeend", filterHtml);
-}
 // Export functions to get the current calendar state
 export function getCurrentDateRange() {
     return { start: dateStart, end: dateEnd };
@@ -109,4 +115,11 @@ export function getCurrentDateRange() {
 
 export function getCalendarInstance() {
     return calendar;
+}
+
+export function getActiveFilters() {
+    return {
+        status: document.getElementById("statusFilter")?.value || "all",
+        username: document.getElementById("usernameFilter")?.value || ""
+    };
 }
