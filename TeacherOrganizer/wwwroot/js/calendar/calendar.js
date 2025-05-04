@@ -23,12 +23,29 @@ export function initializeCalendar(contentPlaceholder) {
         return;
     }
 
+    // Create calendar with improved configuration
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: "dayGridMonth",
+        height: 'auto', // Allows calendar to adjust height based on content
+        aspectRatio: 1.35, // Better proportions for calendar
         headerToolbar: {
             left: "prev,next today",
             center: "title",
             right: "dayGridMonth,timeGridWeek,timeGridDay"
+        },
+        // Improved event display settings
+        eventDisplay: 'block',
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            meridiem: false
+        },
+        // Make text in cells more readable
+        dayMaxEventRows: true,
+        views: {
+            dayGridMonth: {
+                dayMaxEventRows: 3 // Limit number of events displayed per day
+            }
         },
         eventClick: function (info) {
             console.log("📌 Event clicked:", info.event);
@@ -44,7 +61,6 @@ export function initializeCalendar(contentPlaceholder) {
         },
         datesSet: function (info) {
             console.log("📅 Date range changed:", info.start, info.end);
-
             if (!info.start || !info.end) {
                 console.error("❌ Invalid date range:", info.start, info.end);
                 return;
@@ -56,6 +72,7 @@ export function initializeCalendar(contentPlaceholder) {
     });
 
     calendar.render();
+
     document.getElementById("statusFilter").addEventListener("change", () => {
         updateCalendarEvents(calendar, dateStart, dateEnd);
     });
@@ -63,23 +80,28 @@ export function initializeCalendar(contentPlaceholder) {
     // Initialize modals
     initLessonModal();
     initLessonDetailsModal();
+
+    // Add a small resize handler to improve responsiveness
+    window.addEventListener('resize', () => {
+        setTimeout(() => calendar.updateSize(), 200);
+    });
 }
 
+// Improved filter container with better styling
 function addFilterContainer(contentPlaceholder) {
     const filterHtml = `
-<div class="filter-container mt-3 mb-2">
-    <label for="statusFilter" class="me-2">Filter by status:</label>
-    <select id="statusFilter" class="form-select" style="width: 200px;">
-        <option value="all">All</option>
-        <option value="Scheduled">Scheduled</option>
-        <option value="Canceled">Cancelled</option>
-        <option value="RescheduledRequest">Reschedule requested</option>
-    </select>
-</div>`;
+    <div class="filter-container mt-3 mb-2">
+        <label for="statusFilter" class="me-2">Filter by status:</label>
+        <select id="statusFilter" class="form-select" style="width: 200px; max-width: 100%;">
+            <option value="all">All</option>
+            <option value="Scheduled">Scheduled</option>
+            <option value="Canceled">Cancelled</option>
+            <option value="RescheduledRequest">Reschedule requested</option>
+        </select>
+    </div>`;
 
     contentPlaceholder.insertAdjacentHTML("beforeend", filterHtml);
 }
-
 // Export functions to get the current calendar state
 export function getCurrentDateRange() {
     return { start: dateStart, end: dateEnd };

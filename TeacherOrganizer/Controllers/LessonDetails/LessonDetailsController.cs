@@ -21,6 +21,7 @@ namespace TeacherOrganizer.Controllers.LessonDetails
 
         // GET: api/LessonDetails/accessible
         [HttpGet("accessible")]
+        [Authorize(Roles = "Student,Teacher")]
         public async Task<ActionResult<IEnumerable<LessonDetailsDTO>>> GetAccessibleLessonDetails()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -41,6 +42,7 @@ namespace TeacherOrganizer.Controllers.LessonDetails
 
         // GET: api/LessonDetails/5
         [HttpGet("{id}")]
+        [Authorize(Roles = "Student,Teacher")]
         public async Task<ActionResult<LessonDetailsDTO>> GetLessonDetails(int id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -69,6 +71,7 @@ namespace TeacherOrganizer.Controllers.LessonDetails
 
         // POST: api/LessonDetails
         [HttpPost]
+        [Authorize(Roles = "Teacher")]
         public async Task<ActionResult<LessonDetailsDTO>> CreateLessonDetails(CreateLessonDetailsDTO createDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -102,6 +105,7 @@ namespace TeacherOrganizer.Controllers.LessonDetails
 
         // PUT: api/LessonDetails/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> UpdateLessonDetails(int id, UpdateLessonDetailsDTO updateDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -124,6 +128,7 @@ namespace TeacherOrganizer.Controllers.LessonDetails
 
         // PUT: api/LessonDetails/5/access
         [HttpPut("{id}/access")]
+        [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> UpdateAccess(int id, UpdateAccessDTO updateAccessDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -145,6 +150,7 @@ namespace TeacherOrganizer.Controllers.LessonDetails
 
         // DELETE: api/LessonDetails/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> DeleteLessonDetails(int id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -163,6 +169,7 @@ namespace TeacherOrganizer.Controllers.LessonDetails
 
         // POST: api/LessonDetails/5/users/{userId}
         [HttpPost("{id}/users/{userId}")]
+        [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> AddUserAccess(int id, string userId)
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -178,6 +185,7 @@ namespace TeacherOrganizer.Controllers.LessonDetails
 
         // DELETE: api/LessonDetails/5/users/{userId}
         [HttpDelete("{id}/users/{userId}")]
+        [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> RemoveUserAccess(int id, string userId)
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);

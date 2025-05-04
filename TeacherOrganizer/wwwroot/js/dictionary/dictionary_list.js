@@ -51,7 +51,7 @@ export function setupDictionaryList(filteredDictionaries)
         console.log("Dictionary list setup complete.");
     });
 
-    setupEditDictionaryModal(); // Setup edit dictionary modal functionality
+    
 }
 
 function setupDictionaryToggle(listItem, dictionary)
@@ -121,12 +121,12 @@ function setupDictionaryToggle(listItem, dictionary)
     copyDictionaryBtn.addEventListener("click", async () =>
     {
         console.log(`Copy dictionary button clicked for dictionary ${dictionary.dictionaryId}.`);
-        if (!dictionaryId) {
+        if (!dictionary.dictionaryId) {
             alert("Dictionary ID is missing.");
             return;
         }
         try {
-            const copied = await api.copyDictionary(dictionaryId);
+            const copied = await api.copyDictionary(dictionary.dictionaryId);
             if (copied) {
                 alert("Dictionary copied successfully.");
             } else {
@@ -238,43 +238,5 @@ function setupAddWordForm(contentDiv, dictionaryId)
     {
         console.log(`Cancel add word clicked for dictionary ${dictionaryId}.`);
         addWordFormContainer.classList.remove("show");
-    });
-}
-
-function setupEditDictionaryModal()
-{
-    const editDictionaryModal = document.getElementById("editDictionaryModal");
-    const saveEditDictionaryButton = document.getElementById("saveEditDictionaryButton");
-    const editDictionaryNameInput = document.getElementById("editDictionaryName");
-
-    saveEditDictionaryButton.addEventListener("click", async () =>
-    {
-        // Retrieve dictionaryId from the modal's data attribute
-        const dictionaryId = editDictionaryModal.dataset.dictionaryId;
-        const newDictionaryName = editDictionaryNameInput.value;
-        if (newDictionaryName && newDictionaryName.trim() !== "")
-        {
-            // Prepare the model to match the API
-            const updateModel = {
-                Name: newDictionaryName.trim()
-            };
-            try
-            {
-                console.log("Dicitonary ID: ", dictionaryId);
-                const log = await api.updateDictionary(dictionaryId, updateModel);
-                console.log(log);
-                alert("Dictionary updated successfully.");
-                const bsModal = bootstrap.Modal.getInstance(editDictionaryModal);
-                bsModal.hide();
-                loadDictionaries(true);
-            } catch (error)
-            {
-                console.error("Error updating dictionary:", error);
-                alert("Failed to update dictionary. Please try again.");
-            }
-        } else
-        {
-            alert("Please enter a valid dictionary name.");
-        }
     });
 }
