@@ -25,7 +25,7 @@ export function initializeCalendar(contentPlaceholder) {
         height: 'auto',
         contentHeight: 'auto',
         expandRows: true, // Розтягує рядки під контент
-        aspectRatio: 1.6, // Зробити календар ширше
+        aspectRatio: 1.8, // Зробити календар ширше
         headerToolbar: {
             left: "prev,next today",
             center: "title",
@@ -73,7 +73,7 @@ export function initializeCalendar(contentPlaceholder) {
             updateCalendarEvents(calendar, new Date(info.start), new Date(info.end));
         }
     });
-
+    window.calendar = calendar; // Сделать доступным глобально
     calendar.render();
 
     // Завантажуємо та вставляємо форму фільтрів

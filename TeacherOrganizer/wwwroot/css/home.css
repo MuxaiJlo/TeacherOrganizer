@@ -86,3 +86,51 @@ body {
     z-index: 2;
     padding-top: 12vh;
 }
+
+/* home.css адаптивные стили */
+@media (max-width: 992px) {
+    .hero-section {
+        padding: 50px 20px;
+        margin-top: -50px;
+    }
+
+    .features {
+        margin-top: -50px;
+        padding: 30px 15px;
+    }
+
+    .content-overlay {
+        padding-top: 6vh;
+    }
+
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+
+    .hero-section p {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section {
+        padding: 30px 15px;
+    }
+
+        .hero-section h1 {
+            font-size: 1.5rem;
+        }
+
+        .hero-section p {
+            font-size: 1rem;
+        }
+
+    .feature-icon {
+        width: 60px;
+    }
+
+    .btn {
+        font-size: 0.9rem;
+        padding: 8px 16px;
+    }
+}

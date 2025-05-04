@@ -13,8 +13,8 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    z-index: -1
-    /* інші стилі для позиціонування хвилі */
+    z-index: -1;
+    pointer-events: none; /* Allow clicks to pass through */
 }
 
 .hidden {
@@ -60,6 +60,7 @@
     margin-bottom: 10px;
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
 }
 
     .filter-container label {
@@ -69,3 +70,70 @@
     .filter-container input {
         margin-right: 10px;
     }
+
+/* Responsive styles */
+@media (max-width: 992px) {
+    .modal-dialog {
+        max-width: 90%;
+    }
+    
+    .btn {
+        padding: 8px 12px;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .wave {
+        left: -100px; /* Adjust wave position for smaller screens */
+    }
+    
+    .filter-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .filter-container label {
+        margin-bottom: 5px;
+        width: 100%;
+    }
+    
+    .filter-container input, 
+    .filter-container select {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .btn {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .wave {
+        left: -150px; /* Further adjust wave position */
+    }
+    
+    .modal-dialog {
+        max-width: 95%;
+        margin: 1rem auto;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    /* Stack buttons vertically on very small screens */
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        border-radius: 5px !important;
+        margin-right: 0;
+    }
+}

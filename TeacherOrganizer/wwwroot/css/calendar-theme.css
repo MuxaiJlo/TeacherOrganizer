@@ -17,6 +17,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    align-items: center;
 }
 
     .fc-toolbar .fc-button {
@@ -36,11 +37,13 @@
         background: #fff;
         color: #FFA07A;
     }
+
 .fc-col-header-cell-cushion {
     color: #FD7A45;
     font-weight: bold;
     padding: 8px 4px !important;
 }
+
 /* Дні тижня */
 .fc-col-header-cell {
     background-color: #fff5f0;
@@ -71,6 +74,7 @@
     color: #FD7A45 !important;
     padding: 4px !important;
 }
+
 /* Івенти */
 .fc-daygrid-event {
     background-color: #FFA07A;
@@ -112,10 +116,129 @@
     overflow: visible !important;
     text-overflow: unset !important;
 }
+/* Общий стиль фильтров */
+.filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 0.5rem;
+}
+
+/* Адаптив для экранов меньше 768px */
+@media (max-width: 768px) {
+    .filter-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+        .filter-container div {
+            width: 100%;
+        }
+
+        .filter-container select,
+        .filter-container input {
+            width: 100% !important;
+        }
+
+        /* Скрываем подписи на маленьких экранах */
+        .filter-container label {
+            display: none;
+        }
+
+        /* Уменьшаем внутренние отступы */
+        .filter-container select,
+        .filter-container input {
+            font-size: 0.9rem;
+            padding: 0.4rem;
+        }
+}
+
+/* Адаптив для совсем маленьких экранов */
+@media (max-width: 576px) {
+    .filter-container {
+        gap: 0.5rem;
+    }
+
+        .filter-container select,
+        .filter-container input {
+            font-size: 0.85rem;
+        }
+}
+
 
 /* Респонсив */
+@media (max-width: 992px) {
+    .fc-toolbar {
+        padding: 10px;
+    }
+
+    .fc-toolbar-title {
+        font-size: 1.3em !important;
+    }
+
+    .fc-button {
+        padding: 4px 8px !important;
+        font-size: 0.9em !important;
+    }
+}
+
 @media (max-width: 768px) {
     .fc-toolbar {
         flex-direction: column;
+        gap: 10px;
+    }
+
+    .fc-toolbar-chunk {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .fc-toolbar-title {
+        font-size: 1.2em !important;
+        text-align: center;
+    }
+
+    .fc-daygrid-day-number {
+        font-size: 1rem !important;
+    }
+
+    .fc-col-header-cell-cushion {
+        padding: 4px 2px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .fc-toolbar-title {
+        font-size: 1.1em !important;
+    }
+
+    .fc-button {
+        padding: 3px 6px !important;
+        font-size: 0.8em !important;
+    }
+
+    .fc-col-header-cell-cushion {
+        font-size: 0.8em;
+    }
+
+    .fc-daygrid-day-number {
+        font-size: 0.9rem !important;
+    }
+
+    /* Simplify view for mobile */
+    .fc-direction-ltr .fc-daygrid-event.fc-event-end,
+    .fc-direction-ltr .fc-daygrid-event.fc-event-start {
+        margin-right: 0;
+        margin-left: 0;
+    }
+
+    .fc-daygrid-event {
+        padding: 1px 3px;
+        font-size: 0.75em;
     }
 }
