@@ -1,0 +1,71 @@
+﻿/* Wave */
+.wave {
+    position: absolute;
+    bottom: 0px;
+    left: -50px;
+    height: auto;
+    z-index: -1; /* Щоб не перекривала контент */
+    position: fixed;
+}
+
+.wave-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: -1
+    /* інші стилі для позиціонування хвилі */
+}
+
+.hidden {
+    display: none !important;
+}
+
+.btn {
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+    color: white; /* Общий цвет текста */
+    border: 1px solid transparent; /* Общая рамка */
+}
+
+.btn-primary {
+    background-color: #FD7A45;
+    border-color: #FD7A45;
+}
+
+    .btn-primary:hover {
+        background-color: #ff6b30; /* Темнее при наведении */
+        border-color: #ff6b30;
+    }
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #218838;
+    }
+
+.modal-dialog {
+    max-width: 800px; /* Увеличим ширину модального окна */
+    margin: 1.75rem auto;
+}
+
+/* Стили для фильтров (могут использоваться на разных страницах) */
+.filter-container {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+    .filter-container label {
+        margin-right: 10px;
+    }
+
+    .filter-container input {
+        margin-right: 10px;
+    }
