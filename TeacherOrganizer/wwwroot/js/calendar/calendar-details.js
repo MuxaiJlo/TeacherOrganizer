@@ -75,8 +75,7 @@ function setupEventHandlers() {
     document.getElementById("deleteLessonBtn").addEventListener("click", deleteCurrentLesson);
 
 
-    // Фільтруємо опції для студента
-    if (currentUserRole === "student") {
+    if (currentUserRole === "Student") {
         for (let i = actionSelect.options.length - 1; i >= 0; i--) {
             if (actionSelect.options[i].value !== "reschedule" && actionSelect.options[i].value !== "none") {
                 actionSelect.remove(i);

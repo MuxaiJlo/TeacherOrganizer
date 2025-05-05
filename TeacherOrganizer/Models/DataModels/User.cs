@@ -13,7 +13,7 @@ namespace TeacherOrganizer.Models.DataModels
         [JsonIgnore]
         public ICollection<Lesson> AttendedLessons { get; set; }
         public ICollection<Dictionary> Dictionaries { get; set; }
-        public int PaidLessons { get; set; } = 0;
+        public int PaidLessons { get; set; }
 
     }
 }
