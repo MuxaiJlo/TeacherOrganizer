@@ -11,6 +11,8 @@ let modal = null;
 
 export async function initLessonModal() {
     try {
+        if (isLessonModalInitialized) return modal;
+        isLessonModalInitialized = true;
         const response = await fetch("/modals/lesson-modal.html");
         if (!response.ok) throw new Error("Failed to load modal template");
 

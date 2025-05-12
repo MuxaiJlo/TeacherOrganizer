@@ -48,7 +48,7 @@ export function initializeCalendar(contentPlaceholder) {
         dayMaxEventRows: true,
         views: {
             dayGridMonth: {
-                dayMaxEventRows: 5 // Збільшу кількість видимих івентів
+                dayMaxEventRows: 5 
             }
         },
         eventClick: function (info) {
