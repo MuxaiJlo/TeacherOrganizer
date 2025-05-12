@@ -8,6 +8,7 @@ import { getCurrentDateRange, getCalendarInstance } from "./calendar.js";
 
 // Змінні модуля
 let modal = null;
+let isLessonModalInitialized = false;
 
 export async function initLessonModal() {
     try {

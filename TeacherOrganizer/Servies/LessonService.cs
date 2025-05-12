@@ -60,7 +60,6 @@ namespace TeacherOrganizer.Servies
             if (lesson == null)
                 return null;
 
-            // Валідую нові дати
             var tempDto = new LessonModels
             {
                 StartTime = updatedLesson.StartTime,
@@ -81,28 +80,7 @@ namespace TeacherOrganizer.Servies
             return lesson;
         }
 
-        private async Task ValidateLessonDto(LessonModels dto, User teacher, ICollection<User> students)
-        {
-            if (dto.StartTime >= dto.EndTime)
-                throw new ArgumentException("Start time must be earlier than end time.");
-
-            if (dto.StartTime < DateTime.UtcNow)
-                throw new ArgumentException("Cannot schedule a lesson in the past.");
-
-            if (!string.IsNullOrWhiteSpace(dto.Description) && dto.Description.Length > 500)
-                throw new ArgumentException("Description is too long (max 500 characters).");
-
-            bool hasConflict = await _context.Lessons
-                .Where(l =>
-                    l.Status == LessonStatus.Scheduled &&
-                    l.StartTime < dto.EndTime &&
-                    l.EndTime > dto.StartTime &&
-                    (l.Teacher.Id == teacher.Id || l.Students.Any(s => students.Select(st => st.Id).Contains(s.Id))))
-                .AnyAsync();
-
-            if (hasConflict)
-                throw new InvalidOperationException("The teacher or one of the students already has a lesson at this time.");
-        }
+        
 
         public async Task<bool> DeleteLessonAsync(int lessonId)
         {
@@ -185,6 +163,35 @@ namespace TeacherOrganizer.Servies
             await _context.SaveChangesAsync();
         }
 
+        public async Task AutoDeleteCanceledLessonsAsync()
+        {
+            var thresholdDate = DateTime.UtcNow.AddDays(-14);
+
+            var oldCanceledLessons = await _context.Lessons
+                .Where(l => l.Status == LessonStatus.Canceled && l.UpdatedAt < thresholdDate)
+                .ToListAsync();
+
+            if (oldCanceledLessons.Any())
+            {
+                _context.Lessons.RemoveRange(oldCanceledLessons);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<bool> CancelLessonAsync(int lessonId)
+        {
+            var lesson = await _context.Lessons.FindAsync(lessonId);
+            if (lesson == null || lesson.Status == LessonStatus.Canceled)
+                return false;
+
+            lesson.Status = LessonStatus.Canceled;
+            lesson.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+
         public async Task<Lesson?> GetLessonByIdAsync(int lessonId)
         {
             return await _context.Lessons
@@ -209,6 +216,28 @@ namespace TeacherOrganizer.Servies
                 EndTime = l.EndTime,
                 Description = l.Description
             }).ToList();
+        }
+        private async Task ValidateLessonDto(LessonModels dto, User teacher, ICollection<User> students)
+        {
+            if (dto.StartTime >= dto.EndTime)
+                throw new ArgumentException("Start time must be earlier than end time.");
+
+            if (dto.StartTime < DateTime.UtcNow)
+                throw new ArgumentException("Cannot schedule a lesson in the past.");
+
+            if (!string.IsNullOrWhiteSpace(dto.Description) && dto.Description.Length > 500)
+                throw new ArgumentException("Description is too long (max 500 characters).");
+
+            bool hasConflict = await _context.Lessons
+                .Where(l =>
+                    l.Status == LessonStatus.Scheduled &&
+                    l.StartTime < dto.EndTime &&
+                    l.EndTime > dto.StartTime &&
+                    (l.Teacher.Id == teacher.Id || l.Students.Any(s => students.Select(st => st.Id).Contains(s.Id))))
+                .AnyAsync();
+
+            if (hasConflict)
+                throw new InvalidOperationException("The teacher or one of the students already has a lesson at this time.");
         }
     }
 

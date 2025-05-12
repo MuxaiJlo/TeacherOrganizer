@@ -1,6 +1,6 @@
 ﻿// File: TeacherOrganizer/wwwroot/js/calendar/calendar-details.js
 
-import { fetchLessonById, updateLesson, deleteLesson } from "../api/api_lessons.js";
+import { fetchLessonById, updateLesson, cancelLesson } from "../api/api_lessons.js";
 import { rescheduleLesson } from "../api/api_reschedule.js";
 import { validateUpdateData, validateRescheduleData } from "./calendar-utils.js";
 import { updateCalendarEvents } from "./calendar-events.js";
@@ -42,6 +42,7 @@ export async function initLessonDetailsModal() {
             // Add event handlers for the modal
             setupEventHandlers();
         });
+        
 
         modalEl.addEventListener("hidden.bs.modal", () => {
             if (previouslyFocusedElement) {
@@ -72,7 +73,7 @@ function setupEventHandlers() {
     });
 
 
-    document.getElementById("deleteLessonBtn").addEventListener("click", deleteCurrentLesson);
+    document.getElementById("cancelLessonBtn").addEventListener("click", cancelCurrentLesson);
 
 
     if (currentUserRole === "Student") {
@@ -82,9 +83,9 @@ function setupEventHandlers() {
             }
         }
         document.getElementById("updateFields").style.display = "none";
-        document.getElementById("deleteConfirmation").style.display = "none";
+        document.getElementById("cancelConfirmation").style.display = "none";
         document.getElementById("saveChangesBtn").textContent = "Propose Reschedule";
-        document.getElementById("deleteLessonBtn").style.display = "none";
+        document.getElementById("cancelLessonBtn").style.display = "none";
     }
 }
 
@@ -179,21 +180,60 @@ function populateModalFields(lesson) {
 
     studentsFormGroup.appendChild(studentsListContainer);
     studentsContainer.appendChild(studentsFormGroup);
+    const badge = document.getElementById("lessonStatusBadge");
+
+    if (badge) {
+        let statusText = lesson.status;
+
+        if (typeof statusText === "number") {
+            switch (statusText) {
+                case 0: statusText = "Scheduled"; break;
+                case 1: statusText = "Cancelled"; break;
+                case 2: statusText = "Completed"; break;
+                case 3: statusText = "RescheduledRequest"; break;
+                default: statusText = "Unknown"; break;
+            }
+        }
+
+        badge.classList.remove("bg-danger", "bg-success", "bg-primary", "bg-warning", "bg-secondary");
+        switch (statusText) {
+            case "Cancelled":
+                badge.classList.add("bg-danger");
+                badge.textContent = "Cancelled";
+                break;
+            case "Completed":
+                badge.classList.add("bg-success");
+                badge.textContent = "Completed";
+                break;
+            case "Scheduled":
+                badge.classList.add("bg-primary");
+                badge.textContent = "Scheduled";
+                break;
+            case "RescheduledRequest":
+                badge.classList.add("bg-warning");
+                badge.textContent = "Rescheduled";
+                break;
+            default:
+                badge.classList.add("bg-secondary");
+                badge.textContent = statusText;
+                break;
+        }
+    }
 }
 
 function handleActionChange() {
     const actionSelect = document.getElementById("actionSelect");
     const updateFields = document.getElementById("updateFields");
     const rescheduleFields = document.getElementById("rescheduleFields");
-    const deleteConfirmation = document.getElementById("deleteConfirmation");
+    const cancelConfirmation = document.getElementById("cancelConfirmation");
     const saveChangesBtn = document.getElementById("saveChangesBtn");
-    const deleteLessonBtn = document.getElementById("deleteLessonBtn");
+    const cancelLessonBtn = document.getElementById("cancelLessonBtn");
 
     updateFields.style.display = "none";
     rescheduleFields.style.display = "none";
-    deleteConfirmation.style.display = "none";
+    cancelConfirmation.style.display = "none";
     saveChangesBtn.style.display = "none";
-    deleteLessonBtn.style.display = "none";
+    cancelLessonBtn.style.display = "none";
 
     if (actionSelect.value === "update") {
         updateFields.style.display = "block";
@@ -201,18 +241,20 @@ function handleActionChange() {
     } else if (actionSelect.value === "reschedule") {
         rescheduleFields.style.display = "block";
         saveChangesBtn.style.display = "inline-block";
-        if (currentUserRole === "student") {
+        if (currentUserRole === "Student") {
             saveChangesBtn.textContent = "Propose Reschedule";
         } else {
             saveChangesBtn.textContent = "Save Changes";
         }
-    } else if (actionSelect.value === "delete") {
-        deleteConfirmation.style.display = "block";
-        deleteLessonBtn.style.display = "inline-block";
+    } else if (actionSelect.value === "cancel") {
+        cancelConfirmation.style.display = "block";
+        cancelLessonBtn.style.display = "inline-block";
+        cancelLessonBtn.textContent = "Cancel Lesson";
     }
+
 }
 
-// Functions to update, delete, and reschedule lessons
+// Functions to update, cancel, and reschedule lessons
 async function saveLessonDetails() {
     try {
         const description = document.getElementById("updateLessonDescription").value;
@@ -244,18 +286,17 @@ async function saveLessonDetails() {
     }
 }
 
-async function deleteCurrentLesson() {
-    console.log(`🗑️ Deleting lesson with ID: ${currentLessonId}`);
+async function cancelCurrentLesson() {
+    console.log(`🚫 Cancelling lesson with ID: ${currentLessonId}`);
     try {
-        await deleteLesson(currentLessonId);
-        console.log("✅ Lesson deleted");
+        await cancelLesson(currentLessonId);
+        console.log("✅ Lesson cancelled");
         modalDetails.hide();
 
-        // Update calendar events
         const { start, end } = getCurrentDateRange();
         updateCalendarEvents(getCalendarInstance(), start, end);
     } catch (error) {
-        alert(error.message || "Failed to delete lesson");
+        alert(error.message || "Failed to cancel lesson");
     }
 }
 
@@ -286,4 +327,14 @@ async function rescheduleCurrentLesson() {
     } catch (error) {
         alert(error.message || "Failed to propose reschedule");
     }
+}
+function getStatusLabelAndColor(status) {
+    if (status === "Canceled" || status === 1) {
+        return { label: "Скасовано", color: "#dc3545" };
+    } else if (status === "Completed" || status === 2) {
+        return { label: "Завершено", color: "#00ff00" };
+    } else if (status === "RescheduledRequest" || status === 3) {
+        return { label: "Запит на перенесення", color: "#ffc107" };
+    }
+    return { label: "Заплановано", color: "#3788d8" };
 }

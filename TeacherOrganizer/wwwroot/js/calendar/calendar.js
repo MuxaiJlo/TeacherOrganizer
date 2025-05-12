@@ -106,7 +106,7 @@ export function initializeCalendar(contentPlaceholder) {
             console.error('Failed to load filter form:', error);
         });
 
-
+       
     // Initialize modals
     initLessonModal();
     initLessonDetailsModal();

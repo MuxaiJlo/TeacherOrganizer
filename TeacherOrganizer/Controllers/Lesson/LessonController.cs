@@ -46,7 +46,6 @@ namespace TeacherOrganizer.Controllers.Lesson
             });
         }
 
-
         // GET: /api/Lesson/Calendar?start=YYYY-MM-DD&end=YYYY-MM-DD
         [HttpGet("Calendar")]
         [Authorize(Roles = "Student,Teacher")]
@@ -71,6 +70,7 @@ namespace TeacherOrganizer.Controllers.Lesson
                 status = l.Status.ToString(),
                 userName = string.Join(", ", l.Students.Select(s => s.UserName)), 
             });
+            await _lessonService.AutoDeleteCanceledLessonsAsync();
             await _lessonService.AutoCompleteLessons();
             Console.WriteLine($"\"=========================== Found {lessons.Count} lessons. \"===========================");
             return Ok(events);
@@ -152,6 +152,19 @@ namespace TeacherOrganizer.Controllers.Lesson
             if (!result) return NotFound(new { Message = "Lesson not found" });
             return NoContent();
         }
+
+        [HttpPost("{lessonId}/cancel")]
+        [Authorize(Roles = "Teacher")]
+        public async Task<IActionResult> CancelLesson(int lessonId)
+        {
+            var result = await _lessonService.CancelLessonAsync(lessonId);
+            if (!result)
+                return BadRequest(new { Message = "Lesson not found or already canceled." });
+
+            return Ok(new { Message = "Lesson canceled successfully." });
+        }
+
+
         [HttpGet("scheduled")]
         [Authorize(Roles = "Teacher, Student")]
         public async Task<ActionResult<IEnumerable<LessonDto>>> GetScheduledLessons()
