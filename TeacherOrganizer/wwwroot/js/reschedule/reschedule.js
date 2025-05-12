@@ -1,4 +1,7 @@
-﻿import {
+﻿// File: TeacherOrganizer/wwwroot/js/reschedule/reschedule.js
+
+
+import {
     fetchPendingRescheduleRequests,
     updateRescheduleRequestStatus,
     updateRescheduleRequest,
