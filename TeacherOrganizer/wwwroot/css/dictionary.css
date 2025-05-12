@@ -1,0 +1,96 @@
+﻿.dictionary-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+    gap: 10px;
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px; /* Відступ між кнопками */
+    flex-wrap: wrap;
+}
+
+.filters {
+    display: flex;
+    gap: 10px; /* Відступ між полями */
+    flex-wrap: wrap;
+}
+
+.filters .form-control {
+    width: 200px; /* Фіксована ширина для рівномірного вигляду */
+}
+
+#createDictionaryModal .modal-dialog {
+    max-width: 800px; /* Збільшення ширини модального вікна */
+}
+
+#createDictionaryModal .word-input input {
+    width: 25%; /* Зменшення ширини полів Word та Translation */
+    margin-right: 10px; /* Додавання відступу між полями */
+}
+
+#createDictionaryModal .word-input input:last-child {
+    margin-right: 0; /* Видалення відступу для останнього поля */
+}
+
+#addWordButton {
+    background-color: #FD7A45;
+    border-color: #FD7A45;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .dictionary-controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .btn-group, .filters {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .filters .form-control {
+        flex-grow: 1;
+        width: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    #createDictionaryModal .word-input {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    #createDictionaryModal .word-input input {
+        width: 100%;
+        margin-right: 0;
+    }
+    
+    .filters {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .filters .form-control {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .dictionary-controls > div {
+        width: 100%;
+    }
+    
+    .btn-group {
+        justify-content: space-between;
+    }
+    
+    .btn-group .btn {
+        flex: 1;
+    }
+}

@@ -75,8 +75,7 @@ function setupEventHandlers() {
     document.getElementById("deleteLessonBtn").addEventListener("click", deleteCurrentLesson);
 
 
-    // Фільтруємо опції для студента
-    if (currentUserRole === "student") {
+    if (currentUserRole === "Student") {
         for (let i = actionSelect.options.length - 1; i >= 0; i--) {
             if (actionSelect.options[i].value !== "reschedule" && actionSelect.options[i].value !== "none") {
                 actionSelect.remove(i);
@@ -134,6 +133,52 @@ function populateModalFields(lesson) {
     document.getElementById("rescheduleLessonDate").value = lesson.startTime.split("T")[0];
     document.getElementById("rescheduleLessonStartTime").value = lesson.startTime.split("T")[1].substring(0, 5);
     document.getElementById("rescheduleLessonEndTime").value = lesson.endTime.split("T")[1].substring(0, 5);
+
+    // Make readonly fields look like regular fields
+    const readOnlyFields = document.querySelectorAll('.modal-body input[readonly], .modal-body textarea[readonly]');
+    readOnlyFields.forEach(field => {
+        field.style.backgroundColor = '#fff';
+        field.style.border = '1px solid #ced4da';
+    });
+
+    // Display Students with consistent styling
+    const studentsContainer = document.getElementById("students-container");
+    studentsContainer.innerHTML = ""; // Clear previous content
+
+    // Create a container div with the same styling as other form groups
+    const studentsFormGroup = document.createElement("div");
+    studentsFormGroup.className = "mb-3";
+
+    // Create a label like other form fields
+    const studentsLabel = document.createElement("label");
+    studentsLabel.className = "form-label";
+    studentsLabel.textContent = "Students";
+    studentsFormGroup.appendChild(studentsLabel);
+
+    // Create a container for the students list
+    const studentsListContainer = document.createElement("div");
+    studentsListContainer.className = "form-control";
+    studentsListContainer.style.height = "auto";
+    studentsListContainer.style.maxHeight = "120px";
+    studentsListContainer.style.overflowY = "auto";
+
+    if (lesson.students && lesson.students.length > 0) {
+        const studentsList = document.createElement("ul");
+        studentsList.className = "list-unstyled m-0";
+
+        lesson.students.forEach(student => {
+            const studentItem = document.createElement("li");
+            studentItem.textContent = student.userName;
+            studentsList.appendChild(studentItem);
+        });
+
+        studentsListContainer.appendChild(studentsList);
+    } else {
+        studentsListContainer.textContent = "No students assigned";
+    }
+
+    studentsFormGroup.appendChild(studentsListContainer);
+    studentsContainer.appendChild(studentsFormGroup);
 }
 
 function handleActionChange() {

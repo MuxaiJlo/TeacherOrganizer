@@ -2,6 +2,7 @@
 body {
     margin: 0;
     padding: 0;
+    overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 /* Основний контейнер */
@@ -9,6 +10,7 @@ body {
     display: flex;
     height: 100vh;
     margin: 0;
+    position: relative;
 }
 
 /* Фіксоване ліве меню (sidebar) */
@@ -24,6 +26,53 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    transition: transform 0.3s ease, width 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto; /* Enable scrolling for small screens */
+}
+
+/* Collapsed sidebar */
+.sidebar.collapsed {
+    width: 70px;
+    transform: translateX(0);
+}
+
+.sidebar.collapsed .user-info h5,
+.sidebar.collapsed .user-info p,
+.sidebar.collapsed .menu ul li a span {
+    display: none;
+}
+
+.sidebar.collapsed .menu ul li a {
+    text-align: center;
+    padding: 15px 5px;
+}
+
+/* Toggle button for sidebar */
+.sidebar-toggle {
+    position: absolute;
+    top: 880px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background: #FD7A45;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px solid white;
+    z-index: 1001;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.sidebar-toggle i {
+    transition: transform 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-toggle i {
+    transform: rotate(180deg);
 }
 
 /* Інформація про користувача */
@@ -32,133 +81,74 @@ body {
     padding-bottom: 20px;
     border-bottom: 1px solid #555;
     width: 100%;
+    transition: padding 0.3s ease;
+}
+
+.sidebar.collapsed .user-info {
+    padding: 10px 0;
 }
 
 .user-icon {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background: white;
     padding: 5px;
+    transition: width 0.3s ease, height 0.3s ease;
+}
+
+.sidebar.collapsed .user-icon {
+    width: 40px;
+    height: 40px;
 }
 
 /* Меню */
+.menu {
+    width: 100%;
+}
+
 .menu ul {
     list-style: none;
     padding: 0;
     margin: 20px 0;
+    width: 100%;
 }
 
-    .menu ul li {
-        margin: 10px 0;
-    }
-
-        .menu ul li a {
-            color: white;
-            text-decoration: none;
-            display: block;
-            padding: 10px;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-
-            .menu ul li a:hover {
-                background: #495057;
-            }
-
-.logout {
-    color: #ff5555;
+.menu ul li {
+    margin: 5px 0;
+    width: 100%;
 }
 
-/* Основний контент */
-.content {
-    margin-left: 250px;
-    padding: 40px;
-    width: calc(100% - 250px);
-    background: transparent;
-    min-height: 100vh;
-    display: block !important;
-    flex-direction: column; /* Додаємо, щоб контент розтягувався */
-}
-
-/* Wave */
-.wave {
-    position: absolute;
-    bottom: 0px;
-    left: -50px;
-    height: auto;
-    z-index: -1; /* Щоб не перекривала контент */
-    position: fixed;
-}
-/* Контейнер календаря */
-#calendar {
-    width: 100% !important;
-    max-width: 1200px; /* Не більше 1200px */
-    margin: auto;
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-}
-
-.fc .fc-button {
-    background-color: #FD7A45 !important;
-    border: none !important;
-    color: white !important;
-    font-weight: bold !important;
-    padding: 8px 12px !important;
-    border-radius: 5px !important;
+.menu ul li a {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    border-radius: 5px;
     transition: background 0.3s;
+    width: 100%;
 }
 
-    .fc .fc-button:hover {
-        background-color: #ff6b30 !important; /* Темніший відтінок при наведенні */
-    }
-/* Робимо шрифт більшим */
-.fc-daygrid-day-number {
-    font-size: 1.2rem !important;
-    color: #FD7A45 !important; /* Колір чисел */
-}
-.fc-col-header-cell-cushion {
-    color: #FD7A45;
-}
-/* Чорна сітка */
-.fc-theme-standard .fc-scrollgrid {
-    border: 2px solid black !important;
+.menu ul li a:hover {
+    background: #495057;
 }
 
-.fc-theme-standard td, .fc-theme-standard th {
-    border-color: black !important; /* Чорна обводка */
+.menu ul li a i, 
+.menu ul li a span.icon {
+    margin-right: 10px;
+    font-size: 1.2em;
 }
 
-/* Обводка для кожного дня */
-.fc-daygrid-day-frame {
-    border: 1px solid black !important;
+.sidebar.collapsed .menu ul li a i,
+.sidebar.collapsed .menu ul li a span.icon {
+    margin-right: 0;
+    font-size: 1.5em;
 }
-
-/* При наведенні змінюємо колір */
-.fc-daygrid-day:hover {
-    background-color: rgba(253, 122, 69, 0.3) !important;
-    cursor: pointer;
-    transition: background 0.3s ease-in-out;
-}
-.fc-daygrid-day {
-    min-width: 100px !important; /* Задай потрібний розмір */
-}
-
-
-.fc-daygrid-day-frame {
-    flex-grow: 1 !important;
-}
-.fc-scrollgrid {
-    width: 100% !important;
-    table-layout: fixed !important;
-}
-/* ... (інші стилі) ... */
 
 .logout-form {
-    margin: 10px 0; /* Додаємо відступи, як у інших елементів меню */
+    margin: 10px 0;
+    width: 100%;
 }
 
 .logout {
@@ -166,218 +156,168 @@ body {
     border: none;
     color: white;
     text-decoration: none;
-    display: block;
-    padding: 10px;
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
     border-radius: 5px;
     transition: background 0.3s;
-    width: 100%; /* Додаємо ширину, щоб кнопка займала весь простір */
-    text-align: left; /* Вирівнюємо текст по лівому краю */
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
 }
 
 .logout:hover {
     background: #495057;
-    cursor: pointer; /* Змінюємо курсор на руку при наведенні */
 }
 
-.dictionary-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-bottom: 15px;
-}
-
-.btn-group {
-    display: flex;
-    gap: 10px; /* Відступ між кнопками */
-}
-
-.filters {
-    display: flex;
-    gap: 10px; /* Відступ між полями */
-}
-
-    .filters .form-control {
-        width: 200px; /* Фіксована ширина для рівномірного вигляду */
-    }
-
-#createDictionaryModal .modal-dialog {
-    max-width: 800px; /* Збільшення ширини модального вікна */
-}
-
-#createDictionaryModal .word-input input {
-    width: 25%; /* Зменшення ширини полів Word та Translation */
-    margin-right: 10px; /* Додавання відступу між полями */
-}
-
-    #createDictionaryModal .word-input input:last-child {
-        margin-right: 0; /* Видалення відступу для останнього поля */
-    }
-
-#addWordButton {
-    background-color: #FD7A45;
-    border-color: #FD7A45;
-}
-.reschedule-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1em;
-}
-
-    .reschedule-table th,
-    .reschedule-table td {
-        padding: 0.5em;
-        border: 1px solid #ccc;
-        text-align: left;
-    }
-
-    .reschedule-table button {
-        margin-right: 0.5em;
-    }
-.edit-controls {
-    display: flex;
-    gap: 5px;
-}
-.reschedule-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Тень для эффекта "непрозрачности" */
-    background-color: white; /* Белый фон */
-}
-
-    .reschedule-table th, .reschedule-table td {
-        padding: 12px 15px;
-        border-bottom: 1px solid #ddd;
-        text-align: left;
-    }
-
-    .reschedule-table th {
-        background-color: #f8f9fa;
-        font-weight: bold;
-    }
-
-    .reschedule-table tr:hover {
-        background-color: #f1f1f1;
-    }
-
-
-.modal-dialog {
-    max-width: 800px; /* Увеличим ширину модального окна */
-    margin: 1.75rem auto;
-}
-
-/* Стили для фильтров */
-.filter-container {
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-}
-
-    .filter-container label {
-        margin-right: 10px;
-    }
-
-    .filter-container input {
-        margin-right: 10px;
-    }
-<<<<<<< HEAD
-.table {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    overflow: hidden;
-}
-
-    .table th, .table td {
-        padding: 12px 15px;
-        text-align: left;
-    }
-
-    .table th {
-        background-color: #f5f5f5;
-    }
-
-#student-details-modal.modal {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#student-details-modal .modal-dialog {
-    background-color: #fefefe;
-    margin: auto;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 600px;
-    border-radius: 8px; /* Добавляем скругление */
-    overflow: hidden; /* Чтобы содержимое не выходило за пределы скругления */
-}
-
-#student-details-modal .modal-content {
+/* Основний контент */
+.content {
+    margin-left: 250px;
     padding: 20px;
-    border-radius: 0; /* Убираем возможное скругление у содержимого */
+    width: calc(100% - 250px);
+    background: transparent;
+    min-height: 100vh;
+    transition: margin-left 0.3s ease, width 0.3s ease;
+    display: block !important;
+    flex-direction: column;
 }
 
-.hidden {
-    display: none !important;
+.content.expanded {
+    margin-left: 70px;
+    width: calc(100% - 70px);
 }
 
+/* Mobile navbar for very small screens */
+.mobile-nav {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #343a40;
+    padding: 10px;
+    z-index: 999;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
 
-.btn {
-    padding: 10px 15px;
-    border-radius: 5px;
+.mobile-nav-toggle {
+    color: white;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
     cursor: pointer;
-    transition: background-color 0.3s, border-color 0.3s;
-    color: white; /* Общий цвет текста */
-    border: 1px solid transparent; /* Общая рамка */
 }
 
-.btn-primary {
-    background-color: #FD7A45;
-    border-color: #FD7A45;
+.mobile-title {
+    color: white;
+    margin: 0;
+    font-size: 1.2rem;
 }
 
-    .btn-primary:hover {
-        background-color: #ff6b30; /* Темнее при наведении */
-        border-color: #ff6b30;
+/* Responsive styles */
+@media (max-width: 992px) {
+    .sidebar {
+        width: 200px;
+    }
+    
+    .content {
+        margin-left: 200px;
+        width: calc(100% - 200px);
+        padding: 15px;
+    }
+    
+    .content.expanded {
+        margin-left: 70px;
+        width: calc(100% - 70px);
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 250px;
+    }
+    
+    .sidebar.mobile-visible {
+        transform: translateX(0);
+    }
+    
+    .content {
+        margin-left: 0;
+        width: 100%;
+        padding: 10px;
+        margin-top: 60px; /* Space for mobile navbar */
+    }
+    
+    .content.expanded {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .mobile-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+        display: none;
+    }
+    
+    .sidebar-overlay.active {
+        display: block;
+    }
+}
+
+@media (max-width: 576px) {
+    .content {
+        padding: 10px 5px;
+    }
+}
+
+/* Дополнительные адаптивные стили для dashboard */
+@media (max-width: 1200px) {
+    .dashboard-container {
+        flex-direction: column;
     }
 
-.btn-success {
-    background-color: #28a745;
-    border-color: #28a745;
-}
-
-    .btn-success:hover {
-        background-color: #218838;
-        border-color: #218838;
+    .calendar-container {
+        padding: 10px;
     }
 
-/* Другие стили кнопок */
-.table {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    overflow: hidden;
-}
-
-    .table th, .table td {
-        padding: 12px 15px;
-        text-align: left;
+    .fc-toolbar-title {
+        font-size: 1.2rem !important;
     }
 
-    .table th {
-        background-color: #f5f5f5;
+    .fc .fc-button {
+        padding: 0.2em 0.4em;
+        font-size: 0.8em;
+    }
+}
+
+/* Адаптивные стили для форм */
+@media (max-width: 768px) {
+    .form-group {
+        margin-bottom: 10px;
     }
 
-.table-dark th {
-    color: black;
+    .form-control {
+        font-size: 0.9rem;
+    }
+
+    .select2-container {
+        width: 100% !important;
+    }
+
+    .ql-editor {
+        min-height: 150px;
+    }
 }
+

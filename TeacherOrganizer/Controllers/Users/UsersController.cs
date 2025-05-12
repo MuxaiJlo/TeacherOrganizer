@@ -30,7 +30,7 @@ namespace TeacherOrganizer.Controllers.Users
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetUserById(string userId)
         {
-            var user = await _userService.GetUserByIdAsync(userId);
+            var user = await _userService.GetUserWithLessonCountsAsync(userId);
 
             if (user == null)
             {

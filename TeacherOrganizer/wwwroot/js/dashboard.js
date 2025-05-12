@@ -1,4 +1,5 @@
-﻿document.addEventListener("DOMContentLoaded", function () {
+﻿// File: TeacherOrganizer/wwwroot/js/dashboard.js
+document.addEventListener("DOMContentLoaded", function () {
     console.log("✅ Dashboard loaded!");
 
     // Обробники для навігаційних посилань

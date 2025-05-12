@@ -1,0 +1,282 @@
+﻿.content.expanded {
+    margin-left: 80px; 
+}
+
+.calendar {
+    margin-left: 250px; 
+    transition: margin-left 0.3s ease, width 0.3s ease;
+    will-change: transform; 
+}
+
+    .calendar.expanded {
+        transform: translateX(-170px); 
+    }
+
+
+/* Мягкі скруглення і тінь */
+.fc {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    overflow: hidden;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: white;
+}
+
+/* Шапка */
+.fc-toolbar {
+    background: #FFA07A;
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .fc-toolbar .fc-button {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: #fff;
+        border-radius: 6px;
+        margin: 0 4px;
+        padding: 6px 12px;
+    }
+
+        .fc-toolbar .fc-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+    .fc-toolbar .fc-button-active {
+        background: #fff;
+        color: #FFA07A;
+    }
+
+.fc-col-header-cell-cushion {
+    color: #FD7A45;
+    font-weight: bold;
+    padding: 8px 4px !important;
+}
+
+/* Дні тижня */
+.fc-col-header-cell {
+    background-color: #fff5f0;
+    color: #FFA07A;
+    font-weight: 600;
+    padding: 10px 0;
+    border: 1px solid #f3f3f3;
+}
+
+/* Ячейки днів */
+.fc-daygrid-day, .fc-timegrid-slot {
+    border: 1px solid #f3f3f3;
+    transition: background-color 0.3s ease;
+}
+
+    /* Підсвітка при наведенні */
+    .fc-daygrid-day:hover {
+        background-color: #ffe5dc;
+        cursor: pointer;
+    }
+
+    .fc-daygrid-day.fc-day-today {
+        background-color: #ffe0b2;
+    }
+
+.fc-daygrid-day-number {
+    font-size: 1.2rem !important;
+    color: #FD7A45 !important;
+    padding: 4px !important;
+}
+
+/* Івенти */
+.fc-daygrid-event {
+    background-color: #FFA07A;
+    color: #fff !important;
+    border: none;
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 0.85em;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    white-space: normal !important;
+    max-height: 4.5em;
+    line-height: 1.2em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fc-event:hover {
+    filter: brightness(1.1);
+}
+
+/* Вьюшки день/тиждень */
+.fc-timegrid-event {
+    border-radius: 6px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background-color: #FFA07A;
+    color: #fff !important;
+}
+
+/* Сітка без зазорів */
+.fc-scrollgrid {
+    width: 100% !important;
+    table-layout: fixed;
+}
+
+/* Назви івентів без обрізання */
+.fc-event-title {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+}
+/* Общий стиль фильтров */
+.filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 0.5rem;
+}
+
+/* Адаптив для экранов меньше 768px */
+@media (max-width: 768px) {
+    .filter-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+        .filter-container div {
+            width: 100%;
+        }
+
+        .filter-container select,
+        .filter-container input {
+            width: 100% !important;
+        }
+
+        /* Скрываем подписи на маленьких экранах */
+        .filter-container label {
+            display: none;
+        }
+
+        /* Уменьшаем внутренние отступы */
+        .filter-container select,
+        .filter-container input {
+            font-size: 0.9rem;
+            padding: 0.4rem;
+        }
+}
+
+/* Адаптив для совсем маленьких экранов */
+@media (max-width: 576px) {
+    .filter-container {
+        gap: 0.5rem;
+    }
+
+        .filter-container select,
+        .filter-container input {
+            font-size: 0.85rem;
+        }
+}
+
+
+/* Респонсив */
+@media (max-width: 992px) {
+    .fc-toolbar {
+        padding: 10px;
+    }
+
+    .fc-toolbar-title {
+        font-size: 1.3em !important;
+    }
+
+    .fc-button {
+        padding: 4px 8px !important;
+        font-size: 0.9em !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .fc-toolbar {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .fc-toolbar-chunk {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .fc-toolbar-title {
+        font-size: 1.2em !important;
+        text-align: center;
+    }
+
+    .fc-daygrid-day-number {
+        font-size: 1rem !important;
+    }
+
+    .fc-col-header-cell-cushion {
+        padding: 4px 2px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .fc-toolbar-title {
+        font-size: 1.1em !important;
+    }
+
+    .fc-button {
+        padding: 3px 6px !important;
+        font-size: 0.8em !important;
+    }
+
+    .fc-col-header-cell-cushion {
+        font-size: 0.8em;
+    }
+
+    .fc-daygrid-day-number {
+        font-size: 0.9rem !important;
+    }
+
+    /* Simplify view for mobile */
+    .fc-direction-ltr .fc-daygrid-event.fc-event-end,
+    .fc-direction-ltr .fc-daygrid-event.fc-event-start {
+        margin-right: 0;
+        margin-left: 0;
+    }
+
+    .fc-daygrid-event {
+        padding: 1px 3px;
+        font-size: 0.75em;
+    }
+}
+/* Горизонтальний скрол тільки для таблиці на мобілці */
+@media (max-width: 768px) {
+    /* Включаємо горизонтальний скрол на всю сітку календаря */
+    .fc-scrollgrid {
+        overflow-x: auto;
+        display: block;
+    }
+
+    /* Внутрішню таблицю робимо ширшою, щоб з'явився скрол */
+    .fc-scrollgrid-sync-table {
+        min-width: 800px; /* Ширина по твоїм потребам */
+    }
+}
+
+@media (max-width: 768px) {
+    .fc-daygrid-event {
+        font-size: 0.7em;
+        padding: 1px 3px;
+        border-radius: 3px;
+        max-height: 3em;
+        line-height: 1.1em;
+    }
+}

@@ -14,9 +14,6 @@ export function initializeCalendar(contentPlaceholder) {
     contentPlaceholder.innerHTML = `<div id="calendar"></div>`;
     console.log("📅 Initializing calendar...");
 
-    // Add filter container
-    addFilterContainer(contentPlaceholder);
-
     const calendarEl = document.getElementById("calendar");
     if (!calendarEl) {
         console.error("❌ Calendar element not found!");
@@ -25,17 +22,40 @@ export function initializeCalendar(contentPlaceholder) {
 
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: "dayGridMonth",
+        height: 'auto',
+        contentHeight: 'auto',
+        expandRows: true, // Розтягує рядки під контент
+        aspectRatio: 1.8, // Зробити календар ширше
         headerToolbar: {
             left: "prev,next today",
             center: "title",
             right: "dayGridMonth,timeGridWeek,timeGridDay"
+        },
+        customButtons: {
+            filters: {
+                text: 'Filters',
+                click: function () {
+                    // Це все ще може бути використано для чогось іншого, якщо потрібно
+                }
+            }
+        },
+        eventDisplay: 'block',
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            meridiem: false
+        },
+        dayMaxEventRows: true,
+        views: {
+            dayGridMonth: {
+                dayMaxEventRows: 5 // Збільшу кількість видимих івентів
+            }
         },
         eventClick: function (info) {
             console.log("📌 Event clicked:", info.event);
             openLessonDetailsModal(info.event.id);
         },
         dateClick: function (info) {
-            // Only allow teachers to create lessons
             if (currentUserRole === "Teacher") {
                 openLessonModal(info.dateStr);
             } else {
@@ -44,7 +64,6 @@ export function initializeCalendar(contentPlaceholder) {
         },
         datesSet: function (info) {
             console.log("📅 Date range changed:", info.start, info.end);
-
             if (!info.start || !info.end) {
                 console.error("❌ Invalid date range:", info.start, info.end);
                 return;
@@ -54,30 +73,48 @@ export function initializeCalendar(contentPlaceholder) {
             updateCalendarEvents(calendar, new Date(info.start), new Date(info.end));
         }
     });
-
+    window.calendar = calendar; // Сделать доступным глобально
     calendar.render();
-    document.getElementById("statusFilter").addEventListener("change", () => {
-        updateCalendarEvents(calendar, dateStart, dateEnd);
-    });
+
+    // Завантажуємо та вставляємо форму фільтрів
+    fetch('/modals/calendary.html')
+        .then(response => response.text())
+        .then(filterHtml => {
+            // Найдем хедер и контейнер вида календаря
+            const headerElement = calendar.el.querySelector('.fc-header-toolbar');
+            const viewHarness = calendar.el.querySelector('.fc-view-harness');
+
+            if (headerElement && viewHarness) {
+                // Создаем контейнер для фильтров
+                const filterContainer = document.createElement('div');
+                filterContainer.innerHTML = filterHtml;
+
+                // Вставляем фильтры между шапкой и ячейками календаря
+                headerElement.parentNode.insertBefore(filterContainer, viewHarness);
+
+                // Подключаем обработчики фильтров
+                document.getElementById("statusFilter").addEventListener("change", () => {
+                    updateCalendarEvents(calendar, dateStart, dateEnd);
+                });
+
+                document.getElementById("usernameFilter").addEventListener("input", () => {
+                    updateCalendarEvents(calendar, dateStart, dateEnd);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Failed to load filter form:', error);
+        });
+
 
     // Initialize modals
     initLessonModal();
     initLessonDetailsModal();
-}
 
-function addFilterContainer(contentPlaceholder) {
-    const filterHtml = `
-<div class="filter-container mt-3 mb-2">
-    <label for="statusFilter" class="me-2">Filter by status:</label>
-    <select id="statusFilter" class="form-select" style="width: 200px;">
-        <option value="all">All</option>
-        <option value="Scheduled">Scheduled</option>
-        <option value="Canceled">Cancelled</option>
-        <option value="RescheduledRequest">Reschedule requested</option>
-    </select>
-</div>`;
-
-    contentPlaceholder.insertAdjacentHTML("beforeend", filterHtml);
+    // Add a small resize handler to improve responsiveness
+    window.addEventListener('resize', () => {
+        setTimeout(() => calendar.updateSize(), 200);
+    });
 }
 
 // Export functions to get the current calendar state
@@ -87,4 +124,11 @@ export function getCurrentDateRange() {
 
 export function getCalendarInstance() {
     return calendar;
+}
+
+export function getActiveFilters() {
+    return {
+        status: document.getElementById("statusFilter")?.value || "all",
+        username: document.getElementById("usernameFilter")?.value || ""
+    };
 }

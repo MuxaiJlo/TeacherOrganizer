@@ -10,6 +10,8 @@ namespace TeacherOrganizer.Models.UserModels
         public string LastName { get; set; }
         public string Email { get; set; }
         public int PaidLessons { get; set; }
+        public int CompletedLessonsCount { get; set; } 
+        public int ScheduledLessonsCount { get; set; } 
     }
     // Модель для налаштувань користувача
     public class UserSettingsDto
