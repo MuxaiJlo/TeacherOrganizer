@@ -153,7 +153,7 @@ namespace TeacherOrganizer.Controllers.Lesson
             return NoContent();
         }
 
-        [HttpPost("{lessonId}/cancel")]
+        [HttpPut("{lessonId}/cancel")]
         [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> CancelLesson(int lessonId)
         {

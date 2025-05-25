@@ -103,38 +103,6 @@ namespace TeacherOrganizer.Servies
             return await query.ToListAsync();
         }
 
-        public async Task<Lesson?> ProposeRescheduleAsync(int lessonId, DateTime proposedStart, DateTime proposedEnd, string initiatorId)
-        {
-            var lesson = await _context.Lessons
-                .Include(l => l.Teacher)
-                .Include(l => l.Students)
-                .FirstOrDefaultAsync(l => l.LessonId == lessonId);
-
-            if (lesson == null) return null;
-
-            var initiator = await _context.Users.FirstOrDefaultAsync(u => u.UserName == initiatorId);
-            if (initiator == null)
-                throw new UnauthorizedAccessException("Initiator not found");
-
-            var rescheduleRequest = new RescheduleRequest
-            {
-                Lesson = lesson,
-                Initiator = initiator,
-                InitiatorId = initiatorId,
-                ProposedStartTime = proposedStart,
-                ProposedEndTime = proposedEnd,
-                RequestStatus = RescheduleRequestStatus.Pending
-            };
-
-            _context.RescheduleRequests.Add(rescheduleRequest);
-
-            lesson.Status = LessonStatus.RescheduledRequest;
-            lesson.UpdatedAt = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
-            return lesson;
-        }
-
         public async Task AutoCompleteLessons()
         {
             var now = DateTime.UtcNow;

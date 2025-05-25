@@ -25,7 +25,7 @@ export async function initLessonDetailsModal() {
         }
 
         modalDetails = new bootstrap.Modal(modalEl);
-
+        setupEventHandlers(); 
         let previouslyFocusedElement = null; // Store the element that had focus before the modal was opened
 
         modalEl.addEventListener("shown.bs.modal", () => {
@@ -39,8 +39,6 @@ export async function initLessonDetailsModal() {
 
             modalEl.removeAttribute("aria-hidden");
 
-            // Add event handlers for the modal
-            setupEventHandlers();
         });
         
 

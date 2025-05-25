@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 try {
                     const lessonDetailsModule = await import("./lessonDetails/lessonDetails.js");
                     console.log("📚 Lesson Details module loaded");
-                    lessonDetailsModule.initializeLessonDetails(contentPlaceholder);
+                    lessonDetailsModule.initializeLessonDetails(contentPlaceholder, window.currentUserRole);
                 } catch (error) {
                     console.error("❌ Error loading lesson details module:", error);
                     contentPlaceholder.innerHTML = "<p>Error loading lesson details.</p>";
