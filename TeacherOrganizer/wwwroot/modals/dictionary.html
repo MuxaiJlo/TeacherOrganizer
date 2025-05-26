@@ -3,9 +3,13 @@
         <h2>Dictionaries</h2>
         <div>
             <button id="showUserDictionaries" class="btn btn-primary"
-                style="background-color: #FD7A45; border-color: #FD7A45;margin-right: 10px;">My Dictionaries</button>
+                    style="background-color: #FD7A45; border-color: #FD7A45;margin-right: 10px;">
+                My Dictionaries
+            </button>
             <button id="showAllDictionaries" class="btn btn-primary"
-                style="background-color: #FD7A45; border-color: #FD7A45; margin-right: 10px;">All Dictionaries</button>
+                    style="background-color: #FD7A45; border-color: #FD7A45; margin-right: 10px;">
+                All Dictionaries
+            </button>
             <button id="createDictionaryButton" class="btn btn-success">Create Dictionary</button>
         </div>
     </div>
@@ -24,6 +28,9 @@
                 <small class="dictionary-meta"></small>
             </div>
             <div>
+                <button class="btn btn-success dictionary-action-btn play-game-btn" style="display: none;">
+                    🎮
+                </button>
                 <button class="btn btn-success add-word-btn" style="display: none;">
                     <img src="../icons/add.png" alt="Add" class="action-button-icon">
                 </button>
@@ -59,14 +66,14 @@
                     <input type="text" class="form-control flex-grow-1" placeholder="Translation">
                     <input type="text" class="form-control flex-grow-1" placeholder="Example">
                     <button class="btn remove-word border-0 bg-transparent text-danger p-0"
-                        style="font-size: 1.5em; line-height: 1;" onmouseover="this.style.color='red';"
-                        onmouseout="this.style.color='black';">
+                            style="font-size: 1.5em; line-height: 1;" onmouseover="this.style.color='red';"
+                            onmouseout="this.style.color='black';">
                         -
                     </button>
                 </div>
                 <button id="addNewWordInput" class="btn btn-secondary" style="color: White">+</button>
                 <button id="saveWordButton" class="btn btn-primary"
-                    style="background-color: #FD7A45; border-color: #FD7A45;">
+                        style="background-color: #FD7A45; border-color: #FD7A45;">
                     Save
                 </button>
                 <button id="cancelAddWordButton" class="btn btn-secondary">Cancel</button>
@@ -76,7 +83,7 @@
 </template>
 
 <div class="modal fade" id="createDictionaryModal" tabindex="-1" aria-labelledby="createDictionaryModalLabel"
-    aria-hidden="true">
+     aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -88,8 +95,10 @@
                     <label for="dictionaryName" class="form-label">Dictionary Name</label>
                     <div class="input-group">
                         <input type="text" class="form-control" id="dictionaryName">
-                        <button class="btn btn-success" type="button" id="createDictionaryButtonModal">Create
-                            Dictionary</button>
+                        <button class="btn btn-success" type="button" id="createDictionaryButtonModal">
+                            Create
+                            Dictionary
+                        </button>
                     </div>
                 </div>
                 <div id="wordsContainer">
@@ -99,8 +108,10 @@
                         <input type="text" class="form-control flex-grow-1" placeholder="Translation">
                         <input type="text" class="form-control flex-grow-1" placeholder="Example">
                         <button class="btn remove-word border-0 bg-transparent text-danger p-0"
-                            style="font-size: 1.5em; line-height: 1;" onmouseover="this.style.color='red';"
-                            onmouseout="this.style.color='black';">-</button>
+                                style="font-size: 1.5em; line-height: 1;" onmouseover="this.style.color='red';"
+                                onmouseout="this.style.color='black';">
+                            -
+                        </button>
                     </div>
                 </div>
                 <button id="addWordButton" class="btn btn-secondary mt-2">+</button>
@@ -108,7 +119,9 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="AddWordsToDictionaryButton"
-                    style="background-color: #FD7A45; border-color: #FD7A45;">Save words</button>
+                        style="background-color: #FD7A45; border-color: #FD7A45;">
+                    Save words
+                </button>
             </div>
         </div>
     </div>
@@ -116,22 +129,24 @@
 
 <div class="modal fade" id="editDictionaryModal" tabindex="-1" aria-labelledby="editDictionaryModalLabel"
      aria-hidden="true">
-     <div class="modal-dialog">
-         <div class="modal-content">
-             <div class="modal-header">
-                 <h5 class="modal-title" id="editDictionaryModalLabel">Edit Dictionary</h5>
-                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-             </div>
-             <div class="modal-body">
-                 <div class="mb-3">
-                     <label for="editDictionaryName" class="form-label">Dictionary Name</label>
-                     <input type="text" class="form-control" id="editDictionaryName" required>
-             </div>
-             <div class="modal-footer">
-                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                 <button type="button" class="btn btn-primary" id="saveEditDictionaryButton"
-                     style="background-color: #FD7A45; border-color: #FD7A45;">Save Changes</button>
-             </div>
-         </div>
-     </div>
- </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editDictionaryModalLabel">Edit Dictionary</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="editDictionaryName" class="form-label">Dictionary Name</label>
+                    <input type="text" class="form-control" id="editDictionaryName" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveEditDictionaryButton"
+                            style="background-color: #FD7A45; border-color: #FD7A45;">
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
