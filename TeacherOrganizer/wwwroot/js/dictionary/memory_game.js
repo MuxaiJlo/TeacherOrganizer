@@ -180,7 +180,7 @@ function checkGameComplete() {
 
     if (allCards.length === matchedCards.length) {
         setTimeout(() => {
-            alert("Вітаємо! Ви завершили гру!");
+            alert("🎉 All pairs matched!");
         }, 500);
     }
 }
