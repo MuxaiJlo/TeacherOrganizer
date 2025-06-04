@@ -2,11 +2,15 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Net;
+using System.Net.Mail;
 using System.Text;
 using System.Text.Json.Serialization;
 using TeacherOrganizer.Controllers.Auth;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Interefaces;
+using TeacherOrganizer.Interfaces;
+using TeacherOrganizer.Models.ConfigurationModels;
 using TeacherOrganizer.Models.DataModels;
 using TeacherOrganizer.Services;
 using TeacherOrganizer.Servies;
@@ -43,6 +47,8 @@ namespace TeacherOrganizer
             builder.Services.AddScoped<IRescheduleService, RescheduleService>();
             builder.Services.AddScoped<ILessonDetailsService, LessonDetailsService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 
             builder.Services.AddAuthentication(options =>
@@ -129,6 +135,7 @@ namespace TeacherOrganizer
                 LastName = "Administrator",
                 CreatedAt = DateTime.UtcNow
             */
+
             await app.RunAsync();
         }
 
@@ -147,5 +154,6 @@ namespace TeacherOrganizer
                 await roleManager.CreateAsync(new IdentityRole("Admin"));
             }
         }
+
     }
 }

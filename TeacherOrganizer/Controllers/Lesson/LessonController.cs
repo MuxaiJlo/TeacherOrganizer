@@ -5,9 +5,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Interefaces;
+using TeacherOrganizer.Interfaces;
 using TeacherOrganizer.Models.CalendarModels;
 using TeacherOrganizer.Models.DataModels;
 using TeacherOrganizer.Models.LessonModels;
+using TeacherOrganizer.Services;
 
 namespace TeacherOrganizer.Controllers.Lesson
 {
@@ -17,11 +19,15 @@ namespace TeacherOrganizer.Controllers.Lesson
     {
         private readonly ILessonService _lessonService;
         private readonly ApplicationDbContext _context;
+        private readonly IEmailService _emailService;
+        private readonly IUserService _userService;
 
-        public LessonController(ApplicationDbContext context, ILessonService lessonService)
+        public LessonController(ApplicationDbContext context, ILessonService lessonService, IEmailService emailService, IUserService userService)
         {
             _context = context;
             _lessonService = lessonService;
+            _emailService = emailService;
+            _userService = userService;
         }
         // GET: /api/Lesson/{lessonId}
         [HttpGet("{lessonId}")]
@@ -76,9 +82,9 @@ namespace TeacherOrganizer.Controllers.Lesson
             return Ok(events);
         }
 
-        // POST: /api/Lesson
+        // POST: /api/lessons
         [HttpPost]
-        [Authorize(Roles = "Teacher")]
+        [Authorize(Roles = "Teacher")] // Убедитесь, что у вас есть роль Teacher или измените на нужную
         public async Task<IActionResult> AddLesson([FromBody] LessonModelsInput newLesson)
         {
             if (!ModelState.IsValid)
@@ -88,14 +94,17 @@ namespace TeacherOrganizer.Controllers.Lesson
 
             try
             {
-
-                // Розбираємо токен і дістаємо id вчител
                 var teacherId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
                 if (teacherId == null)
                 {
                     return Unauthorized("Teacher ID not found in token.");
                 }
+
+                // Вытаскиваем имя преподавателя из токена, если есть, для письма
+                var teacherFirstName = User.FindFirstValue(ClaimTypes.GivenName);
+                var teacherUserName = User.FindFirstValue(ClaimTypes.Name);
+                var teacherNameForEmail = !string.IsNullOrEmpty(teacherFirstName) ? teacherFirstName : teacherUserName;
+
 
                 var lessonModel = new LessonModels
                 {
@@ -103,17 +112,80 @@ namespace TeacherOrganizer.Controllers.Lesson
                     StartTime = newLesson.StartTime,
                     EndTime = newLesson.EndTime,
                     Description = newLesson.Description,
-                    Status = LessonStatus.Scheduled,
+                    Status = LessonStatus.Scheduled, // Убедитесь, что LessonStatus это ваш enum/класс
                     StudentIds = newLesson.StudentIds
                 };
 
                 var createdLesson = await _lessonService.AddLessonAsync(lessonModel);
 
+                // --- Начало логики отправки Email уведомлений ---
+                if (createdLesson.Students != null && createdLesson.Students.Any())
+                {
+                    // Если имя преподавателя из токена не удалось получить, используем UserName из созданного урока
+                    if (string.IsNullOrEmpty(teacherNameForEmail) && createdLesson.Teacher != null)
+                    {
+                        teacherNameForEmail = createdLesson.Teacher.UserName;
+                    }
+                    teacherNameForEmail = teacherNameForEmail ?? "Ваш преподаватель";
+
+
+                    foreach (var studentInfo in createdLesson.Students) // studentInfo должен содержать Id студента
+                    {
+                        try
+                        {
+                            // Получаем полную информацию о студенте, включая Email
+                            var student = await _userService.GetUserByIdAsync(studentInfo.Id);
+
+                            if (student != null && !string.IsNullOrEmpty(student.Email))
+                            {
+                                var subject = $"Новый урок: {createdLesson.Description ?? "Без темы"}";
+                                var messageBody = $"Здравствуйте, {student.FirstName ?? student.UserName}!<br><br>" +
+                                                  $"Для вас запланирован новый урок: <strong>{createdLesson.Description ?? "Без темы"}</strong>.<br>" +
+                                                  $"Дата и время: {createdLesson.StartTime:dd.MM.yyyy HH:mm} - {createdLesson.EndTime:HH:mm}.<br><br>" +
+                                                  $"С уважением,<br>{teacherNameForEmail}";
+
+   
+                                _emailService.SendEmailAsync(student.Email, subject, messageBody) 
+
+                                    .ContinueWith(task => {
+                                        if (task.IsFaulted)
+                                        {
+                                            Console.Error.WriteLine($"ОШИБКА EMAIL: Не удалось отправить уведомление о создании урока студенту {student.Email}. Ошибка: {task.Exception?.GetBaseException().Message}");
+                                            
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine($"EMAIL УСПЕХ: Уведомление о создании урока успешно отправлено студенту {student.Email}.");
+                                            
+                                        }
+                                    }, TaskScheduler.Default); 
+                            }
+                            else if (student != null)
+                            {
+                                Console.WriteLine($"ПРЕДУПРЕЖДЕНИЕ EMAIL: Студент {student.UserName} (ID: {studentInfo.Id}) не имеет email адреса. Уведомление не отправлено.");
+                                
+                            }
+                            else
+                            {
+                                Console.WriteLine($"ПРЕДУПРЕЖДЕНИЕ EMAIL: Студент с ID {studentInfo.Id} не найден. Уведомление не отправлено.");
+                                
+                            }
+                        }
+                        catch (Exception exInLoop)
+                        {
+                            // Логируем ошибку, возникшую при получении данных студента или подготовке письма
+                            Console.Error.WriteLine($"ОШИБКА EMAIL (Подготовка): Произошла ошибка при подготовке уведомления для студента ID {studentInfo.Id}: {exInLoop.Message}");
+                            
+                        }
+                    }
+                }
+                // --- Конец логики отправки Email уведомлений ---
+
                 return CreatedAtAction(nameof(GetLessonById), new { lessonId = createdLesson.LessonId }, new
                 {
                     LessonId = createdLesson.LessonId,
                     Teacher = new { createdLesson.Teacher.Id, createdLesson.Teacher.UserName },
-                    Students = createdLesson.Students.Select(s => new { s.Id, s.UserName }),
+                    Students = createdLesson.Students.Select(s => new { s.Id, s.UserName }), // Убедитесь, что эти поля существуют
                     createdLesson.StartTime,
                     createdLesson.EndTime,
                     createdLesson.Description,
@@ -122,11 +194,13 @@ namespace TeacherOrganizer.Controllers.Lesson
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Error creating lesson: {ex.Message}");
+                // Логируем основную ошибку создания урока
+                Console.Error.WriteLine($"ОШИБКА API: Ошибка при создании урока: {ex.Message}");
+                // _logger?.LogError(ex, "Error creating lesson in API.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
                     Message = "An error occurred while creating the lesson.",
-                    Details = ex.Message
+                    Details = ex.Message // В продакшене лучше не выводить ex.Message напрямую клиенту
                 });
             }
         }
