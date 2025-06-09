@@ -117,7 +117,7 @@ namespace TeacherOrganizer.Servies
                 lesson.Status = LessonStatus.Completed;
                 foreach (var student in lesson.Students)
                 {
-                    if (student.PaidLessons > 0)
+                    if (student.PaidLessons >= 0)
                     {
                         student.PaidLessons -= 1;
                     }

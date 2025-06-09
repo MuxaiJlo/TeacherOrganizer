@@ -18,16 +18,11 @@ namespace TeacherOrganizer.Controllers.Lesson
     public class LessonController : ControllerBase
     {
         private readonly ILessonService _lessonService;
-        private readonly ApplicationDbContext _context;
         private readonly IEmailService _emailService;
-        private readonly IUserService _userService;
-
-        public LessonController(ApplicationDbContext context, ILessonService lessonService, IEmailService emailService, IUserService userService)
+        public LessonController(ILessonService lessonService, IEmailService emailService)
         {
-            _context = context;
             _lessonService = lessonService;
             _emailService = emailService;
-            _userService = userService;
         }
         // GET: /api/Lesson/{lessonId}
         [HttpGet("{lessonId}")]
@@ -63,8 +58,6 @@ namespace TeacherOrganizer.Controllers.Lesson
                 return BadRequest(new { Message = "Start date must be earlier than end date." });
 
 
-            Console.WriteLine($"===========================Getting calendar for user: {userId}, from {start} to {end}\"===========================");
-
             var lessons = await _lessonService.GetLessonsForUserAsync(userId, start, end);
 
             var events = lessons.Select(l => new
@@ -78,13 +71,12 @@ namespace TeacherOrganizer.Controllers.Lesson
             });
             await _lessonService.AutoDeleteCanceledLessonsAsync();
             await _lessonService.AutoCompleteLessons();
-            Console.WriteLine($"\"=========================== Found {lessons.Count} lessons. \"===========================");
             return Ok(events);
         }
 
         // POST: /api/lessons
         [HttpPost]
-        [Authorize(Roles = "Teacher")] // Убедитесь, что у вас есть роль Teacher или измените на нужную
+        [Authorize(Roles = "Teacher")] 
         public async Task<IActionResult> AddLesson([FromBody] LessonModelsInput newLesson)
         {
             if (!ModelState.IsValid)
@@ -112,80 +104,18 @@ namespace TeacherOrganizer.Controllers.Lesson
                     StartTime = newLesson.StartTime,
                     EndTime = newLesson.EndTime,
                     Description = newLesson.Description,
-                    Status = LessonStatus.Scheduled, // Убедитесь, что LessonStatus это ваш enum/класс
+                    Status = LessonStatus.Scheduled,
                     StudentIds = newLesson.StudentIds
                 };
 
                 var createdLesson = await _lessonService.AddLessonAsync(lessonModel);
 
-                // --- Начало логики отправки Email уведомлений ---
-                if (createdLesson.Students != null && createdLesson.Students.Any())
-                {
-                    // Если имя преподавателя из токена не удалось получить, используем UserName из созданного урока
-                    if (string.IsNullOrEmpty(teacherNameForEmail) && createdLesson.Teacher != null)
-                    {
-                        teacherNameForEmail = createdLesson.Teacher.UserName;
-                    }
-                    teacherNameForEmail = teacherNameForEmail ?? "Ваш преподаватель";
-
-
-                    foreach (var studentInfo in createdLesson.Students) // studentInfo должен содержать Id студента
-                    {
-                        try
-                        {
-                            // Получаем полную информацию о студенте, включая Email
-                            var student = await _userService.GetUserByIdAsync(studentInfo.Id);
-
-                            if (student != null && !string.IsNullOrEmpty(student.Email))
-                            {
-                                var subject = $"Новый урок: {createdLesson.Description ?? "Без темы"}";
-                                var messageBody = $"Здравствуйте, {student.FirstName ?? student.UserName}!<br><br>" +
-                                                  $"Для вас запланирован новый урок: <strong>{createdLesson.Description ?? "Без темы"}</strong>.<br>" +
-                                                  $"Дата и время: {createdLesson.StartTime:dd.MM.yyyy HH:mm} - {createdLesson.EndTime:HH:mm}.<br><br>" +
-                                                  $"С уважением,<br>{teacherNameForEmail}";
-
-   
-                                _emailService.SendEmailAsync(student.Email, subject, messageBody) 
-
-                                    .ContinueWith(task => {
-                                        if (task.IsFaulted)
-                                        {
-                                            Console.Error.WriteLine($"ОШИБКА EMAIL: Не удалось отправить уведомление о создании урока студенту {student.Email}. Ошибка: {task.Exception?.GetBaseException().Message}");
-                                            
-                                        }
-                                        else
-                                        {
-                                            Console.WriteLine($"EMAIL УСПЕХ: Уведомление о создании урока успешно отправлено студенту {student.Email}.");
-                                            
-                                        }
-                                    }, TaskScheduler.Default); 
-                            }
-                            else if (student != null)
-                            {
-                                Console.WriteLine($"ПРЕДУПРЕЖДЕНИЕ EMAIL: Студент {student.UserName} (ID: {studentInfo.Id}) не имеет email адреса. Уведомление не отправлено.");
-                                
-                            }
-                            else
-                            {
-                                Console.WriteLine($"ПРЕДУПРЕЖДЕНИЕ EMAIL: Студент с ID {studentInfo.Id} не найден. Уведомление не отправлено.");
-                                
-                            }
-                        }
-                        catch (Exception exInLoop)
-                        {
-                            // Логируем ошибку, возникшую при получении данных студента или подготовке письма
-                            Console.Error.WriteLine($"ОШИБКА EMAIL (Подготовка): Произошла ошибка при подготовке уведомления для студента ID {studentInfo.Id}: {exInLoop.Message}");
-                            
-                        }
-                    }
-                }
-                // --- Конец логики отправки Email уведомлений ---
-
+                _emailService.SendLessonCreatedEmailAsync(createdLesson, teacherNameForEmail).Wait();
                 return CreatedAtAction(nameof(GetLessonById), new { lessonId = createdLesson.LessonId }, new
                 {
                     LessonId = createdLesson.LessonId,
                     Teacher = new { createdLesson.Teacher.Id, createdLesson.Teacher.UserName },
-                    Students = createdLesson.Students.Select(s => new { s.Id, s.UserName }), // Убедитесь, что эти поля существуют
+                    Students = createdLesson.Students.Select(s => new { s.Id, s.UserName }), 
                     createdLesson.StartTime,
                     createdLesson.EndTime,
                     createdLesson.Description,
@@ -213,7 +143,7 @@ namespace TeacherOrganizer.Controllers.Lesson
         {
             var updatedLesson = await _lessonService.UpdateLessonAsync(lessonId, lessonUpdate);
             if (updatedLesson == null) return NotFound(new { Message = "Lesson not found" });
-
+            _emailService.SendLessonUpdatedEmailAsync(updatedLesson).Wait();
             return Ok(updatedLesson);
         }
 
@@ -223,7 +153,9 @@ namespace TeacherOrganizer.Controllers.Lesson
         public async Task<IActionResult> DeleteLessonAsync(int lessonId)
         {
             var result = await _lessonService.DeleteLessonAsync(lessonId);
-            if (!result) return NotFound(new { Message = "Lesson not found" });
+            var lesson = await _lessonService.GetLessonByIdAsync(lessonId);
+            if (!result || lesson == null) return NotFound(new { Message = "Lesson not found" });
+            await _emailService.SendLessonDeletedEmailAsync(lesson);
             return NoContent();
         }
 
@@ -232,9 +164,14 @@ namespace TeacherOrganizer.Controllers.Lesson
         public async Task<IActionResult> CancelLesson(int lessonId)
         {
             var result = await _lessonService.CancelLessonAsync(lessonId);
-            if (!result)
-                return BadRequest(new { Message = "Lesson not found or already canceled." });
+            var lesson = await _lessonService.GetLessonByIdAsync(lessonId);
 
+            if (!result || lesson == null)
+            {
+                return BadRequest(new { Message = "Lesson not found or already canceled." });
+            }
+
+            await _emailService.SendLessonCanceledEmailAsync(lesson);
             return Ok(new { Message = "Lesson canceled successfully." });
         }
 
