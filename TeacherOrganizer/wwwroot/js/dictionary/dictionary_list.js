@@ -4,6 +4,7 @@ import * as api from "../api/api_dictionary.js";
 import { dictionaries, loadDictionaries, applyFilters } from "./dictionary.js";
 import { loadDictionaryWords } from "./dictionary_words.js";
 import { getUserById } from "../api/api_user.js";
+import { launchMemoryGame } from "./memory_game.js";
 export function setupDictionaryList(filteredDictionaries)
 {
     console.log("Setting up dictionary list...");
@@ -105,6 +106,8 @@ function setupDictionaryToggle(listItem, dictionary)
     const editDictionaryBtn = listItem.querySelector("#editDictionaryButton");
     const copyDictionaryBtn = listItem.querySelector("#copyDictionaryButton");
     const deleteDictionaryBtn = listItem.querySelector("#deleteDictionaryButton");
+    const memoryGameBtn = listItem.querySelector(".play-game-btn");
+   
 
     editDictionaryBtn.addEventListener("click", async () =>
     {
@@ -157,6 +160,19 @@ function setupDictionaryToggle(listItem, dictionary)
             }
         }
     });
+
+    memoryGameBtn.addEventListener("click", async () => {
+        console.log("🎮 Memory game button clicked!");
+        const words = await api.getWordsByDictionaryId(dictionary.dictionaryId);
+        console.log("Words loaded for game:", words);
+
+        if (Array.isArray(words)) {
+            launchMemoryGame(words.slice(0, 10));
+        } else {
+            console.error("❌ `words` is not an array:", words);
+        }
+    });
+
 
     toggleBtn.addEventListener("click", () =>
     {

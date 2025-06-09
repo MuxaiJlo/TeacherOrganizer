@@ -118,13 +118,7 @@ export async function deleteDictionary(dictionaryId)
     const response = await fetch(`/api/Dictionary/${dictionaryId}`, {
         method: "DELETE",
     });
-    if (response.ok)
-    {
-        console.log(`Dictionary ${dictionaryId} deleted.`);
-    } else
-    {
-        console.error(`Error deleting dictionary ${dictionaryId}.`);
-    }
+    return response;
 }
 
 export async function updateDictionary(dictionaryId, model)

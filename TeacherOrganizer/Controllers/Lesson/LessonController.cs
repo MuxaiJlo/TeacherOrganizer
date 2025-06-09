@@ -5,9 +5,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Interefaces;
+using TeacherOrganizer.Interfaces;
 using TeacherOrganizer.Models.CalendarModels;
 using TeacherOrganizer.Models.DataModels;
 using TeacherOrganizer.Models.LessonModels;
+using TeacherOrganizer.Services;
 
 namespace TeacherOrganizer.Controllers.Lesson
 {
@@ -16,12 +18,11 @@ namespace TeacherOrganizer.Controllers.Lesson
     public class LessonController : ControllerBase
     {
         private readonly ILessonService _lessonService;
-        private readonly ApplicationDbContext _context;
-
-        public LessonController(ApplicationDbContext context, ILessonService lessonService)
+        private readonly IEmailService _emailService;
+        public LessonController(ILessonService lessonService, IEmailService emailService)
         {
-            _context = context;
             _lessonService = lessonService;
+            _emailService = emailService;
         }
         // GET: /api/Lesson/{lessonId}
         [HttpGet("{lessonId}")]
@@ -57,8 +58,6 @@ namespace TeacherOrganizer.Controllers.Lesson
                 return BadRequest(new { Message = "Start date must be earlier than end date." });
 
 
-            Console.WriteLine($"===========================Getting calendar for user: {userId}, from {start} to {end}\"===========================");
-
             var lessons = await _lessonService.GetLessonsForUserAsync(userId, start, end);
 
             var events = lessons.Select(l => new
@@ -72,13 +71,12 @@ namespace TeacherOrganizer.Controllers.Lesson
             });
             await _lessonService.AutoDeleteCanceledLessonsAsync();
             await _lessonService.AutoCompleteLessons();
-            Console.WriteLine($"\"=========================== Found {lessons.Count} lessons. \"===========================");
             return Ok(events);
         }
 
-        // POST: /api/Lesson
+        // POST: /api/lessons
         [HttpPost]
-        [Authorize(Roles = "Teacher")]
+        [Authorize(Roles = "Teacher")] 
         public async Task<IActionResult> AddLesson([FromBody] LessonModelsInput newLesson)
         {
             if (!ModelState.IsValid)
@@ -88,14 +86,17 @@ namespace TeacherOrganizer.Controllers.Lesson
 
             try
             {
-
-                // Розбираємо токен і дістаємо id вчител
                 var teacherId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
                 if (teacherId == null)
                 {
                     return Unauthorized("Teacher ID not found in token.");
                 }
+
+                // Вытаскиваем имя преподавателя из токена, если есть, для письма
+                var teacherFirstName = User.FindFirstValue(ClaimTypes.GivenName);
+                var teacherUserName = User.FindFirstValue(ClaimTypes.Name);
+                var teacherNameForEmail = !string.IsNullOrEmpty(teacherFirstName) ? teacherFirstName : teacherUserName;
+
 
                 var lessonModel = new LessonModels
                 {
@@ -109,11 +110,12 @@ namespace TeacherOrganizer.Controllers.Lesson
 
                 var createdLesson = await _lessonService.AddLessonAsync(lessonModel);
 
+                _emailService.SendLessonCreatedEmailAsync(createdLesson, teacherNameForEmail).Wait();
                 return CreatedAtAction(nameof(GetLessonById), new { lessonId = createdLesson.LessonId }, new
                 {
                     LessonId = createdLesson.LessonId,
                     Teacher = new { createdLesson.Teacher.Id, createdLesson.Teacher.UserName },
-                    Students = createdLesson.Students.Select(s => new { s.Id, s.UserName }),
+                    Students = createdLesson.Students.Select(s => new { s.Id, s.UserName }), 
                     createdLesson.StartTime,
                     createdLesson.EndTime,
                     createdLesson.Description,
@@ -122,11 +124,13 @@ namespace TeacherOrganizer.Controllers.Lesson
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Error creating lesson: {ex.Message}");
+                // Логируем основную ошибку создания урока
+                Console.Error.WriteLine($"ОШИБКА API: Ошибка при создании урока: {ex.Message}");
+                // _logger?.LogError(ex, "Error creating lesson in API.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
                     Message = "An error occurred while creating the lesson.",
-                    Details = ex.Message
+                    Details = ex.Message // В продакшене лучше не выводить ex.Message напрямую клиенту
                 });
             }
         }
@@ -139,7 +143,7 @@ namespace TeacherOrganizer.Controllers.Lesson
         {
             var updatedLesson = await _lessonService.UpdateLessonAsync(lessonId, lessonUpdate);
             if (updatedLesson == null) return NotFound(new { Message = "Lesson not found" });
-
+            _emailService.SendLessonUpdatedEmailAsync(updatedLesson).Wait();
             return Ok(updatedLesson);
         }
 
@@ -149,7 +153,9 @@ namespace TeacherOrganizer.Controllers.Lesson
         public async Task<IActionResult> DeleteLessonAsync(int lessonId)
         {
             var result = await _lessonService.DeleteLessonAsync(lessonId);
-            if (!result) return NotFound(new { Message = "Lesson not found" });
+            var lesson = await _lessonService.GetLessonByIdAsync(lessonId);
+            if (!result || lesson == null) return NotFound(new { Message = "Lesson not found" });
+            await _emailService.SendLessonDeletedEmailAsync(lesson);
             return NoContent();
         }
 
@@ -158,9 +164,14 @@ namespace TeacherOrganizer.Controllers.Lesson
         public async Task<IActionResult> CancelLesson(int lessonId)
         {
             var result = await _lessonService.CancelLessonAsync(lessonId);
-            if (!result)
-                return BadRequest(new { Message = "Lesson not found or already canceled." });
+            var lesson = await _lessonService.GetLessonByIdAsync(lessonId);
 
+            if (!result || lesson == null)
+            {
+                return BadRequest(new { Message = "Lesson not found or already canceled." });
+            }
+
+            await _emailService.SendLessonCanceledEmailAsync(lesson);
             return Ok(new { Message = "Lesson canceled successfully." });
         }
 

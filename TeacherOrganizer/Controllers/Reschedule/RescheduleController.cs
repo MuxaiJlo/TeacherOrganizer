@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TeacherOrganizer.Interefaces;
+using TeacherOrganizer.Interfaces;
 using TeacherOrganizer.Models.DataModels;
 using TeacherOrganizer.Models.RescheduleModels;
 
@@ -11,10 +12,14 @@ namespace TeacherOrganizer.Controllers.Reschedule
     public class RescheduleController : ControllerBase
     {
         private readonly IRescheduleService _rescheduleService;
+        private readonly IEmailService _emailService;
+        private readonly ILessonService _lessonService;
 
-        public RescheduleController(IRescheduleService rescheduleService)
+        public RescheduleController(IRescheduleService rescheduleService, IEmailService emailService, ILessonService lessonService)
         {
             _rescheduleService = rescheduleService;
+            _emailService = emailService;
+            _lessonService = lessonService;
         }
         // Post: /api/Reschedule/Propose
         [HttpPost("Propose")]
@@ -26,7 +31,7 @@ namespace TeacherOrganizer.Controllers.Reschedule
 
             var lesson = await _rescheduleService.ProposeRescheduleAsync(dto.LessonId, dto.ProposedStartTime, dto.ProposedEndTime, userName);
             if (lesson == null) return NotFound("Lesson not found");
-
+            await _emailService.SendRescheduleProposedEmailAsync(lesson, userName, dto.ProposedStartTime, dto.ProposedEndTime);
             return Ok(new { success = true, message = "Reschedule proposed successfully" });
         }
         // Get: /api/Reschedule/Pending
@@ -51,7 +56,12 @@ namespace TeacherOrganizer.Controllers.Reschedule
             var success = await _rescheduleService.UpdateRequestStatusAsync(id, dto.NewStatus, username);
             if (!success) return Forbid("Access denied or invalid request.");
 
-            return Ok(new { success = true, message = "Status updated successfully" }); 
+            var lesson = await _lessonService.GetLessonByIdAsync(id);
+            if (lesson != null)
+            {
+                await _emailService.SendRescheduleStatusUpdatedEmailAsync(lesson, dto.NewStatus.ToString(), username);
+            }
+                return Ok(new { success = true, message = "Status updated successfully" }); 
         }
         // DELETE /api/Reschedule/{id}
         [HttpDelete("{id}")]
@@ -63,7 +73,11 @@ namespace TeacherOrganizer.Controllers.Reschedule
 
             var success = await _rescheduleService.DeleteRescheduleRequestAsync(id);
             if (!success) return NotFound("Reschedule request not found");
-
+            var lesson = await _lessonService.GetLessonByIdAsync(id);
+            if (lesson != null)
+            {
+                await _emailService.SendRescheduleDeletedEmailAsync(lesson, username);
+            }
             return NoContent(); // 204 No Content, успешное удаление
         }
         // PUT /api/Reschedule/{id}
@@ -81,7 +95,11 @@ namespace TeacherOrganizer.Controllers.Reschedule
                 dto.NewInitiatorId
             );
             if (!success) return BadRequest("Failed to update reschedule request");
-
+            var lesson = await _lessonService.GetLessonByIdAsync(id);
+            if (lesson != null)
+            {
+                await _emailService.SendRescheduleUpdatedEmailAsync(lesson, username, dto.ProposedStartTime, dto.ProposedEndTime);
+            }
             return Ok(new { success = true, message = "Reschedule request updated successfully" });
         }
     }
