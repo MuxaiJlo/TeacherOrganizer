@@ -1,4 +1,4 @@
-﻿using TeacherOrganizer.Models.CalendarModels;
+﻿
 using TeacherOrganizer.Models.DataModels;
 using TeacherOrganizer.Models.LessonModels;
 
@@ -14,6 +14,7 @@ namespace TeacherOrganizer.Interefaces
         Task AutoCompleteLessons();
         Task<bool> CancelLessonAsync(int lessonId);
         Task AutoDeleteCanceledLessonsAsync();
+        Task<List<Lesson>> GetAllLessonsAsync();
         Task<IEnumerable<LessonDto>> GetScheduledLessonsForUserAsync(string userId);
     }
 }

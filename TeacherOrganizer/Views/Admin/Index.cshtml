@@ -1,50 +1,33 @@
-﻿@model List<TeacherOrganizer.Models.UserModels.UserWithRolesDto>
-@{
+﻿@{
     ViewData["Title"] = "Admin Panel";
-    var roles = new List<string> { "Student", "Teacher", "Admin" };
+    var navLinks = new[]
+    {
+        new { Title = "User Management",        Icon = "bi-people",      Url = Url.Action("Index", "AdminUser", new { area = "Admin" }) },
+        new { Title = "Lesson Management",      Icon = "bi-journal",     Url = Url.Action("Index", "AdminLesson", new { area = "Admin" }) },
+        new { Title = "Dictionaries",           Icon = "bi-book",        Url = Url.Action("Index", "AdminDictionary", new { area = "Admin" }) },
+        new { Title = "Words",                  Icon = "bi-fonts",       Url = Url.Action("Index", "AdminWord", new { area = "Admin" }) },
+        new { Title = "Lesson Details",         Icon = "bi-info-circle", Url = Url.Action("Index", "AdminLessonDetail", new { area = "Admin" }) },
+        new { Title = "Reschedule Requests",    Icon = "bi-calendar2",   Url = Url.Action("Index", "AdminRescheduleRequest", new { area = "Admin" }) }
+    };
 }
 
-<div class="container mt-5">
-    <h2 class="mb-4">Admin Panel - User Management</h2>
-    <table class="table table-bordered table-hover">
-        <thead class="table-light">
-            <tr>
-                <th>UserName</th>
-                <th>Email</th>
-                <th>Full Name</th>
-                <th>Role</th>
-                <th>Created At</th>
-                <th style="width: 200px;">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var user in Model)
-            {
-                <tr>
-                    <td>@user.UserName</td>
-                    <td>@user.Email</td>
-                    <td>@($"{user.FirstName} {user.LastName}")</td>
-                    <td>@string.Join(", ", user.Roles)</td>
-                    <td>@user.CreatedAt.ToShortDateString()</td>
-                    <td>
-                        <form asp-action="ChangeRole" method="post" class="d-inline">
-                            <input type="hidden" name="userId" value="@user.Id" />
-                            <select name="newRole" class="form-select form-select-sm d-inline w-auto">
-                                @foreach (var role in roles)
-                                {
-                                    <option value="@role" selected="@(user.Roles.Contains(role) ? "selected" : null)">@role</option>
-                                }
-                            </select>
-                            <button type="submit" class="btn btn-sm btn-primary">Change</button>
-                        </form>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
 
-                        <form asp-action="DeleteUser" method="post" class="d-inline ms-2">
-                            <input type="hidden" name="userId" value="@user.Id" />
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Admin Panel</h2>
+    <div class="row justify-content-center">
+        @foreach (var link in navLinks)
+        {
+            <div class="col-12 col-md-6 col-lg-4 mb-4">
+                <a href="@link.Url" class="text-decoration-none">
+                    <div class="card shadow-sm h-100 border-0 hover-shadow">
+                        <div class="card-body text-center">
+                            <i class="@link.Icon fs-1 mb-3 text-primary"></i>
+                            <h5 class="card-title">@link.Title</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
 </div>

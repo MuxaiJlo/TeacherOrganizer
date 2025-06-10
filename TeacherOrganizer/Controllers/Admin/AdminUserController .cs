@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TeacherOrganizer.Interefaces;
 
-namespace TeacherOrganizer.Controllers
+namespace TeacherOrganizer.Controllers.Admin
 {
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller

@@ -1,0 +1,41 @@
+﻿@model TeacherOrganizer.Models.LessonModels.LessonModels
+
+@{
+    ViewData["Title"] = "Create Lesson";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Create Lesson</h2>
+    <form asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="TeacherId" class="form-label"></label>
+            <input asp-for="TeacherId" class="form-control" />
+            <span asp-validation-for="TeacherId" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="StartTime" class="form-label"></label>
+            <input asp-for="StartTime" class="form-control" type="datetime-local" />
+            <span asp-validation-for="StartTime" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="EndTime" class="form-label"></label>
+            <input asp-for="EndTime" class="form-control" type="datetime-local" />
+            <span asp-validation-for="EndTime" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <input asp-for="Description" class="form-control" />
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="StudentIds" class="form-label">Student IDs (comma separated)</label>
+            <input asp-for="StudentIds" class="form-control" />
+            <span asp-validation-for="StudentIds" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
