@@ -1,0 +1,42 @@
+﻿@model TeacherOrganizer.Models.DataModels.Dictionary
+@{
+    ViewData["Title"] = "Dictionary Details";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Dictionary Details</h2>
+    <dl class="row">
+        <dt class="col-sm-3">ID</dt>
+        <dd class="col-sm-9">@Model.DictionaryId</dd>
+
+        <dt class="col-sm-3">Name</dt>
+        <dd class="col-sm-9">@Model.Name</dd>
+
+        <dt class="col-sm-3">Owner</dt>
+        <dd class="col-sm-9">@Model.User?.UserName</dd>
+
+        <dt class="col-sm-3">Created At</dt>
+        <dd class="col-sm-9">@Model.CreatedAt.ToShortDateString()</dd>
+
+        <dt class="col-sm-3">Words Count</dt>
+        <dd class="col-sm-9">@Model.Words?.Count ?? 0</dd>
+    </dl>
+
+    <h4 class="mt-4">Word IDs in this Dictionary</h4>
+    @if (Model.Words != null && Model.Words.Any())
+    {
+        <ul class="list-group">
+            @foreach (var word in Model.Words)
+            {
+                <li class="list-group-item">Word ID: @word.WordId | Word Text: @word.Text | Word Translate: @word.Translation</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <div class="alert alert-info">No words in this dictionary.</div>
+    }
+
+    <a asp-action="Edit" asp-route-id="@Model.DictionaryId" class="btn btn-warning mt-4">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary mt-4">Back to List</a>
+</div>

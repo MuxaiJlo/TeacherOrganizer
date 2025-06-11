@@ -97,8 +97,17 @@ namespace TeacherOrganizer.Controllers
             var lesson = await _lessonService.GetLessonByIdAsync(id);
             if (lesson == null)
                 return NotFound();
-            // Map to LessonModels or a view model if needed
-            return View(lesson);
+
+            // Map Lesson to LessonUpdateModel
+            var updateModel = new LessonUpdateModel
+            {
+                StartTime = lesson.StartTime,
+                EndTime = lesson.EndTime,
+                Description = lesson.Description,
+                Status = lesson.Status
+            };
+
+            return View(updateModel);
         }
 
         // POST: /AdminLesson/Edit/5
