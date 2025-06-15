@@ -1,0 +1,53 @@
+﻿@model IEnumerable<TeacherOrganizer.Models.DataModels.LessonDetail>
+@{
+    ViewData["Title"] = "Lesson Details Management";
+    string idFilter = Context.Request.Query["id"];
+    string lessonIdFilter = Context.Request.Query["lessonId"];
+    string createdAtFilter = Context.Request.Query["createdAt"];
+    string updatedAtFilter = Context.Request.Query["updatedAt"];
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Lesson Details Management</h2>
+    <form method="get" class="mb-2">
+        <div class="row g-2">
+            <div class="col"><input name="id" value="@idFilter" class="form-control" placeholder="Detail ID" /></div>
+            <div class="col"><input name="lessonId" value="@lessonIdFilter" class="form-control" placeholder="Lesson ID" /></div>
+            <div class="col"><input name="createdAt" value="@createdAtFilter" class="form-control" placeholder="Created At (yyyy-MM-dd)" /></div>
+            <div class="col"><input name="updatedAt" value="@updatedAtFilter" class="form-control" placeholder="Updated At (yyyy-MM-dd)" /></div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-outline-secondary">Filter</button>
+            </div>
+        </div>
+    </form>
+    <div class="mb-3 text-end">
+        <a class="btn btn-primary" asp-action="Create">Create New Lesson Detail</a>
+    </div>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Lesson ID</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+                <th style="width: 180px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var detail in Model)
+            {
+                <tr>
+                    <td>@detail.LessonDetailsId</td>
+                    <td>@detail.LessonId</td>
+                    <td>@detail.CreatedAt.ToShortDateString()</td>
+                    <td>@detail.UpdatedAt.ToShortDateString()</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@detail.LessonDetailsId" class="btn btn-sm btn-info">View</a>
+                        <a asp-action="Edit" asp-route-id="@detail.LessonDetailsId" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@detail.LessonDetailsId" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

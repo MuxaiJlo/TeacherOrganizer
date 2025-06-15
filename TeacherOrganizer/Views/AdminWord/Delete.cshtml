@@ -1,0 +1,27 @@
+﻿@model TeacherOrganizer.Models.DataModels.Word
+@{
+    ViewData["Title"] = "Delete Word";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center text-danger">Delete Word</h2>
+    <div class="alert alert-warning">
+        Are you sure you want to delete this word?
+    </div>
+    <dl class="row">
+        <dt class="col-sm-3">ID</dt>
+        <dd class="col-sm-9">@Model.WordId</dd>
+        <dt class="col-sm-3">Text</dt>
+        <dd class="col-sm-9">@Model.Text</dd>
+        <dt class="col-sm-3">Translation</dt>
+        <dd class="col-sm-9">@Model.Translation</dd>
+        <dt class="col-sm-3">Example</dt>
+        <dd class="col-sm-9">@Model.Example</dd>
+        <dt class="col-sm-3">Dictionary ID</dt>
+        <dd class="col-sm-9">@Model.DictionaryId</dd>
+    </dl>
+    <form asp-action="DeleteConfirmed" asp-route-id="@Model.WordId" method="post">
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

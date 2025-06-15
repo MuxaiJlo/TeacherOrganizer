@@ -1,0 +1,23 @@
+﻿@model TeacherOrganizer.Models.DataModels.LessonDetail
+@{
+    ViewData["Title"] = "Delete Lesson Detail";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center text-danger">Delete Lesson Detail</h2>
+    <div class="alert alert-warning">
+        Are you sure you want to delete this lesson detail?
+    </div>
+    <dl class="row">
+        <dt class="col-sm-3">ID</dt>
+        <dd class="col-sm-9">@Model.LessonDetailsId</dd>
+        <dt class="col-sm-3">Lesson ID</dt>
+        <dd class="col-sm-9">@Model.LessonId</dd>
+        <dt class="col-sm-3">Content</dt>
+        <dd class="col-sm-9"><pre>@Model.Content</pre></dd>
+    </dl>
+    <form asp-action="DeleteConfirmed" asp-route-id="@Model.LessonDetailsId" method="post">
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

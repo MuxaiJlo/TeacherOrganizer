@@ -76,7 +76,37 @@ namespace TeacherOrganizer.Servies
             return lesson;
         }
 
+        public async Task<List<RescheduleRequestDto>> GetAllRequestsAsync()
+        {
+            var requests = await _context.RescheduleRequests
+                .Include(r => r.Lesson).ThenInclude(l => l.Students)
+                .Include(r => r.Lesson.Teacher)
+                .Include(r => r.Initiator)
+                .ToListAsync();
 
+            return requests.Select(r => new RescheduleRequestDto
+            {
+                Id = r.Id,
+                LessonId = r.LessonId,
+                ProposedStartTime = r.ProposedStartTime,
+                ProposedEndTime = r.ProposedEndTime,
+                RequestStatus = r.RequestStatus,
+                Initiator = new UserInfoDto
+                {
+                    UserName = r.Initiator.UserName,
+                    Email = r.Initiator.Email,
+                    FirstName = r.Initiator.FirstName,
+                    LastName = r.Initiator.LastName
+                },
+                Lesson = new LessonInfoDto
+                {
+                    LessonId = r.Lesson.LessonId,
+                    StartTime = r.Lesson.StartTime,
+                    EndTime = r.Lesson.EndTime,
+                    Description = r.Lesson.Description
+                }
+            }).ToList();
+        }
         public async Task<List<RescheduleRequestDto>> GetPendingRequestsForUserAsync(string userName)
         {
             var requests = await _context.RescheduleRequests

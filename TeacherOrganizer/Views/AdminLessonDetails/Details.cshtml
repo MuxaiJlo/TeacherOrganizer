@@ -1,0 +1,22 @@
+﻿@model TeacherOrganizer.Models.DataModels.LessonDetail
+@{
+    ViewData["Title"] = "Lesson Detail";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Lesson Detail</h2>
+    <dl class="row">
+        <dt class="col-sm-3">ID</dt>
+        <dd class="col-sm-9">@Model.LessonDetailsId</dd>
+        <dt class="col-sm-3">Lesson ID</dt>
+        <dd class="col-sm-9">@Model.LessonId</dd>
+        <dt class="col-sm-3">Content</dt>
+        <dd class="col-sm-9"><pre>@Model.Content</pre></dd>
+        <dt class="col-sm-3">Created At</dt>
+        <dd class="col-sm-9">@Model.CreatedAt.ToString("g")</dd>
+        <dt class="col-sm-3">Updated At</dt>
+        <dd class="col-sm-9">@Model.UpdatedAt.ToString("g")</dd>
+    </dl>
+    <a asp-action="Edit" asp-route-id="@Model.LessonDetailsId" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>
