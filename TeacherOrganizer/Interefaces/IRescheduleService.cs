@@ -10,6 +10,7 @@ namespace TeacherOrganizer.Interefaces
         Task<bool> UpdateRequestStatusAsync(int requestId, RescheduleRequestStatus newStatus, string username);
         Task<bool> DeleteRescheduleRequestAsync(int requestId);
         Task<List<RescheduleRequestDto>> GetAllRequestsAsync();
+        Task<RescheduleRequestDto?> GetRequestByIdAsync(int requestId);
         Task<bool> UpdateRescheduleRequestAsync(int requestId, DateTime? proposedStartTime, DateTime? proposedEndTime, string newInitiatorName);
     }
 

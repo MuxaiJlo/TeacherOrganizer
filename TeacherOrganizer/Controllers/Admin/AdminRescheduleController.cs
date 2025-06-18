@@ -51,12 +51,10 @@ namespace TeacherOrganizer.Controllers.Admin
         // GET: /AdminReschedule/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            // For demo, get all pending and find by id
-            var requests = await _rescheduleService.GetPendingRequestsForUserAsync("");
-            var request = requests.FirstOrDefault(r => r.Id == id);
+            var request = await _rescheduleService.GetRequestByIdAsync(id);
             if (request == null)
                 return NotFound();
-            return View(request);
+            return View("Details", request);
         }
 
         // GET: /AdminReschedule/Delete/5

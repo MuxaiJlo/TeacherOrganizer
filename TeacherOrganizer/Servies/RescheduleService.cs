@@ -142,7 +142,40 @@ namespace TeacherOrganizer.Servies
                 }
             }).ToList();
         }
+        public async Task<RescheduleRequestDto?> GetRequestByIdAsync(int requestId)
+        {
+            var request = await _context.RescheduleRequests
+                .Include(r => r.Lesson).ThenInclude(l => l.Students)
+                .Include(r => r.Lesson.Teacher)
+                .Include(r => r.Initiator)
+                .FirstOrDefaultAsync(r => r.Id == requestId);
 
+            if (request == null)
+                return null;
+
+            return new RescheduleRequestDto
+            {
+                Id = request.Id,
+                LessonId = request.LessonId,
+                ProposedStartTime = request.ProposedStartTime,
+                ProposedEndTime = request.ProposedEndTime,
+                RequestStatus = request.RequestStatus,
+                Initiator = new UserInfoDto
+                {
+                    UserName = request.Initiator.UserName,
+                    Email = request.Initiator.Email,
+                    FirstName = request.Initiator.FirstName,
+                    LastName = request.Initiator.LastName
+                },
+                Lesson = new LessonInfoDto
+                {
+                    LessonId = request.Lesson.LessonId,
+                    StartTime = request.Lesson.StartTime,
+                    EndTime = request.Lesson.EndTime,
+                    Description = request.Lesson.Description
+                }
+            };
+        }
         public async Task<bool> UpdateRequestStatusAsync(int requestId, RescheduleRequestStatus newStatus, string username)
         {
             var request = await _context.RescheduleRequests
