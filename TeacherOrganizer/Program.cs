@@ -123,20 +123,10 @@ namespace TeacherOrganizer
             using (var scope = app.Services.CreateScope())
             {
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
                 await SeedRolesAsync(roleManager);
+                await SeedAdminUserAsync(userManager);
             }
-
-            /*
-                string adminEmail = "admin@example.com";
-                string adminPassword = "Admin123!";
-                UserName = "admin",
-                Email = adminEmail,
-                EmailConfirmed = true,
-                FirstName = "System",
-                LastName = "Administrator",
-                CreatedAt = DateTime.UtcNow
-            */
-
             await app.RunAsync();
         }
 
@@ -153,6 +143,31 @@ namespace TeacherOrganizer
             if (!await roleManager.RoleExistsAsync("Admin"))
             {
                 await roleManager.CreateAsync(new IdentityRole("Admin"));
+            }
+        }
+
+        public static async Task SeedAdminUserAsync(UserManager<User> userManager)
+        {
+            string adminEmail = "mike.queen.jet@gmail.com";
+            string adminPassword = "admin_2345";
+
+            if (await userManager.FindByEmailAsync(adminEmail) == null)
+            {
+                var adminUser = new User
+                {
+                    UserName = "admin",
+                    Email = adminEmail,
+                    EmailConfirmed = true,
+                    FirstName = "System",
+                    LastName = "Administrator",
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                var result = await userManager.CreateAsync(adminUser, adminPassword);
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                }
             }
         }
 
