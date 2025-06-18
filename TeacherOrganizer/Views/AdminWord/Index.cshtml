@@ -1,0 +1,57 @@
+﻿@model IEnumerable<TeacherOrganizer.Models.DataModels.Word>
+@{
+    ViewData["Title"] = "Words Management";
+    string idFilter = Context.Request.Query["id"];
+    string textFilter = Context.Request.Query["text"];
+    string translationFilter = Context.Request.Query["translation"];
+    string exampleFilter = Context.Request.Query["example"];
+    string dictionaryIdFilter = Context.Request.Query["dictionaryId"];
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Words Management</h2>
+    <form method="get" class="mb-2">
+        <div class="row g-2">
+            <div class="col"><input name="id" value="@idFilter" class="form-control" placeholder="Word ID" /></div>
+            <div class="col"><input name="text" value="@textFilter" class="form-control" placeholder="Text" /></div>
+            <div class="col"><input name="translation" value="@translationFilter" class="form-control" placeholder="Translation" /></div>
+            <div class="col"><input name="example" value="@exampleFilter" class="form-control" placeholder="Example" /></div>
+            <div class="col"><input name="dictionaryId" value="@dictionaryIdFilter" class="form-control" placeholder="Dictionary ID" /></div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-outline-secondary">Filter</button>
+            </div>
+        </div>
+    </form>
+    <div class="mb-3 text-end">
+        <a class="btn btn-primary" asp-action="Create">Create New Word</a>
+    </div>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Text</th>
+                <th>Translation</th>
+                <th>Example</th>
+                <th>Dictionary ID</th>
+                <th style="width: 180px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var word in Model)
+            {
+                <tr>
+                    <td>@word.WordId</td>
+                    <td>@word.Text</td>
+                    <td>@word.Translation</td>
+                    <td>@word.Example</td>
+                    <td>@word.DictionaryId</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@word.WordId" class="btn btn-sm btn-info">View</a>
+                        <a asp-action="Edit" asp-route-id="@word.WordId" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@word.WordId" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

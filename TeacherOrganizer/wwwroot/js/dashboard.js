@@ -81,7 +81,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// Функція для обробки логауту
 async function handleLogout() {
     try {
         let response = await fetch("/AuthView/Logout", {
@@ -101,3 +100,38 @@ async function handleLogout() {
         console.error("Error during logout:", error);
     }
 }
+
+// Feedback modal logic
+document.addEventListener("DOMContentLoaded", function () {
+    const feedbackLink = document.getElementById("feedback-link");
+    if (feedbackLink) {
+        feedbackLink.addEventListener("click", function (e) {
+            e.preventDefault();
+            const modal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+            modal.show();
+        });
+    }
+
+    const feedbackForm = document.getElementById("feedbackForm");
+    if (feedbackForm) {
+        feedbackForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const feedback = document.getElementById("feedbackText").value;
+            if (!feedback.trim()) return;
+
+            // Send feedback to server (implement /api/feedback endpoint in the future)
+            try {
+                await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: feedback })
+                });
+                alert("Thank you for your feedback!");
+                document.getElementById("feedbackText").value = "";
+                bootstrap.Modal.getInstance(document.getElementById('feedbackModal')).hide();
+            } catch {
+                alert("Failed to send feedback. Please try again later.");
+            }
+        });
+    }
+});

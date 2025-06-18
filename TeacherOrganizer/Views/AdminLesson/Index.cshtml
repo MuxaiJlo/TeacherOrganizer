@@ -1,0 +1,78 @@
+﻿@model IEnumerable<TeacherOrganizer.Models.DataModels.Lesson>
+
+@{
+    ViewData["Title"] = "Lesson Management";
+    string usernameFilter = Context.Request.Query["username"];
+    string idFilter = Context.Request.Query["id"];
+    string startFilter = Context.Request.Query["start"];
+    string endFilter = Context.Request.Query["end"];
+    string statusFilter = Context.Request.Query["status"];
+    string descriptionFilter = Context.Request.Query["description"];
+}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Lesson Management</h2>
+    <div class="mb-3 text-end">
+        <a class="btn btn-primary" asp-action="Create">Create New Lesson</a>
+    </div>
+    <form method="get" class="mb-2">
+        <div class="row g-2">
+            <div class="col">
+                <input name="id" value="@idFilter" class="form-control" placeholder="ID" />
+            </div>
+            <div class="col">
+                <input name="username" value="@usernameFilter" class="form-control" placeholder="Username (Teacher or Student)" />
+            </div>
+            <div class="col">
+                <input name="start" value="@startFilter" class="form-control" placeholder="Start (yyyy-MM-dd)" />
+            </div>
+            <div class="col">
+                <input name="end" value="@endFilter" class="form-control" placeholder="End (yyyy-MM-dd)" />
+            </div>
+            <div class="col">
+                <input name="status" value="@statusFilter" class="form-control" placeholder="Status" />
+            </div>
+            <div class="col">
+                <input name="description" value="@descriptionFilter" class="form-control" placeholder="Description" />
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-outline-secondary">Filter</button>
+            </div>
+        </div>
+    </form>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Usernames</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Status</th>
+                <th>Description</th>
+                <th style="width: 180px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var lesson in Model)
+            {
+                <tr>
+                    <td>@lesson.LessonId</td>
+                    <td>
+                        <strong>Teacher:</strong> @lesson.Teacher?.UserName <br />
+                        <strong>Students:</strong> @if (lesson.Students != null) {
+                        @string.Join(", ", lesson.Students.Select(s => s.UserName))
+                    }
+                </td>
+                <td>@lesson.StartTime.ToString("g")</td>
+                <td>@lesson.EndTime.ToString("g")</td>
+                <td>@lesson.Status</td>
+                <td>@lesson.Description</td>
+                <td>
+                    <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@lesson.LessonId">Details</a>
+                    <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@lesson.LessonId">Edit</a>
+                    <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@lesson.LessonId">Delete</a>
+                </td>
+            </tr>
+                        }
+        </tbody>
+    </table>
+</div>

@@ -20,7 +20,26 @@
 .hidden {
     display: none !important;
 }
+.sidebar-feedback-link {
+    position: absolute;
+    bottom: 30px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+}
 
+    .sidebar-feedback-link a {
+        color: #6c757d; /* Grey */
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 1em;
+        transition: color 0.2s;
+    }
+
+        .sidebar-feedback-link a:hover {
+            color: #007bff; /* Blue */
+            text-decoration: underline;
+        }
 .btn {
     padding: 10px 15px;
     border-radius: 5px;

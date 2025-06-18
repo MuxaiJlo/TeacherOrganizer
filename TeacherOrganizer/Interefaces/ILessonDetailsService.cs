@@ -27,6 +27,7 @@ namespace TeacherOrganizer.Interefaces
 
         // Додавання користувача в список доступу
         Task AddUserAccessAsync(int lessonDetailsId, string userId);
+        Task<IEnumerable<LessonDetail>> GetAllAsync();
 
         // Видалення користувача зі списку доступу
         Task RemoveUserAccessAsync(int lessonDetailsId, string userId);

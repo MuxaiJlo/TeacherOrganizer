@@ -1,0 +1,76 @@
+﻿@model List<TeacherOrganizer.Models.UserModels.UserWithRolesDto>
+@{
+    ViewData["Title"] = "User Management";
+    var roles = new List<string> { "Student", "Teacher", "Admin" };
+    string idFilter = Context.Request.Query["id"];
+    string usernameFilter = Context.Request.Query["username"];
+    string emailFilter = Context.Request.Query["email"];
+    string fullNameFilter = Context.Request.Query["fullName"];
+    string roleFilter = Context.Request.Query["role"];
+    string createdAtFilter = Context.Request.Query["createdAt"];
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">User Management</h2>
+    <form method="get" class="mb-2">
+        <div class="row g-2">
+            <div class="col"><input name="id" value="@idFilter" class="form-control" placeholder="User ID" /></div>
+            <div class="col"><input name="username" value="@usernameFilter" class="form-control" placeholder="Username" /></div>
+            <div class="col"><input name="email" value="@emailFilter" class="form-control" placeholder="Email" /></div>
+            <div class="col"><input name="fullName" value="@fullNameFilter" class="form-control" placeholder="Full Name" /></div>
+            <div class="col">
+                <input name="role" value="@roleFilter" class="form-control" placeholder="Role" />
+            </div>
+            <div class="col">
+                <input name="createdAt" value="@createdAtFilter" class="form-control" placeholder="Created At (yyyy-MM-dd)" />
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-outline-secondary">Filter</button>
+            </div>
+        </div>
+    </form>
+    <h2 class="mb-4 text-center">User Management</h2>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>User ID</th>
+                <th>UserName</th>
+                <th>Email</th>
+                <th>Full Name</th>
+                <th>Role(s)</th>
+                <th>Created At</th>
+                <th style="width: 260px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+					<td>@user.Id</td>
+                    <td>@user.UserName</td>
+                    <td>@user.Email</td>
+                    <td>@($"{user.FirstName} {user.LastName}")</td>
+                    <td>@string.Join(", ", user.Roles)</td>
+                    <td>@user.CreatedAt.ToShortDateString()</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@user.Id" class="btn btn-sm btn-info me-2">View</a>
+                        <form asp-action="ChangeRole" method="post" class="d-inline">
+                            <input type="hidden" name="userId" value="@user.Id" />
+                            <select name="newRole" class="form-select form-select-sm d-inline w-auto">
+                                @foreach (var role in roles)
+                                {
+                                    <option value="@role" selected="@(user.Roles.Contains(role) ? "selected" : null)">@role</option>
+                                }
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary ms-1">Change</button>
+                        </form>
+                        <form asp-action="DeleteUser" method="post" class="d-inline ms-2">
+                            <input type="hidden" name="userId" value="@user.Id" />
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

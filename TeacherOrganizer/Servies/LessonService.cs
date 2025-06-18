@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Interefaces;
-using TeacherOrganizer.Models.CalendarModels;
 using TeacherOrganizer.Models.DataModels;
 using TeacherOrganizer.Models.LessonModels;
 
@@ -18,7 +17,13 @@ namespace TeacherOrganizer.Servies
             _context = context;
             _userManager = userManager;
         }
-
+        public async Task<List<Lesson>> GetAllLessonsAsync()
+        {
+            return await _context.Lessons
+                .Include(l => l.Teacher)
+                .Include(l => l.Students)
+                .ToListAsync();
+        }
         public async Task<Lesson> AddLessonAsync(LessonModels lessonDto)
         {
             var teacher = await _userManager.FindByNameAsync(lessonDto.TeacherId);

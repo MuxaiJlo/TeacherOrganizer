@@ -43,6 +43,14 @@ namespace TeacherOrganizer.Servies
             return lessonDetails.AccessibleUsers.Any(u => u.UserName == userId);
         }
 
+        public async Task<IEnumerable<LessonDetail>> GetAllAsync()
+        {
+            return await _context.LessonDetails
+                .Include(ld => ld.Lesson)
+                .Include(ld => ld.AccessibleUsers)
+                .ToListAsync();
+        }
+
         public async Task<LessonDetail> CreateAsync(LessonDetail lessonDetails, List<string> accessibleUserIds)
         {
             // Перевірка, що LessonId валідний

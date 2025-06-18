@@ -76,7 +76,37 @@ namespace TeacherOrganizer.Servies
             return lesson;
         }
 
+        public async Task<List<RescheduleRequestDto>> GetAllRequestsAsync()
+        {
+            var requests = await _context.RescheduleRequests
+                .Include(r => r.Lesson).ThenInclude(l => l.Students)
+                .Include(r => r.Lesson.Teacher)
+                .Include(r => r.Initiator)
+                .ToListAsync();
 
+            return requests.Select(r => new RescheduleRequestDto
+            {
+                Id = r.Id,
+                LessonId = r.LessonId,
+                ProposedStartTime = r.ProposedStartTime,
+                ProposedEndTime = r.ProposedEndTime,
+                RequestStatus = r.RequestStatus,
+                Initiator = new UserInfoDto
+                {
+                    UserName = r.Initiator.UserName,
+                    Email = r.Initiator.Email,
+                    FirstName = r.Initiator.FirstName,
+                    LastName = r.Initiator.LastName
+                },
+                Lesson = new LessonInfoDto
+                {
+                    LessonId = r.Lesson.LessonId,
+                    StartTime = r.Lesson.StartTime,
+                    EndTime = r.Lesson.EndTime,
+                    Description = r.Lesson.Description
+                }
+            }).ToList();
+        }
         public async Task<List<RescheduleRequestDto>> GetPendingRequestsForUserAsync(string userName)
         {
             var requests = await _context.RescheduleRequests
@@ -112,7 +142,40 @@ namespace TeacherOrganizer.Servies
                 }
             }).ToList();
         }
+        public async Task<RescheduleRequestDto?> GetRequestByIdAsync(int requestId)
+        {
+            var request = await _context.RescheduleRequests
+                .Include(r => r.Lesson).ThenInclude(l => l.Students)
+                .Include(r => r.Lesson.Teacher)
+                .Include(r => r.Initiator)
+                .FirstOrDefaultAsync(r => r.Id == requestId);
 
+            if (request == null)
+                return null;
+
+            return new RescheduleRequestDto
+            {
+                Id = request.Id,
+                LessonId = request.LessonId,
+                ProposedStartTime = request.ProposedStartTime,
+                ProposedEndTime = request.ProposedEndTime,
+                RequestStatus = request.RequestStatus,
+                Initiator = new UserInfoDto
+                {
+                    UserName = request.Initiator.UserName,
+                    Email = request.Initiator.Email,
+                    FirstName = request.Initiator.FirstName,
+                    LastName = request.Initiator.LastName
+                },
+                Lesson = new LessonInfoDto
+                {
+                    LessonId = request.Lesson.LessonId,
+                    StartTime = request.Lesson.StartTime,
+                    EndTime = request.Lesson.EndTime,
+                    Description = request.Lesson.Description
+                }
+            };
+        }
         public async Task<bool> UpdateRequestStatusAsync(int requestId, RescheduleRequestStatus newStatus, string username)
         {
             var request = await _context.RescheduleRequests

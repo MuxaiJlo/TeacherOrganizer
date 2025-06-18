@@ -1,0 +1,25 @@
+﻿@model TeacherOrganizer.Models.DataModels.LessonDetail
+@{
+    ViewData["Title"] = "Create Lesson Detail";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Create Lesson Detail</h2>
+    <form asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="LessonId" class="form-label"></label>
+            <input asp-for="LessonId" class="form-control" />
+            <span asp-validation-for="LessonId" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Content" class="form-label"></label>
+            <textarea asp-for="Content" class="form-control" rows="6"></textarea>
+            <span asp-validation-for="Content" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+</div>
