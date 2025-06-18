@@ -4,6 +4,7 @@ namespace TeacherOrganizer.Interfaces
 {
     public interface IEmailService
     {
+        Task SendEmailAsync(string toEmail, string subject, string htmlMessage);
         Task SendLessonCreatedEmailAsync(Lesson lesson, string teacherName);
         Task SendLessonUpdatedEmailAsync(Lesson lesson);
         Task SendLessonCanceledEmailAsync(Lesson lesson);

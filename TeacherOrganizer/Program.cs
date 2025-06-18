@@ -7,6 +7,7 @@ using System.Net.Mail;
 using System.Text;
 using System.Text.Json.Serialization;
 using TeacherOrganizer.Controllers.Auth;
+using TeacherOrganizer.Controllers.Feedback;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Interefaces;
 using TeacherOrganizer.Interfaces;
@@ -40,6 +41,7 @@ namespace TeacherOrganizer
 
 
             builder.Services.AddScoped<AuthController>();
+            builder.Services.AddScoped<FeedbackController>();
             builder.Services.AddScoped<AuthViewController>();
             builder.Services.AddScoped<ILessonService, LessonService>();
             builder.Services.AddScoped<IDictionaryService, DictionaryService>();
