@@ -140,12 +140,8 @@ namespace TeacherOrganizer
                     }
                     catch (Exception migrationEx)
                     {
-                        logger.LogWarning($"⚠️ Migration failed: {migrationEx.Message}");
-                        logger.LogInformation("🔄 Attempting to create database schema...");
-
-                        // Fallback to EnsureCreated if migrations fail
-                        await db.Database.EnsureCreatedAsync();
-                        logger.LogInformation("✅ Database schema created successfully.");
+                        logger.LogError(migrationEx, "❌ Migration failed.");
+                        throw; 
                     }
 
                     // Seed roles and admin user
