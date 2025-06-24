@@ -5,9 +5,7 @@ WORKDIR /src
 # Копируем файл проекта и восстанавливаем зависимости
 COPY ["TeacherOrganizer/TeacherOrganizer.csproj", "TeacherOrganizer/"]
 RUN dotnet restore "TeacherOrganizer/TeacherOrganizer.csproj"
-<ItemGroup>
-  <Compile Include="Migrations\**\*.cs" />
-</ItemGroup>
+
 
 # Копируем весь код и собираем проект
 COPY . .
