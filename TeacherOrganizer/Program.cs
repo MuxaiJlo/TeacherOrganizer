@@ -28,7 +28,7 @@ namespace TeacherOrganizer
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Add Identity and JWT Authentication
             builder.Services.AddIdentity<User, IdentityRole>()
@@ -95,9 +95,6 @@ namespace TeacherOrganizer
                            .AllowAnyMethod());
             });
 
-            builder.Services.AddDbContext<ApplicationDbContext>(options => 
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -122,6 +119,8 @@ namespace TeacherOrganizer
             // Call the SeedRolesAsync method to ensure roles are created
             using (var scope = app.Services.CreateScope())
             {
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                db.Database.Migrate();
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
                 await SeedRolesAsync(roleManager);
@@ -149,7 +148,7 @@ namespace TeacherOrganizer
         public static async Task SeedAdminUserAsync(UserManager<User> userManager)
         {
             string adminEmail = "mike.queen.jet@gmail.com";
-            string adminPassword = "admin_2345";
+            string adminPassword = "Admin_2345";
 
             if (await userManager.FindByEmailAsync(adminEmail) == null)
             {
@@ -164,12 +163,26 @@ namespace TeacherOrganizer
                 };
 
                 var result = await userManager.CreateAsync(adminUser, adminPassword);
+
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(adminUser, "Admin");
+                    Console.WriteLine("✅ Admin user created successfully.");
+                }
+                else
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        Console.WriteLine($"❌ Error creating admin user: {error.Description}");
+                    }
                 }
             }
+            else
+            {
+                Console.WriteLine("ℹ️ Admin user already exists.");
+            }
         }
+
 
     }
 }
