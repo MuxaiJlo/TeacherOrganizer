@@ -26,10 +26,6 @@ namespace TeacherOrganizer
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Настройка портов для Render
-            var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-            builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
-
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
@@ -194,7 +190,7 @@ namespace TeacherOrganizer
             using (var scope = app.Services.CreateScope())
             {
                 var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-                logger?.LogInformation($"🚀 Starting application on port {port}");
+                logger?.LogInformation($"🚀 Starting application on port");
                 await app.RunAsync();
             }
           

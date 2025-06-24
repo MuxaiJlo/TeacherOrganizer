@@ -22,12 +22,8 @@ WORKDIR /app
 # Копируем опубликованные файлы
 COPY --from=publish /app/publish .
 
-# Устанавливаем переменные окружения
-ENV ASPNETCORE_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://0.0.0.0:8080
-
-# Открываем порт
-EXPOSE 8080
+# Настраиваем порт (Render использует переменную PORT)
+ENV ASPNETCORE_URLS=http://+:$PORT
 
 # Запускаем приложение
 ENTRYPOINT ["dotnet", "TeacherOrganizer.dll"]
