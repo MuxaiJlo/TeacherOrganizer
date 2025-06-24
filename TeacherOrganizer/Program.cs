@@ -22,10 +22,10 @@ namespace TeacherOrganizer
 {
     public class Program
     {
-        public static async Task Main(string[] args, IServiceProvider serviceProvider)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+
             // Настройка портов для Render
             var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
             builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
@@ -123,7 +123,7 @@ namespace TeacherOrganizer
             // Database initialization and seeding with proper error handling
             using (var scope = app.Services.CreateScope())
             {
-                
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
                 try
                 {
@@ -191,8 +191,13 @@ namespace TeacherOrganizer
                     }
                 }
             }
-            logger?.LogInformation($"🚀 Starting application on port {port}");
-            await app.RunAsync();
+            using (var scope = app.Services.CreateScope())
+            {
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                logger?.LogInformation($"🚀 Starting application on port {port}");
+                await app.RunAsync();
+            }
+          
         }
 
         public static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager, ILogger<Program> logger)
