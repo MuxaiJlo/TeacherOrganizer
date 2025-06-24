@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.Net;
 using System.Net.Mail;
@@ -15,14 +16,19 @@ using TeacherOrganizer.Models.ConfigurationModels;
 using TeacherOrganizer.Models.DataModels;
 using TeacherOrganizer.Services;
 using TeacherOrganizer.Servies;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace TeacherOrganizer
 {
     public class Program
     {
-        public static async Task Main(string[] args)
+        public static async Task Main(string[] args, IServiceProvider serviceProvider)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+            // Настройка портов для Render
+            var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+            builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
@@ -117,32 +123,44 @@ namespace TeacherOrganizer
             // Database initialization and seeding with proper error handling
             using (var scope = app.Services.CreateScope())
             {
-                var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                
 
                 try
                 {
                     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-                    // Check if database exists and create if needed
-                    logger.LogInformation("🔄 Checking database connection...");
+                    logger.LogInformation("🔄 Starting database initialization...");
 
-                    if (!await db.Database.CanConnectAsync())
+                    // Проверяем подключение к базе данных
+                    logger.LogInformation($"🔄 Testing database connection...");
+                    var canConnect = await db.Database.CanConnectAsync();
+                    logger.LogInformation($"Database connection status: {canConnect}");
+
+                    if (!canConnect)
                     {
-                        logger.LogWarning("⚠️ Cannot connect to database. Attempting to create...");
+                        logger.LogError("❌ Cannot connect to database!");
+                        throw new InvalidOperationException("Cannot connect to database");
                     }
 
-                    // Try to apply migrations first, fallback to EnsureCreated
-                    try
+                    // Применяем миграции
+                    logger.LogInformation("🔄 Applying database migrations...");
+                    var pendingMigrations = await db.Database.GetPendingMigrationsAsync();
+                    logger.LogInformation($"Pending migrations count: {pendingMigrations.Count()}");
+
+                    if (pendingMigrations.Any())
                     {
-                        logger.LogInformation("🔄 Applying database migrations...");
+                        logger.LogInformation($"Applying migrations: {string.Join(", ", pendingMigrations)}");
                         await db.Database.MigrateAsync();
                         logger.LogInformation("✅ Database migrations applied successfully.");
                     }
-                    catch (Exception migrationEx)
+                    else
                     {
-                        logger.LogError(migrationEx, "❌ Migration failed.");
-                        throw; 
+                        logger.LogInformation("ℹ️ No pending migrations found.");
                     }
+
+                    // Проверяем, что таблицы созданы
+                    var tableExists = await db.Database.ExecuteSqlRawAsync("SELECT 1");
+                    logger.LogInformation($"Database query test passed: {tableExists}");
 
                     // Seed roles and admin user
                     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -158,13 +176,14 @@ namespace TeacherOrganizer
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "❌ An error occurred while initializing the database.");
+                    logger.LogError(ex, "❌ An error occurred while initializing the database: {Message}", ex.Message);
+                    logger.LogError("Stack trace: {StackTrace}", ex.StackTrace);
 
-                    // В production можно решить, хотите ли вы продолжить работу без БД или завершить приложение
+                    // В production завершаем приложение если БД не инициализировалась
                     if (app.Environment.IsProduction())
                     {
                         logger.LogCritical("💀 Database initialization failed in production. Application will terminate.");
-                        throw; // Завершить приложение если БД не инициализировалась
+                        Environment.Exit(1); // Принудительное завершение с кодом ошибки
                     }
                     else
                     {
@@ -172,7 +191,7 @@ namespace TeacherOrganizer
                     }
                 }
             }
-
+            logger?.LogInformation($"🚀 Starting application on port {port}");
             await app.RunAsync();
         }
 
@@ -203,7 +222,7 @@ namespace TeacherOrganizer
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, $"❌ Error creating role '{roleName}'");
+                    logger.LogError(ex, $"❌ Error creating role '{roleName}': {ex.Message}");
                 }
             }
         }
@@ -268,7 +287,7 @@ namespace TeacherOrganizer
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "❌ Error during admin user seeding");
+                logger.LogError(ex, "❌ Error during admin user seeding: {Message}", ex.Message);
             }
         }
     }

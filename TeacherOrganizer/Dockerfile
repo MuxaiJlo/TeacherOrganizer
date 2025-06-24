@@ -6,7 +6,6 @@ WORKDIR /src
 COPY ["TeacherOrganizer/TeacherOrganizer.csproj", "TeacherOrganizer/"]
 RUN dotnet restore "TeacherOrganizer/TeacherOrganizer.csproj"
 
-
 # Копируем весь код и собираем проект
 COPY . .
 WORKDIR "/src/TeacherOrganizer"
@@ -23,8 +22,12 @@ WORKDIR /app
 # Копируем опубликованные файлы
 COPY --from=publish /app/publish .
 
-# Настраиваем порт (Render использует переменную PORT)
-ENV ASPNETCORE_URLS=http://+:$PORT
+# Устанавливаем переменные окружения
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
+
+# Открываем порт
+EXPOSE 8080
 
 # Запускаем приложение
 ENTRYPOINT ["dotnet", "TeacherOrganizer.dll"]
