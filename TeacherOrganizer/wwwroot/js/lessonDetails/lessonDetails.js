@@ -1,24 +1,31 @@
 ﻿import { getAccessibleLessonDetails, getLessonDetailsById, updateLessonDetails, createLessonDetails, deleteLessonDetails } from "../api/api_lessonDetails.js";
 import { getScheduledLessons, fetchLessonById } from "../api/api_lessons.js";
 
-export async function initializeLessonDetails(container) {
+export async function initializeLessonDetails(container, currentUserRole) { // Додано currentUserRole як параметр
     try {
         const response = await fetch("/modals/lessonDetailsList.html");
         const html = await response.text();
         container.innerHTML = html;
 
-        document.getElementById("create-note-btn").addEventListener("click", () => {
-            openLessonNoteEditor(container, null); // null for creating a new note
-        });
+        const createNoteBtn = document.getElementById("create-note-btn");
+        if (createNoteBtn) {
+            if (currentUserRole === "Student") {
+                createNoteBtn.style.display = "none";
+            } else {
+                createNoteBtn.addEventListener("click", () => {
+                    openLessonNoteEditor(container, null, currentUserRole); 
+                });
+            }
+        }
 
-        await loadLessonNotesList(container);
+        await loadLessonNotesList(container, currentUserRole); 
     } catch (error) {
         console.error("Error loading template:", error);
         container.innerHTML = `<div class="alert alert-danger">Failed to load template: ${error.message}</div>`;
     }
 }
 
-async function loadLessonNotesList(container) {
+async function loadLessonNotesList(container, currentUserRole) {
     try {
         const lessons = await getAccessibleLessonDetails();
         const listContainer = document.getElementById("lesson-details-list");
@@ -36,7 +43,6 @@ async function loadLessonNotesList(container) {
                     description: lesson.description || "No description",
                     startTime: new Date(lesson.startTime).toLocaleString(),
                     endTime: new Date(lesson.endTime).toLocaleString(),
-                    // We'll use the accessibleUserIds directly from lessonDetail
                 };
             } catch (error) {
                 console.error(`Error fetching details for lesson ${lessonDetail.lessonId}:`, error);
@@ -51,56 +57,74 @@ async function loadLessonNotesList(container) {
 
         const table = document.createElement("table");
         table.classList.add("table", "table-striped", "table-hover");
+
+        const getActionButtonsHtml = (lessonDetailsId) => {
+            let buttonsHtml = `<button class="btn btn-sm btn-info view-btn" data-id="${lessonDetailsId}" title="View"><img src="../icons/view.png" alt="View" class="action-icon"></button>`; //
+            if (currentUserRole !== "Student") {
+                buttonsHtml += ` <button class="btn btn-sm btn-danger delete-btn" data-id="${lessonDetailsId}" title="Delete"><img src="../icons/delete.png" alt="Delete" class="action-icon"></button>`; //
+            }
+            return buttonsHtml;
+        };
         table.innerHTML = `
-    <thead class="table-dark">
-        <tr>
-            <th>Lesson</th>
-            <th>Time</th>
-            <th>Users with Access</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody class="text-dark">
-        ${enhancedLessons.map(l => `
-            <tr>
-                <td>${l.description}</td>
-                <td>${l.startTime} - ${l.endTime}</td>
-                <td>${l.accessibleUserIds ? l.accessibleUserIds.join(", ") : "No users"}</td>
-                <td>
-                    <button class="btn btn-sm btn-info view-btn" data-id="${l.lessonDetailsId}">View</button>
-                    <button class="btn btn-sm btn-danger delete-btn" data-id="${l.lessonDetailsId}">Delete</button>
-                </td>
-            </tr>
-        `).join("")}
-    </tbody>
-`;
+            <thead class="table-dark">
+                <tr>
+                    <th>Lesson</th>
+                    <th>Time</th>
+                    <th>Users with Access</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody class="text-dark">
+                ${enhancedLessons.map(l => `
+                    <tr>
+                        <td>${l.description}</td>
+                        <td>${l.startTime} - ${l.endTime}</td>
+                        <td>${l.accessibleUserIds ? l.accessibleUserIds.join(", ") : "No users"}</td>
+                        <td>
+                            ${getActionButtonsHtml(l.lessonDetailsId)}
+                        </td>
+                    </tr>
+                `).join("")}
+            </tbody>
+        `;
 
         listContainer.innerHTML = "";
         listContainer.appendChild(table);
 
-        // Add event listeners for view and delete buttons
         document.querySelectorAll(".view-btn").forEach(btn => {
             btn.addEventListener("click", async (e) => {
-                const id = e.target.getAttribute("data-id");
-                await openLessonNotePreview(container, id);
-            });
-        });
-
-        document.querySelectorAll(".delete-btn").forEach(btn => {
-            btn.addEventListener("click", async (e) => {
-                if (confirm("Are you sure you want to delete this note?")) {
-                    const id = e.target.getAttribute("data-id");
-                    try {
-                        await deleteLessonDetails(id);
-                        alert("✅ Note deleted successfully!");
-                        await loadLessonNotesList(container);
-                    } catch (error) {
-                        console.error("Error deleting note:", error);
-                        alert(`Failed to delete note: ${error.message}`);
-                    }
+                // ВИПРАВЛЕНО: Використовуємо e.currentTarget
+                const id = e.currentTarget.getAttribute("data-id");
+                console.log("View button clicked, ID:", id); // Для дебагу
+                if (id) {
+                    await openLessonNotePreview(container, id, currentUserRole);
+                } else {
+                    console.error("View button: data-id not found on currentTarget", e.currentTarget);
                 }
             });
         });
+
+        if (currentUserRole !== "Student") {
+            document.querySelectorAll(".delete-btn").forEach(btn => {
+                btn.addEventListener("click", async (e) => {
+                    // ВИПРАВЛЕНО: Використовуємо e.currentTarget
+                    const id = e.currentTarget.getAttribute("data-id");
+                    console.log("Delete button clicked, ID:", id); // Для дебагу
+                    if (id && confirm("Are you sure you want to delete this note?")) {
+                        try {
+                            await deleteLessonDetails(id);
+                            alert("✅ Note deleted successfully!");
+                            await loadLessonNotesList(container, currentUserRole);
+                        } catch (error) {
+                            console.error("Error deleting note:", error);
+                            alert(`Failed to delete note: ${error.message}`);
+                        }
+                    } else if (!id) {
+                        console.error("Delete button: data-id not found on currentTarget", e.currentTarget);
+                    }
+                });
+            });
+        }
 
     } catch (error) {
         console.error("❌ Failed to load lesson notes:", error);
@@ -108,32 +132,35 @@ async function loadLessonNotesList(container) {
             `<div class="alert alert-danger">Failed to load lesson notes: ${error.message}</div>`;
     }
 }
-
-async function openLessonNotePreview(container, lessonDetailsId) {
+async function openLessonNotePreview(container, lessonDetailsId, currentUserRole) { // Додано currentUserRole
     try {
         container.innerHTML = '<div class="text-center mt-5"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
 
-        // Fetch the preview template
         const templateResponse = await fetch("/modals/lessonDetailsPreview.html");
         const template = await templateResponse.text();
         container.innerHTML = template;
 
-        // Get the lesson details
-        const lessonDetails = await getLessonDetailsById(lessonDetailsId);
+        const lessonDetails = await getLessonDetailsById(lessonDetailsId); // API має враховувати роль
         const lesson = await fetchLessonById(lessonDetails.lessonId);
 
-        // Fill in the template with the lesson details
         document.getElementById("lesson-title").textContent = lesson.description || "Lesson Notes";
         document.getElementById("lesson-time").textContent = `${new Date(lesson.startTime).toLocaleString()} - ${new Date(lesson.endTime).toLocaleString()}`;
         document.getElementById("lesson-content").innerHTML = lessonDetails.content;
 
-        // Add event listeners for the buttons
-        document.getElementById("edit-btn").addEventListener("click", () => {
-            openLessonNoteEditor(container, lessonDetailsId);
-        });
+        const editBtn = document.getElementById("edit-btn");
+        if (editBtn) {
+            if (currentUserRole === "Student") {
+                editBtn.style.display = "none";
+            } else {
+                editBtn.addEventListener("click", () => {
+                    openLessonNoteEditor(container, lessonDetailsId, currentUserRole); // Передаємо currentUserRole
+                });
+            }
+        }
 
         document.getElementById("back-btn").addEventListener("click", () => {
-            initializeLessonDetails(container);
+            // Повертаємося до списку, передаючи роль для коректного відображення
+            initializeLessonDetails(container, currentUserRole);
         });
 
     } catch (error) {

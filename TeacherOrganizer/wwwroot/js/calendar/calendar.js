@@ -48,7 +48,7 @@ export function initializeCalendar(contentPlaceholder) {
         dayMaxEventRows: true,
         views: {
             dayGridMonth: {
-                dayMaxEventRows: 5 // Збільшу кількість видимих івентів
+                dayMaxEventRows: 5 
             }
         },
         eventClick: function (info) {
@@ -106,7 +106,7 @@ export function initializeCalendar(contentPlaceholder) {
             console.error('Failed to load filter form:', error);
         });
 
-
+       
     // Initialize modals
     initLessonModal();
     initLessonDetailsModal();

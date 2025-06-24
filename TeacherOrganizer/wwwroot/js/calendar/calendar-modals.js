@@ -8,9 +8,12 @@ import { getCurrentDateRange, getCalendarInstance } from "./calendar.js";
 
 // Змінні модуля
 let modal = null;
+let isLessonModalInitialized = false;
 
 export async function initLessonModal() {
     try {
+        if (isLessonModalInitialized) return modal;
+        isLessonModalInitialized = true;
         const response = await fetch("/modals/lesson-modal.html");
         if (!response.ok) throw new Error("Failed to load modal template");
 

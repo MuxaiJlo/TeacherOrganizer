@@ -1,0 +1,62 @@
+﻿@model IEnumerable<TeacherOrganizer.Models.DataModels.Dictionary>
+@{
+    ViewData["Title"] = "Dictionaries Management";
+    string idFilter = Context.Request.Query["id"];
+    string nameFilter = Context.Request.Query["name"];
+    string ownerFilter = Context.Request.Query["owner"];
+    string createdAtFilter = Context.Request.Query["createdAt"];
+    string wordsCountFilter = Context.Request.Query["wordsCount"];
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Dictionaries Management</h2>
+    <form method="get" class="mb-2">
+        <div class="row g-2">
+            <div class="col"><input name="id" value="@idFilter" class="form-control" placeholder="ID" /></div>
+            <div class="col"><input name="name" value="@nameFilter" class="form-control" placeholder="Name" /></div>
+            <div class="col"><input name="owner" value="@ownerFilter" class="form-control" placeholder="Owner" /></div>
+            <div class="col"><input name="createdAt" value="@createdAtFilter" class="form-control" placeholder="Created At (yyyy-MM-dd)" /></div>
+            <div class="col"><input name="wordsCount" value="@wordsCountFilter" class="form-control" placeholder="Words Count" /></div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-outline-secondary">Filter</button>
+            </div>
+        </div>
+    </form>
+    <h2 class="mb-4 text-center">Dictionaries Management</h2>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Owner</th>
+                <th>Created At</th>
+                <th>Words Count</th>
+                <th style="width: 180px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var dict in Model)
+            {
+                            
+                <tr>
+                    <td>@dict.DictionaryId</td>
+                    <td>@dict.Name</td>
+                    <td>
+                        @(dict.User?.UserName
+                                            ?? dict.UserId
+                                            ?? "Unknown")
+                </td>
+                    <td>@dict.CreatedAt.ToShortDateString()</td>
+                    <td>@(dict.Words?.Count ?? 0)</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@dict.DictionaryId" class="btn btn-sm btn-info">View</a>
+                        <a asp-action="Edit" asp-route-id="@dict.DictionaryId" class="btn btn-sm btn-warning">Edit</a>
+                        <form asp-action="Delete" asp-route-id="@dict.DictionaryId" method="post" class="d-inline ms-1">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

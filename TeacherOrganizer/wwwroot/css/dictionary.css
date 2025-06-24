@@ -40,6 +40,34 @@
     background-color: #FD7A45;
     border-color: #FD7A45;
 }
+/* Додайте це до вашого CSS файлу */
+
+/* Стилі для кнопок із іконками */
+.btn-group .btn {
+    padding: 4px 6px; /* Зменшений padding для всіх кнопок */
+    line-height: 1; /* Допомагає кнопці краще облягати іконку */
+}
+
+/* Стилі для іконок дій (видалення, редагування, збереження) */
+.action-button-icon {
+    width: 24px; /* Ширина іконки */
+    height: 24px; /* Висота іконки */
+    vertical-align: middle; /* Вертикальне вирівнювання */
+}
+
+/* Стилі для іконок озвучування */
+.speak-button-icon {
+    width: 24px; /* Збільшена ширина іконки озвучування */
+    height: 24px; /* Збільшена висота іконки озвучування */
+    vertical-align: middle; /* Вертикальне вирівнювання */
+}
+
+/* Додаткові стилі для кращого вигляду кнопок в групі */
+.btn-group {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px; /* Простір між кнопками */
+}
 
 /* Responsive adjustments */
 @media (max-width: 992px) {

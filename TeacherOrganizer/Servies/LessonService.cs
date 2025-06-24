@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Interefaces;
-using TeacherOrganizer.Models.CalendarModels;
 using TeacherOrganizer.Models.DataModels;
 using TeacherOrganizer.Models.LessonModels;
 
@@ -18,7 +17,13 @@ namespace TeacherOrganizer.Servies
             _context = context;
             _userManager = userManager;
         }
-
+        public async Task<List<Lesson>> GetAllLessonsAsync()
+        {
+            return await _context.Lessons
+                .Include(l => l.Teacher)
+                .Include(l => l.Students)
+                .ToListAsync();
+        }
         public async Task<Lesson> AddLessonAsync(LessonModels lessonDto)
         {
             var teacher = await _userManager.FindByNameAsync(lessonDto.TeacherId);
@@ -60,7 +65,6 @@ namespace TeacherOrganizer.Servies
             if (lesson == null)
                 return null;
 
-            // Валідую нові дати
             var tempDto = new LessonModels
             {
                 StartTime = updatedLesson.StartTime,
@@ -81,28 +85,7 @@ namespace TeacherOrganizer.Servies
             return lesson;
         }
 
-        private async Task ValidateLessonDto(LessonModels dto, User teacher, ICollection<User> students)
-        {
-            if (dto.StartTime >= dto.EndTime)
-                throw new ArgumentException("Start time must be earlier than end time.");
-
-            if (dto.StartTime < DateTime.UtcNow)
-                throw new ArgumentException("Cannot schedule a lesson in the past.");
-
-            if (!string.IsNullOrWhiteSpace(dto.Description) && dto.Description.Length > 500)
-                throw new ArgumentException("Description is too long (max 500 characters).");
-
-            bool hasConflict = await _context.Lessons
-                .Where(l =>
-                    l.Status == LessonStatus.Scheduled &&
-                    l.StartTime < dto.EndTime &&
-                    l.EndTime > dto.StartTime &&
-                    (l.Teacher.Id == teacher.Id || l.Students.Any(s => students.Select(st => st.Id).Contains(s.Id))))
-                .AnyAsync();
-
-            if (hasConflict)
-                throw new InvalidOperationException("The teacher or one of the students already has a lesson at this time.");
-        }
+        
 
         public async Task<bool> DeleteLessonAsync(int lessonId)
         {
@@ -125,38 +108,6 @@ namespace TeacherOrganizer.Servies
             return await query.ToListAsync();
         }
 
-        public async Task<Lesson?> ProposeRescheduleAsync(int lessonId, DateTime proposedStart, DateTime proposedEnd, string initiatorId)
-        {
-            var lesson = await _context.Lessons
-                .Include(l => l.Teacher)
-                .Include(l => l.Students)
-                .FirstOrDefaultAsync(l => l.LessonId == lessonId);
-
-            if (lesson == null) return null;
-
-            var initiator = await _context.Users.FirstOrDefaultAsync(u => u.UserName == initiatorId);
-            if (initiator == null)
-                throw new UnauthorizedAccessException("Initiator not found");
-
-            var rescheduleRequest = new RescheduleRequest
-            {
-                Lesson = lesson,
-                Initiator = initiator,
-                InitiatorId = initiatorId,
-                ProposedStartTime = proposedStart,
-                ProposedEndTime = proposedEnd,
-                RequestStatus = RescheduleRequestStatus.Pending
-            };
-
-            _context.RescheduleRequests.Add(rescheduleRequest);
-
-            lesson.Status = LessonStatus.RescheduledRequest;
-            lesson.UpdatedAt = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
-            return lesson;
-        }
-
         public async Task AutoCompleteLessons()
         {
             var now = DateTime.UtcNow;
@@ -171,7 +122,7 @@ namespace TeacherOrganizer.Servies
                 lesson.Status = LessonStatus.Completed;
                 foreach (var student in lesson.Students)
                 {
-                    if (student.PaidLessons > 0)
+                    if (student.PaidLessons >= 0)
                     {
                         student.PaidLessons -= 1;
                     }
@@ -184,6 +135,35 @@ namespace TeacherOrganizer.Servies
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task AutoDeleteCanceledLessonsAsync()
+        {
+            var thresholdDate = DateTime.UtcNow.AddDays(-14);
+
+            var oldCanceledLessons = await _context.Lessons
+                .Where(l => l.Status == LessonStatus.Canceled && l.UpdatedAt < thresholdDate)
+                .ToListAsync();
+
+            if (oldCanceledLessons.Any())
+            {
+                _context.Lessons.RemoveRange(oldCanceledLessons);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<bool> CancelLessonAsync(int lessonId)
+        {
+            var lesson = await _context.Lessons.FindAsync(lessonId);
+            if (lesson == null || lesson.Status == LessonStatus.Canceled)
+                return false;
+
+            lesson.Status = LessonStatus.Canceled;
+            lesson.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
 
         public async Task<Lesson?> GetLessonByIdAsync(int lessonId)
         {
@@ -209,6 +189,28 @@ namespace TeacherOrganizer.Servies
                 EndTime = l.EndTime,
                 Description = l.Description
             }).ToList();
+        }
+        private async Task ValidateLessonDto(LessonModels dto, User teacher, ICollection<User> students)
+        {
+            if (dto.StartTime >= dto.EndTime)
+                throw new ArgumentException("Start time must be earlier than end time.");
+
+            if (dto.StartTime < DateTime.UtcNow)
+                throw new ArgumentException("Cannot schedule a lesson in the past.");
+
+            if (!string.IsNullOrWhiteSpace(dto.Description) && dto.Description.Length > 500)
+                throw new ArgumentException("Description is too long (max 500 characters).");
+
+            bool hasConflict = await _context.Lessons
+                .Where(l =>
+                    l.Status == LessonStatus.Scheduled &&
+                    l.StartTime < dto.EndTime &&
+                    l.EndTime > dto.StartTime &&
+                    (l.Teacher.Id == teacher.Id || l.Students.Any(s => students.Select(st => st.Id).Contains(s.Id))))
+                .AnyAsync();
+
+            if (hasConflict)
+                throw new InvalidOperationException("The teacher or one of the students already has a lesson at this time.");
         }
     }
 

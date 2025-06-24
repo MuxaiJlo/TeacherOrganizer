@@ -2,11 +2,16 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Net;
+using System.Net.Mail;
 using System.Text;
 using System.Text.Json.Serialization;
 using TeacherOrganizer.Controllers.Auth;
+using TeacherOrganizer.Controllers.Feedback;
 using TeacherOrganizer.Data;
 using TeacherOrganizer.Interefaces;
+using TeacherOrganizer.Interfaces;
+using TeacherOrganizer.Models.ConfigurationModels;
 using TeacherOrganizer.Models.DataModels;
 using TeacherOrganizer.Services;
 using TeacherOrganizer.Servies;
@@ -23,7 +28,7 @@ namespace TeacherOrganizer
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Add Identity and JWT Authentication
             builder.Services.AddIdentity<User, IdentityRole>()
@@ -36,6 +41,7 @@ namespace TeacherOrganizer
 
 
             builder.Services.AddScoped<AuthController>();
+            builder.Services.AddScoped<FeedbackController>();
             builder.Services.AddScoped<AuthViewController>();
             builder.Services.AddScoped<ILessonService, LessonService>();
             builder.Services.AddScoped<IDictionaryService, DictionaryService>();
@@ -43,6 +49,8 @@ namespace TeacherOrganizer
             builder.Services.AddScoped<IRescheduleService, RescheduleService>();
             builder.Services.AddScoped<ILessonDetailsService, LessonDetailsService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 
             builder.Services.AddAuthentication(options =>
@@ -87,16 +95,12 @@ namespace TeacherOrganizer
                            .AllowAnyMethod());
             });
 
-            builder.Services.AddDbContext<ApplicationDbContext>(options => 
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -115,20 +119,13 @@ namespace TeacherOrganizer
             // Call the SeedRolesAsync method to ensure roles are created
             using (var scope = app.Services.CreateScope())
             {
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                db.Database.Migrate();
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
                 await SeedRolesAsync(roleManager);
+                await SeedAdminUserAsync(userManager);
             }
-
-            /*
-                string adminEmail = "admin@example.com";
-                string adminPassword = "Admin123!";
-                UserName = "admin",
-                Email = adminEmail,
-                EmailConfirmed = true,
-                FirstName = "System",
-                LastName = "Administrator",
-                CreatedAt = DateTime.UtcNow
-            */
             await app.RunAsync();
         }
 
@@ -147,5 +144,45 @@ namespace TeacherOrganizer
                 await roleManager.CreateAsync(new IdentityRole("Admin"));
             }
         }
+
+        public static async Task SeedAdminUserAsync(UserManager<User> userManager)
+        {
+            string adminEmail = "mike.queen.jet@gmail.com";
+            string adminPassword = "Admin_2345";
+
+            if (await userManager.FindByEmailAsync(adminEmail) == null)
+            {
+                var adminUser = new User
+                {
+                    UserName = "admin",
+                    Email = adminEmail,
+                    EmailConfirmed = true,
+                    FirstName = "System",
+                    LastName = "Administrator",
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                var result = await userManager.CreateAsync(adminUser, adminPassword);
+
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                    Console.WriteLine("✅ Admin user created successfully.");
+                }
+                else
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        Console.WriteLine($"❌ Error creating admin user: {error.Description}");
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("ℹ️ Admin user already exists.");
+            }
+        }
+
+
     }
 }

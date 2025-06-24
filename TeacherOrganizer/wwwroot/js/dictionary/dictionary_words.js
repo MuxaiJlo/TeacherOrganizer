@@ -19,19 +19,17 @@ export async function loadDictionaryWords(wordsTableBody, dictionaryId) {
                     <td>
                         <div class="btn-group" role="group">
                             <button class="btn btn-sm btn-danger delete-word" title="Delete">
-                                <i class="fas fa-trash"></i>
-                                Delete
+                                <img src="../icons/delete.png" alt="Delete" class="action-button-icon">
                             </button>
                             <button class="btn btn-sm btn-warning edit-word" title="Edit">
-                                <i class="fas fa-edit"></i>
-                                Edit
+                                <img src="../icons/edit.png" alt="Edit" class="action-button-icon">
                             </button>
                             <button class="btn btn-sm btn-primary speak-word" title="Speak word" data-text="${word.text}" data-lang="en">
-                                Word
+                                <img src="../icons/volume-up.png" alt="Speak word" class="speak-button-icon">
                             </button>
                             ${word.example ? `
                             <button class="btn btn-sm btn-primary speak-word" title="Speak example" data-text="${word.example}" data-lang="en">
-                                Example
+                                <img src="../icons/volume-up.png" alt="Speak example" class="speak-button-icon">
                             </button>
                             ` : ''}
                         </div>
@@ -77,14 +75,14 @@ async function deleteWord(wordId, row, dictionaryId) {
 
 function editWord(wordId, row, dictionaryId) {
     const editButton = row.querySelector(".edit-word");
-    const isEditing = editButton.innerText === "Save";
+    const isEditing = editButton.querySelector("img").getAttribute("src") === "../icons/save.png";
 
     if (isEditing) {
         saveWord(wordId, row, dictionaryId);
-        editButton.innerHTML = '<i class="fas fa-edit"></i> Edit';
+        editButton.innerHTML = '<img src="../icons/edit.png" alt="Edit" class="action-button-icon">';
         row.querySelectorAll("td[contenteditable]").forEach(cell => cell.setAttribute("contenteditable", "false"));
     } else {
-        editButton.innerHTML = '<i class="fas fa-save"></i> Save';
+        editButton.innerHTML = '<img src="../icons/save.png" alt="Save" class="action-button-icon">';
         row.querySelectorAll("td[contenteditable]").forEach(cell => cell.setAttribute("contenteditable", "true"));
     }
 }

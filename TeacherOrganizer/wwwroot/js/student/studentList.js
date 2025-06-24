@@ -16,7 +16,9 @@ export async function initializeStudentList(container) {
                 <td>${student.lastName || ""}</td>
                 <td>${student.userName}</td>
                 <td><span id="lessons-${student.id}">${student.paidLessons ?? 0}</span></td>
-                <td><button class="add-btn btn btn-primary btn-sm" data-id="${student.id}">➕</button></td>
+                <td><button class="add-btn btn btn-primary btn-sm" data-id="${student.id}">
+                        <img src="../icons/add.png" alt="Edit" class="action-icon">
+                    </button></td>
             `;
 
             // Click on row — show details

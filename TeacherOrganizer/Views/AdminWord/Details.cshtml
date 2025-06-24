@@ -1,0 +1,37 @@
+﻿@model TeacherOrganizer.Models.DataModels.Word
+@{
+    ViewData["Title"] = "Word Details";
+    var usedDictionaries = ViewBag.UsedDictionaries as IEnumerable<dynamic> ?? new List<dynamic>();
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Word Details</h2>
+    <dl class="row">
+        <dt class="col-sm-3">ID</dt>
+        <dd class="col-sm-9">@Model.WordId</dd>
+        <dt class="col-sm-3">Text</dt>
+        <dd class="col-sm-9">@Model.Text</dd>
+        <dt class="col-sm-3">Translation</dt>
+        <dd class="col-sm-9">@Model.Translation</dd>
+        <dt class="col-sm-3">Example</dt>
+        <dd class="col-sm-9">@Model.Example</dd>
+        <dt class="col-sm-3">Dictionaries</dt>
+        <dd class="col-sm-9">
+            @if (usedDictionaries.Any())
+            {
+                <ul>
+                    @foreach (var dict in usedDictionaries)
+                    {
+                        <li>@dict.Name (@dict.DictionaryId)</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <span>Not found in any dictionary</span>
+            }
+        </dd>
+    </dl>
+    <a asp-action="Edit" asp-route-id="@Model.WordId" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

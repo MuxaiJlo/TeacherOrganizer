@@ -1,0 +1,42 @@
+﻿@model TeacherOrganizer.Models.DictionaryModels.WordCreateModel
+@{
+    ViewData["Title"] = "Create Word";
+    var dictionaries = ViewBag.Dictionaries as IEnumerable<TeacherOrganizer.Models.DataModels.Dictionary>;
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Create Word</h2>
+    <form asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="DictionaryId" class="form-label"></label>
+            <select asp-for="DictionaryId" class="form-select">
+                <option value="">Select Dictionary</option>
+                @foreach (var dict in dictionaries)
+                {
+                    <option value="@dict.DictionaryId">@dict.Name (@dict.DictionaryId)</option>
+                }
+            </select>
+            <span asp-validation-for="DictionaryId" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Text" class="form-label"></label>
+            <input asp-for="Text" class="form-control" />
+            <span asp-validation-for="Text" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Translation" class="form-label"></label>
+            <input asp-for="Translation" class="form-control" />
+            <span asp-validation-for="Translation" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Example" class="form-label"></label>
+            <input asp-for="Example" class="form-control" />
+            <span asp-validation-for="Example" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+</div>

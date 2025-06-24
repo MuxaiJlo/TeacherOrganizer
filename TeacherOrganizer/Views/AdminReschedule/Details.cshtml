@@ -1,0 +1,25 @@
+﻿@model TeacherOrganizer.Models.RescheduleModels.RescheduleRequestDto
+@{
+    ViewData["Title"] = "Reschedule Request Details";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Reschedule Request Details</h2>
+    <dl class="row">
+        <dt class="col-sm-3">ID</dt>
+        <dd class="col-sm-9">@Model.Id</dd>
+        <dt class="col-sm-3">Lesson ID</dt>
+        <dd class="col-sm-9">@Model.LessonId</dd>
+        <dt class="col-sm-3">Initiator</dt>
+        <dd class="col-sm-9">@Model.Initiator?.UserName (@Model.Initiator?.Email)</dd>
+        <dt class="col-sm-3">Status</dt>
+        <dd class="col-sm-9">@Model.RequestStatus</dd>
+        <dt class="col-sm-3">Proposed Start</dt>
+        <dd class="col-sm-9">@Model.ProposedStartTime.ToString("g")</dd>
+        <dt class="col-sm-3">Proposed End</dt>
+        <dd class="col-sm-9">@Model.ProposedEndTime.ToString("g")</dd>
+        <dt class="col-sm-3">Lesson Description</dt>
+        <dd class="col-sm-9">@Model.Lesson?.Description</dd>
+    </dl>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

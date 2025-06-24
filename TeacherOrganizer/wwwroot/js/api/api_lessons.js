@@ -90,6 +90,22 @@ export async function deleteLesson(lessonId) {
     }
 }
 
+export async function cancelLesson(lessonId) {
+    try {
+        const response = await fetch(`/api/Lesson/${lessonId}/cancel`, {
+            method: "PUT",
+        });
+        if (!response.ok) {
+            let errorData = await response.json();
+            throw new Error(errorData.message || "Failed to delete lesson");
+        }
+    } catch (error) {
+        console.error("Error cancelling lesson:", error);
+        throw error;
+    }
+}
+
+
 export const getScheduledLessons = async () => {
     try {
         const response = await fetch('/api/Lesson/scheduled');

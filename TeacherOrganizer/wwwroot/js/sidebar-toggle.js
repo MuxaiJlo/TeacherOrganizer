@@ -26,7 +26,6 @@
     toggleButton.className = 'sidebar-toggle';
     toggleButton.innerHTML = '<i class="bi bi-chevron-left"></i>';
     sidebar.appendChild(toggleButton);
-
     // Toggle sidebar on button click
     toggleButton.addEventListener('click', function () {
         // Check if sidebar is collapsed or mobile-visible
@@ -50,6 +49,7 @@
                 setTimeout(() => window.calendar.updateSize(), 300); // Задержка после анимации
             });
         }
+        
     });
 
     if (localStorage.getItem('sidebarCollapsed') === 'true') {
@@ -62,12 +62,14 @@
     document.querySelector('.mobile-nav-toggle').addEventListener('click', function () {
         sidebar.classList.toggle('mobile-visible');
         overlay.classList.toggle('active');
+        
     });
 
     // Close sidebar when clicking on overlay
     overlay.addEventListener('click', function () {
         sidebar.classList.remove('mobile-visible');
         overlay.classList.remove('active');
+        
     });
 
     // Close sidebar when clicking on a menu item on mobile
@@ -76,6 +78,7 @@
             if (window.innerWidth <= 768) {
                 sidebar.classList.remove('mobile-visible');
                 overlay.classList.remove('active');
+                
             }
         });
     });
@@ -86,5 +89,6 @@
             sidebar.classList.remove('mobile-visible');
             overlay.classList.remove('active');
         }
+        
     });
 });

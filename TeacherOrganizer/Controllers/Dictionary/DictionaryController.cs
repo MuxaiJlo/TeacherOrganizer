@@ -20,22 +20,7 @@ namespace TeacherOrganizer.Controllers.Dictionary
             _dictionaryService = dictionaryService;
             _context = context;
         }
-        private async Task<bool> IsDictionaryOwnedByUser(int dictionaryId)
-        {
-            var currentUser = await _context.Users
-                .AsNoTracking() // Важно! Предотвращает отслеживание
-                .FirstOrDefaultAsync(u => u.UserName == User.FindFirstValue(ClaimTypes.Name));
 
-            if (currentUser == null)
-                return false;
-
-            // Используем AsNoTracking для предотвращения проблем с отслеживанием
-            var dictionary = await _context.Dictionaries
-                .AsNoTracking()
-                .FirstOrDefaultAsync(d => d.DictionaryId == dictionaryId);
-
-            return dictionary != null && dictionary.UserId == currentUser.Id;
-        }
         // POST: api/Dictionary
         [HttpPost]
         [Authorize(Roles = "Teacher, Student")]
@@ -153,13 +138,26 @@ namespace TeacherOrganizer.Controllers.Dictionary
         [Authorize(Roles = "Teacher, Student")]
         public async Task<IActionResult> DeleteDictionary(int dictionaryId)
         {
-            // Добавляем проверку владения словарем
-            if (!await IsDictionaryOwnedByUser(dictionaryId))
-                return Forbid("You do not own this dictionary.");
+            var currentUser = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.UserName == User.FindFirstValue(ClaimTypes.Name));
 
+            if (currentUser == null)
+                return Unauthorized("User not found.");
+
+            // Якщо студент — перевіряємо, чи володіє словником
+            if (User.IsInRole("Student"))
+            {
+                var isOwned = await IsDictionaryOwnedByUser(dictionaryId, currentUser.Id);
+                if (!isOwned)
+                    return Forbid("You do not own this dictionary.");
+            }
+
+            // Якщо вчитель — дозволяємо без перевірки власності
             await _dictionaryService.DeleteDictionaryAsync(dictionaryId);
             return Ok();
         }
+
 
         // PUT: api/Dictionary/{dictionaryId}
         [HttpPut("{dictionaryId}")]
@@ -175,9 +173,14 @@ namespace TeacherOrganizer.Controllers.Dictionary
             {
                 return BadRequest("Dictionary name is required.");
             }
+            var currentUser = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.UserName == User.FindFirstValue(ClaimTypes.Name));
 
+            if (currentUser == null)
+                return Unauthorized("User not found.");
             // Добавляем проверку владения словарем
-            if (!await IsDictionaryOwnedByUser(dictionaryId))
+            if (!await IsDictionaryOwnedByUser(dictionaryId, currentUser.Id))
                 return Forbid("You do not own this dictionary.");
 
             var dictionary = await _dictionaryService.UpdateDictionaryAsync(dictionaryId, model);
@@ -187,5 +190,13 @@ namespace TeacherOrganizer.Controllers.Dictionary
             }
             return NotFound();
         }
+        private async Task<bool> IsDictionaryOwnedByUser(int dictionaryId, string userId)
+        {
+            var dictionary = await _context.Dictionaries
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.DictionaryId == dictionaryId);
+            return dictionary != null && dictionary.UserId == userId;
+        }
+
     }
 }

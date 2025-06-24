@@ -20,7 +20,26 @@
 .hidden {
     display: none !important;
 }
+.sidebar-feedback-link {
+    position: absolute;
+    bottom: 30px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+}
 
+    .sidebar-feedback-link a {
+        color: #6c757d; /* Grey */
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 1em;
+        transition: color 0.2s;
+    }
+
+        .sidebar-feedback-link a:hover {
+            color: #007bff; /* Blue */
+            text-decoration: underline;
+        }
 .btn {
     padding: 10px 15px;
     border-radius: 5px;
@@ -70,6 +89,33 @@
     .filter-container input {
         margin-right: 10px;
     }
+
+/* Стилі для кнопок із іконками */
+.btn-group .btn {
+    padding: 4px 6px; /* Зменшений padding для всіх кнопок */
+    line-height: 1; /* Допомагає кнопці краще облягати іконку */
+}
+
+/* Стилі для іконок дій (видалення, редагування, збереження) */
+.action-icon {
+    width: 24px; /* Ширина іконки */
+    height: 24px; /* Висота іконки */
+    vertical-align: middle; /* Вертикальне вирівнювання */
+}
+.btn btn-sm btn-danger delete-btn{
+    padding: 4px 8px; /* Зменшений padding для кнопок видалення */
+    font-size: 0.9rem; /* Зменшений розмір шрифту */
+}
+.btn btn-sm btn-info view-btn {
+    padding: 4px 8px; /* Зменшений padding для кнопок перегляду */
+    font-size: 0.9rem; /* Зменшений розмір шрифту */
+}
+/* Додаткові стилі для кращого вигляду кнопок в групі */
+.btn-group {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px; /* Простір між кнопками */
+}
 
 /* Responsive styles */
 @media (max-width: 992px) {

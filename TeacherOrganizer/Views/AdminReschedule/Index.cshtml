@@ -1,0 +1,57 @@
+﻿@model IEnumerable<TeacherOrganizer.Models.RescheduleModels.RescheduleRequestDto>
+@{
+    ViewData["Title"] = "Reschedule Requests Management";
+    string idFilter = Context.Request.Query["id"];
+    string lessonIdFilter = Context.Request.Query["lessonId"];
+    string initiatorFilter = Context.Request.Query["initiator"];
+    string statusFilter = Context.Request.Query["status"];
+    string proposedStartFilter = Context.Request.Query["proposedStart"];
+    string proposedEndFilter = Context.Request.Query["proposedEnd"];
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Reschedule Requests Management</h2>
+    <form method="get" class="mb-2">
+        <div class="row g-2">
+            <div class="col"><input name="id" value="@idFilter" class="form-control" placeholder="Request ID" /></div>
+            <div class="col"><input name="lessonId" value="@lessonIdFilter" class="form-control" placeholder="Lesson ID" /></div>
+            <div class="col"><input name="initiator" value="@initiatorFilter" class="form-control" placeholder="Initiator" /></div>
+            <div class="col"><input name="status" value="@statusFilter" class="form-control" placeholder="Status" /></div>
+            <div class="col"><input name="proposedStart" value="@proposedStartFilter" class="form-control" placeholder="Proposed Start (yyyy-MM-dd)" /></div>
+            <div class="col"><input name="proposedEnd" value="@proposedEndFilter" class="form-control" placeholder="Proposed End (yyyy-MM-dd)" /></div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-outline-secondary">Filter</button>
+            </div>
+        </div>
+    </form>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Lesson ID</th>
+                <th>Initiator</th>
+                <th>Status</th>
+                <th>Proposed Start</th>
+                <th>Proposed End</th>
+                <th style="width: 180px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var req in Model)
+            {
+                <tr>
+                    <td>@req.Id</td>
+                    <td>@req.LessonId</td>
+                    <td>@(req.Initiator?.UserName ?? "-")</td>
+                    <td>@req.RequestStatus</td>
+                    <td>@req.ProposedStartTime.ToString("g")</td>
+                    <td>@req.ProposedEndTime.ToString("g")</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@req.Id" class="btn btn-sm btn-info">View</a>
+                        <a asp-action="Delete" asp-route-id="@req.Id" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
