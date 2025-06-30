@@ -11,7 +11,7 @@
         </path>
     </svg>
 
-    <div class="d-flex justify-content-center align-items-center vh-200">
+    <div class="d-flex-center">
         <div class="register-container p-4 shadow rounded">
             <h2 class="text-center">Create an Account</h2>
             <p class="text-center text-muted">Join us and start organizing your lessons!</p>
@@ -37,12 +37,23 @@
                     <input type="email" id="Email" name="Email" class="form-control" required />
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
-                <div class="mb-3">
+                <div class="mb-3 position-relative">
                     <label for="Password" class="form-label">Password</label>
                     <input type="password" id="Password" name="Password" class="form-control" required />
+                    <button type="button" id="togglePassword" class="toggle-password-btn" tabindex="-1" aria-label="Show password">
+                        👁
+                    </button>
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
-
+                <div class="mb-3 position-relative">
+                    <label for="ConfirmPassword" class="form-label">ConfirmPassword</label>
+                    <input type="password" id="ConfirmPassword" name="ConfirmPassword" class="form-control" required />
+                    <button type="button" id="toggleConfirmPassword" class="toggle-password-btn" tabindex="-1" aria-label="Show password">
+                        👁
+                    </button>
+                    <span class="text-danger" id="confirmPasswordError"></span>
+                </div>
+                
                 <button type="submit" class="btn btn-primary w-100">Register</button>
             </form>
 
@@ -87,9 +98,12 @@
 
                 const passwordPattern = /^(?=.*[a-zA-Z])(?=.*\d).{6,}$/;
                 if (!passwordPattern.test(password)) {
-                    errors.push("Password must be at least 6 characters long and contain at least one uppercase letter and one number.");
+                    errors.push("Password must be at least 6 characters long and contain at least one letter, one number, one symbol");
                 }
-
+                            const confirmPassword = document.getElementById('ConfirmPassword').value.trim();
+            if (password !== confirmPassword) {
+                errors.push("Passwords doesn't matched");
+            }
                 if (errors.length > 0) {
                     alert(errors.join("\n"));
                     return;
@@ -124,6 +138,14 @@
                             alert('Error during registration');
                         }
                     });
+            });
+                 document.getElementById('togglePassword').addEventListener('click', function () {
+                const passwordInput = document.getElementById('Password');
+                passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+            });
+            document.getElementById('toggleConfirmPassword').addEventListener('click', function () {
+                const passwordInput = document.getElementById('ConfirmPassword');
+                passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
             });
         </script>
     }
