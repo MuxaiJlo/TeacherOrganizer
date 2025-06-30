@@ -6,7 +6,7 @@ import { getUserById } from "../api/api_user.js";
 export function setupDictionaryModal() {
     console.log("Setting up dictionary modal...");
     let currentDictionaryId = null;
-
+    
     const createDictionaryButton = document.querySelector("#createDictionaryButton");
     const addWordButton = document.querySelector("#addWordButton");
     const createDictionaryButtonModal = document.querySelector("#createDictionaryButtonModal");
@@ -19,9 +19,10 @@ export function setupDictionaryModal() {
             console.log("Create dictionary button clicked.");
             const createDictionaryModal = new bootstrap.Modal(document.getElementById('createDictionaryModal'));
             createDictionaryModal.show();
+            alert("First of all create dictionary!");
         });
     }
-
+    
     if (addWordButton) {
         addWordButton.addEventListener("click", () => {
             console.log("Add word button clicked.");
@@ -43,7 +44,7 @@ export function setupDictionaryModal() {
     if (createDictionaryButtonModal) {
         createDictionaryButtonModal.addEventListener("click", async () => {
             const dictionaryName = dictionaryNameInput.value.trim();
-
+            
             if (!dictionaryName) {
                 alert("Please enter a name for your dictionary.");
                 return;
@@ -114,26 +115,59 @@ export function setupDictionaryModal() {
     }
 
     // Add null checks for elements to prevent TypeError
-    $('#createDictionaryModal').on('hidden.bs.modal', function () {
-        console.log("Dictionary modal hidden, clearing words container.");
+$('#createDictionaryModal').on('hidden.bs.modal', function () {
+    console.log("Dictionary modal hidden, clearing words container.");
 
-        const wordsContainerElement = document.getElementById('wordsContainer');
-        const dictionaryNameInput = document.querySelector("#dictionaryName");
-        const createAndAddWordsButton = document.querySelector("#createAndAddWordsButton");
+    const wordsContainerElement = document.getElementById('wordsContainer');
+    const dictionaryNameInput = document.querySelector("#dictionaryName");
+    const createDictionaryButtonModal = document.querySelector("#createDictionaryButtonModal");
 
-        if (wordsContainerElement) {
-            wordsContainerElement.innerHTML = "<label>Words:</label>";
-        }
+    if (wordsContainerElement) {
+        // Очищаем контейнер и добавляем один пустой блок для ввода слова
+        wordsContainerElement.innerHTML = `
+            <label>Words:</label>
+            <div class="word-input d-flex align-items-center mb-2">
+                <input type="text" class="form-control flex-grow-1" placeholder="Word">
+                <input type="text" class="form-control flex-grow-1" placeholder="Translation">
+                <input type="text" class="form-control flex-grow-1" placeholder="Example">
+                <button class="btn remove-word border-0 bg-transparent text-danger p-0"
+                        style="font-size: 1.5em; line-height: 1;" onmouseover="this.style.color='red';"
+                        onmouseout="this.style.color='black';">
+                    -
+                </button>
+            </div>
+        `;
+    }
 
-        if (dictionaryNameInput) {
-            dictionaryNameInput.disabled = false;
-            dictionaryNameInput.removeAttribute("data-dictionaryId");
-        }
+    if (dictionaryNameInput) {
+        dictionaryNameInput.value = ""; // Очищаем поле имени словаря
+        dictionaryNameInput.disabled = false;
+        dictionaryNameInput.removeAttribute("data-dictionaryId");
+    }
 
-        if (createAndAddWordsButton) {
-            createAndAddWordsButton.disabled = false;
-        }
-    });
+    if (createDictionaryButtonModal) {
+        createDictionaryButtonModal.disabled = false;
+    }
+
+    // Повторно навешиваем обработчик на кнопку "добавить слово"
+    const addWordButton = document.querySelector("#addWordButton");
+    if (addWordButton) {
+        addWordButton.onclick = () => {
+            const wordsContainer = document.getElementById("wordsContainer");
+            const wordInputTemplate = wordsContainer.querySelector(".word-input").cloneNode(true);
+
+            wordInputTemplate.querySelectorAll("input").forEach(input => {
+                input.value = "";
+            });
+
+            wordsContainer.appendChild(wordInputTemplate);
+
+            wordInputTemplate.querySelector(".remove-word").addEventListener("click", () => {
+                wordInputTemplate.remove();
+            });
+        };
+    }
+});
 
     console.log("Dictionary modal setup complete.");
 }
