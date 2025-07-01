@@ -13,37 +13,30 @@ function speakWord(text, lang = "en") {
         return;
     }
 
-    // Если голоса еще не загружены, попробуем инициализировать снова
-    if (!voicesLoaded) {
-        console.warn('Voices not loaded yet, retrying initialization');
-        initializeTTS();
-        setTimeout(() => speakWord(text, lang), 300);
+    // Если голоса еще не загружены, не озвучиваем
+    if (!voicesLoaded || !selectedVoice) {
+        console.warn('Voices not loaded yet, waiting...');
+        // Пробуем повторить через 200мс, но только если не было попытки озвучить этот текст
+        setTimeout(() => speakWord(text, lang), 200);
         return;
     }
 
-    // Очищаем очередь воспроизведения
+    // Chrome: иногда помогает отменить все предыдущие utterance
     window.speechSynthesis.cancel();
 
-    // Добавляем небольшую задержку для Chrome
-    setTimeout(() => {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = lang;
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
-        utterance.volume = 1.0;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang;
+    utterance.voice = selectedVoice;
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
 
-        if (selectedVoice) {
-            utterance.voice = selectedVoice;
-            console.log('Selected voice:', selectedVoice.name);
-        }
+    utterance.onstart = () => console.log('✓ Speech STARTED');
+    utterance.onend = () => console.log('✓ Speech ENDED');
+    utterance.onerror = (e) => console.warn('✗ Speech ERROR:', e);
 
-        utterance.onstart = () => console.log('✓ Speech STARTED');
-        utterance.onend = () => console.log('✓ Speech ENDED');
-        utterance.onerror = (e) => console.warn('✗ Speech ERROR:', e);
-
-        console.log('Speaking...');
-        window.speechSynthesis.speak(utterance);
-    }, 50);
+    console.log('Speaking...');
+    window.speechSynthesis.speak(utterance);
 }
 
 function initializeTTS() {
@@ -54,39 +47,29 @@ function initializeTTS() {
         return;
     }
 
-    // Функция для загрузки голосов
     const loadVoices = () => {
-        const voices = speechSynthesis.getVoices().filter(v =>v.lang.toLowerCase() === 'en-gb');
+        const voices = speechSynthesis.getVoices().filter(v => v.lang.toLowerCase() === 'en-gb');
         console.log('Voices loaded:', voices.length);
 
         if (voices.length > 0) {
             voicesLoaded = true;
-            ttsReady = true;
+            selectedVoice = voices[0];
             voices.forEach((v, i) => console.log(`Voice ${i}: ${v.name} (${v.lang})`));
-            selectedVoice = voices[0]; // Выбираем первый голос по умолчанию
             return true;
         }
         return false;
     };
 
-    // Пытаемся загрузить голоса сразу
     if (!loadVoices()) {
-        console.log('Voices not ready, adding event listener');
-
-        // Обработчик для события изменения голосов
         const voicesChangedHandler = () => {
             if (loadVoices()) {
                 window.speechSynthesis.removeEventListener('voiceschanged', voicesChangedHandler);
                 console.log('✓ TTS initialized successfully');
             }
         };
-
         window.speechSynthesis.addEventListener('voiceschanged', voicesChangedHandler);
-
-        // В Chrome нужно вызвать getVoices() для активации
-        setTimeout(() => {
-            window.speechSynthesis.getVoices();
-        }, 5);
+        // Chrome: вызов getVoices для инициализации
+        window.speechSynthesis.getVoices();
     } else {
         console.log('✓ TTS initialized successfully');
     }
