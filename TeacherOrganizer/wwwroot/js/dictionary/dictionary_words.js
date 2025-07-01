@@ -8,40 +8,54 @@ export async function loadDictionaryWords(wordsTableBody, dictionaryId) {
         const dictionaryDetails = await api.getDictionaryById(dictionaryId);
         wordsTableBody.innerHTML = ""; // Очищаем перед добавлением
 
+        // Проверяем, может ли пользователь редактировать слова в этом словаре
+        const isOwner = window.currentUserId === dictionaryDetails.userId;
+        const isTeacher = window.currentUserRole !== "Student";
+        const canEditWords = isOwner || isTeacher;
+
         if (dictionaryDetails.words && dictionaryDetails.words.length > 0) {
-            console.log(`Words found for dictionary ${dictionaryId}.`);
             dictionaryDetails.words.forEach(word => {
                 const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td contenteditable="false" class="word-text">${word.text}</td>
-                    <td contenteditable="false" class="word-translation">${word.translation}</td>
-                    <td contenteditable="false" class="word-example">${word.example || ""}</td>
-                    <td>
-                        <div class="btn-group" role="group">
-                            <button class="btn btn-sm btn-danger delete-word" title="Delete">
-                                <img src="../icons/delete.png" alt="Delete" class="action-button-icon">
-                            </button>
-                            <button class="btn btn-sm btn-warning edit-word" title="Edit">
-                                <img src="../icons/edit.png" alt="Edit" class="action-button-icon">
-                            </button>
-                            <button class="btn btn-sm btn-primary speak-word" title="Speak word" data-text="${word.text}" data-lang="en">
-                                <img src="../icons/volume-up.png" alt="Speak word" class="speak-button-icon">
-                            </button>
-                            ${word.example ? `
-                            <button class="btn btn-sm btn-primary speak-word" title="Speak example" data-text="${word.example}" data-lang="en">
-                                <img src="../icons/volume-up.png" alt="Speak example" class="speak-button-icon">
-                            </button>
-                            ` : ''}
-                        </div>
-                    </td>
+                let actionsHtml = `
+                <div class="btn-group" role="group">
+                    <button class="btn btn-sm btn-primary speak-word" title="Speak word" data-text="${word.text}" data-lang="en">
+                        <img src="../icons/volume-up.png" alt="Speak word" class="speak-button-icon">
+                    </button>
+                    ${word.example ? `
+                    <button class="btn btn-sm btn-primary speak-word" title="Speak example" data-text="${word.example}" data-lang="en">
+                        <img src="../icons/volume-up.png" alt="Speak example" class="speak-button-icon">
+                    </button>
+                    ` : ''}
+            `;
+
+                // Добавляем кнопки редактирования и удаления только если пользователь может редактировать
+                if (canEditWords) {
+                    actionsHtml += `
+                    <button class="btn btn-sm btn-danger delete-word" title="Delete">
+                        <img src="../icons/delete.png" alt="Delete" class="action-button-icon">
+                    </button>
+                    <button class="btn btn-sm btn-warning edit-word" title="Edit">
+                        <img src="../icons/edit.png" alt="Edit" class="action-button-icon">
+                    </button>
                 `;
+                }
+                actionsHtml += `</div>`;
+
+                row.innerHTML = `
+                <td contenteditable="false" class="word-text">${word.text}</td>
+                <td contenteditable="false" class="word-translation">${word.translation}</td>
+                <td contenteditable="false" class="word-example">${word.example || ""}</td>
+                <td>${actionsHtml}</td>
+            `;
                 wordsTableBody.appendChild(row);
 
-                // Подключаем события для кнопок
-                row.querySelector(".delete-word").addEventListener("click", () => deleteWord(word.wordId, row, dictionaryId));
-                row.querySelector(".edit-word").addEventListener("click", () => editWord(word.wordId, row, dictionaryId));
+                // Подключаем события только если пользователь может редактировать
+                if (canEditWords) {
+                    row.querySelector(".delete-word")?.addEventListener("click", () => deleteWord(word.wordId, row, dictionaryId));
+                    row.querySelector(".edit-word")?.addEventListener("click", () => editWord(word.wordId, row, dictionaryId));
+                }
 
-                // Добавляем обработчики для всех кнопок озвучивания
+                // События для кнопок озвучивания доступны всем
                 row.querySelectorAll(".speak-word").forEach(button => {
                     button.addEventListener("click", function () {
                         const text = this.getAttribute("data-text");

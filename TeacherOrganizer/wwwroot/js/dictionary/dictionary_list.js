@@ -61,39 +61,60 @@ function setupDictionaryToggle(listItem, dictionary)
     const contentDiv = listItem.querySelector(".dictionary-content");
     const addWordBtn = listItem.querySelector(".add-word-btn");
     const actionButtons = listItem.querySelectorAll(".dictionary-action-btn");
+
+    const editDictionaryBtn = listItem.querySelector("#editDictionaryButton");
+    const copyDictionaryBtn = listItem.querySelector("#copyDictionaryButton");
+    const deleteDictionaryBtn = listItem.querySelector("#deleteDictionaryButton");
+    const memoryGameBtn = listItem.querySelector(".play-game-btn");
+
+
+
     let addWordFormSetup = false;
 
-    async function toggleDictionaryContent()
-    {
-        if (contentDiv.classList.contains("show"))
-        {
+
+    async function toggleDictionaryContent() {
+        if (contentDiv.classList.contains("show")) {
             console.log(`Collapsing dictionary ${dictionary.dictionaryId}.`);
             contentDiv.classList.remove("show");
             toggleBtn.innerHTML = "▼";
             addWordBtn.style.display = "none";
             console.log("Action buttons found:", actionButtons);
             actionButtons.forEach(btn => btn.style.display = "none");
-        } else
-        {
+        } else {
             console.log(`Expanding dictionary ${dictionary.dictionaryId}.`);
             contentDiv.classList.add("show");
             toggleBtn.innerHTML = "▲";
-            addWordBtn.style.display = "inline-block";
-            console.log("Action buttons found:", actionButtons);
-            actionButtons.forEach(btn => btn.style.display = "inline-block");
+
+            // Показываем кнопки в зависимости от роли и авторства
+            const isOwner = window.currentUserId === dictionary.userId;
+            const isTeacher = window.currentUserRole !== "Student";
+            const canEdit = isOwner || isTeacher;
+            if (canEdit) {
+                // Для владельца словаря или учителя показываем все кнопки
+                addWordBtn.style.display = "inline-block";
+                console.log("Action buttons found:", actionButtons);
+                actionButtons.forEach(btn => btn.style.display = "inline-block");
+            } else {
+                // Для учеников, не являющихся владельцами, показываем только кнопки игры и копирования
+                console.log("Action buttons found:", actionButtons);
+                actionButtons.forEach(btn => {
+                    if (btn.classList.contains('play-game-btn') || btn.id === 'copyDictionaryButton') {
+                        btn.style.display = "inline-block";
+                    } else {
+                        btn.style.display = "none";
+                    }
+                });
+            }
 
             const wordsTableBody = contentDiv.querySelector(".words-table-body");
 
-            if (wordsTableBody)
-            {
+            if (wordsTableBody) {
                 await loadDictionaryWords(wordsTableBody, dictionary.dictionaryId);
-            } else
-            {
+            } else {
                 console.error("Error: words-table-body not found!");
             }
 
-            if (!addWordFormSetup)
-            {
+            if (!addWordFormSetup) {
                 const template = document.getElementById("dictionary-item-template").content.querySelector("#addWordFormContainer");
                 const clonedTemplate = template.cloneNode(true);
                 contentDiv.querySelector("table").insertAdjacentElement("afterend", clonedTemplate);
@@ -102,12 +123,6 @@ function setupDictionaryToggle(listItem, dictionary)
             }
         }
     }
-
-    const editDictionaryBtn = listItem.querySelector("#editDictionaryButton");
-    const copyDictionaryBtn = listItem.querySelector("#copyDictionaryButton");
-    const deleteDictionaryBtn = listItem.querySelector("#deleteDictionaryButton");
-    const memoryGameBtn = listItem.querySelector(".play-game-btn");
-   
 
     editDictionaryBtn.addEventListener("click", async () =>
     {
