@@ -1,14 +1,108 @@
 ﻿// dictionary_words.js
 
 import * as api from "../api/api_dictionary.js";
-import { getUserById } from "../api/api_user.js";
+let ttsReady = false;
+let selectedVoice = [];
+let voicesLoaded = false;
+
+function speakWord(text, lang = "en") {
+    console.log('speakWord called with:', text, lang);
+
+    if (!('speechSynthesis' in window)) {
+        console.error("Speech synthesis not supported");
+        return;
+    }
+
+    // Если голоса еще не загружены, попробуем инициализировать снова
+    if (!voicesLoaded) {
+        console.warn('Voices not loaded yet, retrying initialization');
+        initializeTTS();
+        setTimeout(() => speakWord(text, lang), 300);
+        return;
+    }
+
+    // Очищаем очередь воспроизведения
+    window.speechSynthesis.cancel();
+
+    // Добавляем небольшую задержку для Chrome
+    setTimeout(() => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = lang;
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+            console.log('Selected voice:', selectedVoice.name);
+        }
+
+        utterance.onstart = () => console.log('✓ Speech STARTED');
+        utterance.onend = () => console.log('✓ Speech ENDED');
+        utterance.onerror = (e) => console.warn('✗ Speech ERROR:', e);
+
+        console.log('Speaking...');
+        window.speechSynthesis.speak(utterance);
+    }, 50);
+}
+
+function initializeTTS() {
+    console.log('Initializing TTS...');
+
+    if (!('speechSynthesis' in window)) {
+        console.warn('Speech Synthesis API not supported');
+        return;
+    }
+
+    // Функция для загрузки голосов
+    const loadVoices = () => {
+        const voices = speechSynthesis.getVoices().filter(v =>v.lang.toLowerCase() === 'en-gb');
+        console.log('Voices loaded:', voices.length);
+
+        if (voices.length > 0) {
+            voicesLoaded = true;
+            ttsReady = true;
+            voices.forEach((v, i) => console.log(`Voice ${i}: ${v.name} (${v.lang})`));
+            selectedVoice = voices[0]; // Выбираем первый голос по умолчанию
+            return true;
+        }
+        return false;
+    };
+
+    // Пытаемся загрузить голоса сразу
+    if (!loadVoices()) {
+        console.log('Voices not ready, adding event listener');
+
+        // Обработчик для события изменения голосов
+        const voicesChangedHandler = () => {
+            if (loadVoices()) {
+                window.speechSynthesis.removeEventListener('voiceschanged', voicesChangedHandler);
+                console.log('✓ TTS initialized successfully');
+            }
+        };
+
+        window.speechSynthesis.addEventListener('voiceschanged', voicesChangedHandler);
+
+        // В Chrome нужно вызвать getVoices() для активации
+        setTimeout(() => {
+            window.speechSynthesis.getVoices();
+        }, 5);
+    } else {
+        console.log('✓ TTS initialized successfully');
+    }
+}
+
+
 export async function loadDictionaryWords(wordsTableBody, dictionaryId) {
     console.log(`Loading words for dictionary ${dictionaryId}...`);
+
+    // Инициализируем TTS при загрузке слов
+    initializeTTS();
+
     try {
         const dictionaryDetails = await api.getDictionaryById(dictionaryId);
-        wordsTableBody.innerHTML = ""; // Очищаем перед добавлением
+        wordsTableBody.innerHTML = "";
 
-        // Проверяем, может ли пользователь редактировать слова в этом словаре
         const isOwner = window.currentUserId === dictionaryDetails.userId;
         const isTeacher = window.currentUserRole !== "Student";
         const canEditWords = isOwner || isTeacher;
@@ -28,7 +122,6 @@ export async function loadDictionaryWords(wordsTableBody, dictionaryId) {
                     ` : ''}
             `;
 
-                // Добавляем кнопки редактирования и удаления только если пользователь может редактировать
                 if (canEditWords) {
                     actionsHtml += `
                     <button class="btn btn-sm btn-danger delete-word" title="Delete">
@@ -49,18 +142,30 @@ export async function loadDictionaryWords(wordsTableBody, dictionaryId) {
             `;
                 wordsTableBody.appendChild(row);
 
-                // Подключаем события только если пользователь может редактировать
                 if (canEditWords) {
                     row.querySelector(".delete-word")?.addEventListener("click", () => deleteWord(word.wordId, row, dictionaryId));
                     row.querySelector(".edit-word")?.addEventListener("click", () => editWord(word.wordId, row, dictionaryId));
                 }
 
-                // События для кнопок озвучивания доступны всем
+                // События для кнопок озвучивания
                 row.querySelectorAll(".speak-word").forEach(button => {
-                    button.addEventListener("click", function () {
+                    button.addEventListener("click", function (event) {
+                        event.preventDefault();
+                        const icon = this.querySelector('img');
+                        const originalSrc = icon.src;
+
+                        // Меняем иконку на "загрузка"
+                        icon.src = '../icons/loading.png';
+
                         const text = this.getAttribute("data-text");
                         const lang = this.getAttribute("data-lang");
+
                         speakWord(text, lang);
+
+                        // Возвращаем исходную иконку через 1 секунду
+                        setTimeout(() => {
+                            icon.src = originalSrc;
+                        }, 1000);
                     });
                 });
             });
@@ -140,16 +245,5 @@ async function saveWord(wordId, row, dictionaryId) {
     } catch (error) {
         console.error(`Error while saving word ${wordId}:`, error);
         alert("An error occurred while updating the word.");
-    }
-}
-
-function speakWord(text, lang = "en") {
-    if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = lang;
-        speechSynthesis.speak(utterance);
-    } else {
-        console.error("Speech synthesis not supported in this browser");
-        alert("Speech synthesis not supported in your browser");
     }
 }

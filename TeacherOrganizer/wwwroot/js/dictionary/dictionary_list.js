@@ -73,6 +73,8 @@ function setupDictionaryToggle(listItem, dictionary)
 
 
     async function toggleDictionaryContent() {
+
+
         if (contentDiv.classList.contains("show")) {
             console.log(`Collapsing dictionary ${dictionary.dictionaryId}.`);
             contentDiv.classList.remove("show");
