@@ -37,6 +37,7 @@ namespace TeacherOrganizer.Controllers.Main
             var model = new MainViewModel
             {
                 Username = user.UserName,
+                UserId = user.Id,
                 LoginTime = DateTime.UtcNow,
                 Email = user.Email,
                 FirstName = user.FirstName,

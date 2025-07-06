@@ -1,11 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 using System.Security.Claims;
-using TeacherOrganizer.Models.DataModels;
+using System.Text;
+using System.Text.Encodings.Web;
 using TeacherOrganizer.Models.AuthModels;
+using TeacherOrganizer.Models.DataModels;
+using TeacherOrganizer.Servies;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Text.Encodings.Web;
+using TeacherOrganizer.Interfaces;
 
 namespace TeacherOrganizer.Controllers.Auth
 {
@@ -16,12 +22,14 @@ namespace TeacherOrganizer.Controllers.Auth
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly IEmailService _emailService;
 
-        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration)
+        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration, IEmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            _emailService = emailService;
         }
 
         // POST: api/Auth/Register
@@ -39,7 +47,12 @@ namespace TeacherOrganizer.Controllers.Auth
                 Email = model.Email,
                 CreatedAt = DateTime.UtcNow
             };
-
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("Email", "This email is already in use.");
+                return BadRequest(ModelState);
+            }
             var result = await _userManager.CreateAsync(user, model.Password);
 
             if (result.Succeeded)
@@ -80,6 +93,52 @@ namespace TeacherOrganizer.Controllers.Auth
             return Unauthorized(new { message = user == null ? "User not found" : "Invalid password" });
         }
 
+        // POST: api/Auth/ForgotPassword
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+                return Ok(new { message = "If such an email is registered, a password reset email has been sent to it." });
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var tokenEncoded = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+            var resetUrl = $"{Request.Scheme}://{Request.Host}/AuthView/ResetPassword?email={user.Email}&token={tokenEncoded}";
+
+            // Используйте ваш email-сервис для отправки письма
+            var subject = "Password recovery";
+            var message = $"To reset your password, follow the link: <a href='{HtmlEncoder.Default.Encode(resetUrl)}'>Reset password</a>";
+
+            await _emailService.SendEmailAsync(user.Email, subject, message);
+
+            return Ok(new { message = "If such an email is registered, a password reset email has been sent to it." });
+        }
+
+        // POST: api/Auth/ResetPassword
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+                return BadRequest(new { message = "User not found." });
+
+            var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
+            var result = await _userManager.ResetPasswordAsync(user, decodedToken, model.NewPassword);
+
+            if (result.Succeeded)
+                return Ok(new { message = "Password changed successfully." });
+
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(string.Empty, error.Description);
+
+            return BadRequest(ModelState);
+        }
 
         [HttpPost]
         public async Task<IActionResult> Logout()

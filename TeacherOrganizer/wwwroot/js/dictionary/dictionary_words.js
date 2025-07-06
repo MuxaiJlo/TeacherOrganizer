@@ -1,52 +1,154 @@
 ﻿// dictionary_words.js
 
 import * as api from "../api/api_dictionary.js";
-import { getUserById } from "../api/api_user.js";
+let ttsReady = false;
+let selectedVoice = [];
+let voicesLoaded = false;
+
+function speakWord(text, lang = "en") {
+    console.log('speakWord called with:', text, lang);
+
+    if (!('speechSynthesis' in window)) {
+        console.error("Speech synthesis not supported");
+        return;
+    }
+
+    // Если голоса еще не загружены, не озвучиваем
+    if (!voicesLoaded || !selectedVoice) {
+        console.warn('Voices not loaded yet, waiting...');
+        // Пробуем повторить через 200мс, но только если не было попытки озвучить этот текст
+        setTimeout(() => speakWord(text, lang), 200);
+        return;
+    }
+
+    // Chrome: иногда помогает отменить все предыдущие utterance
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang;
+    utterance.voice = selectedVoice;
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+
+    utterance.onstart = () => console.log('✓ Speech STARTED');
+    utterance.onend = () => console.log('✓ Speech ENDED');
+    utterance.onerror = (e) => console.warn('✗ Speech ERROR:', e);
+
+    console.log('Speaking...');
+    window.speechSynthesis.speak(utterance);
+}
+
+function initializeTTS() {
+    console.log('Initializing TTS...');
+
+    if (!('speechSynthesis' in window)) {
+        console.warn('Speech Synthesis API not supported');
+        return;
+    }
+
+    const loadVoices = () => {
+        const voices = speechSynthesis.getVoices().filter(v => v.lang.toLowerCase() === 'en-gb');
+        console.log('Voices loaded:', voices.length);
+
+        if (voices.length > 0) {
+            voicesLoaded = true;
+            selectedVoice = voices[0];
+            voices.forEach((v, i) => console.log(`Voice ${i}: ${v.name} (${v.lang})`));
+            return true;
+        }
+        return false;
+    };
+
+    if (!loadVoices()) {
+        const voicesChangedHandler = () => {
+            if (loadVoices()) {
+                window.speechSynthesis.removeEventListener('voiceschanged', voicesChangedHandler);
+                console.log('✓ TTS initialized successfully');
+            }
+        };
+        window.speechSynthesis.addEventListener('voiceschanged', voicesChangedHandler);
+        // Chrome: вызов getVoices для инициализации
+        window.speechSynthesis.getVoices();
+    } else {
+        console.log('✓ TTS initialized successfully');
+    }
+}
+
+
 export async function loadDictionaryWords(wordsTableBody, dictionaryId) {
     console.log(`Loading words for dictionary ${dictionaryId}...`);
+
+    // Инициализируем TTS при загрузке слов
+    initializeTTS();
+
     try {
         const dictionaryDetails = await api.getDictionaryById(dictionaryId);
-        wordsTableBody.innerHTML = ""; // Очищаем перед добавлением
+        wordsTableBody.innerHTML = "";
+
+        const isOwner = window.currentUserId === dictionaryDetails.userId;
+        const isTeacher = window.currentUserRole !== "Student";
+        const canEditWords = isOwner || isTeacher;
 
         if (dictionaryDetails.words && dictionaryDetails.words.length > 0) {
-            console.log(`Words found for dictionary ${dictionaryId}.`);
             dictionaryDetails.words.forEach(word => {
                 const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td contenteditable="false" class="word-text">${word.text}</td>
-                    <td contenteditable="false" class="word-translation">${word.translation}</td>
-                    <td contenteditable="false" class="word-example">${word.example || ""}</td>
-                    <td>
-                        <div class="btn-group" role="group">
-                            <button class="btn btn-sm btn-danger delete-word" title="Delete">
-                                <img src="../icons/delete.png" alt="Delete" class="action-button-icon">
-                            </button>
-                            <button class="btn btn-sm btn-warning edit-word" title="Edit">
-                                <img src="../icons/edit.png" alt="Edit" class="action-button-icon">
-                            </button>
-                            <button class="btn btn-sm btn-primary speak-word" title="Speak word" data-text="${word.text}" data-lang="en">
-                                <img src="../icons/volume-up.png" alt="Speak word" class="speak-button-icon">
-                            </button>
-                            ${word.example ? `
-                            <button class="btn btn-sm btn-primary speak-word" title="Speak example" data-text="${word.example}" data-lang="en">
-                                <img src="../icons/volume-up.png" alt="Speak example" class="speak-button-icon">
-                            </button>
-                            ` : ''}
-                        </div>
-                    </td>
+                let actionsHtml = `
+                <div class="btn-group" role="group">
+                    <button class="btn btn-sm btn-primary speak-word" title="Speak word" data-text="${word.text}" data-lang="en">
+                        <img src="../icons/volume-up.png" alt="Speak word" class="speak-button-icon">
+                    </button>
+                    ${word.example ? `
+                    <button class="btn btn-sm btn-primary speak-word" title="Speak example" data-text="${word.example}" data-lang="en">
+                        <img src="../icons/volume-up.png" alt="Speak example" class="speak-button-icon">
+                    </button>
+                    ` : ''}
+            `;
+
+                if (canEditWords) {
+                    actionsHtml += `
+                    <button class="btn btn-sm btn-danger delete-word" title="Delete">
+                        <img src="../icons/delete.png" alt="Delete" class="action-button-icon">
+                    </button>
+                    <button class="btn btn-sm btn-warning edit-word" title="Edit">
+                        <img src="../icons/edit.png" alt="Edit" class="action-button-icon">
+                    </button>
                 `;
+                }
+                actionsHtml += `</div>`;
+
+                row.innerHTML = `
+                <td contenteditable="false" class="word-text">${word.text}</td>
+                <td contenteditable="false" class="word-translation">${word.translation}</td>
+                <td contenteditable="false" class="word-example">${word.example || ""}</td>
+                <td>${actionsHtml}</td>
+            `;
                 wordsTableBody.appendChild(row);
 
-                // Подключаем события для кнопок
-                row.querySelector(".delete-word").addEventListener("click", () => deleteWord(word.wordId, row, dictionaryId));
-                row.querySelector(".edit-word").addEventListener("click", () => editWord(word.wordId, row, dictionaryId));
+                if (canEditWords) {
+                    row.querySelector(".delete-word")?.addEventListener("click", () => deleteWord(word.wordId, row, dictionaryId));
+                    row.querySelector(".edit-word")?.addEventListener("click", () => editWord(word.wordId, row, dictionaryId));
+                }
 
-                // Добавляем обработчики для всех кнопок озвучивания
+                // События для кнопок озвучивания
                 row.querySelectorAll(".speak-word").forEach(button => {
-                    button.addEventListener("click", function () {
+                    button.addEventListener("click", function (event) {
+                        event.preventDefault();
+                        const icon = this.querySelector('img');
+                        const originalSrc = icon.src;
+
+                        // Меняем иконку на "загрузка"
+                        icon.src = '../icons/loading.png';
+
                         const text = this.getAttribute("data-text");
                         const lang = this.getAttribute("data-lang");
+
                         speakWord(text, lang);
+
+                        // Возвращаем исходную иконку через 1 секунду
+                        setTimeout(() => {
+                            icon.src = originalSrc;
+                        }, 1000);
                     });
                 });
             });
@@ -126,16 +228,5 @@ async function saveWord(wordId, row, dictionaryId) {
     } catch (error) {
         console.error(`Error while saving word ${wordId}:`, error);
         alert("An error occurred while updating the word.");
-    }
-}
-
-function speakWord(text, lang = "en") {
-    if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = lang;
-        speechSynthesis.speak(utterance);
-    } else {
-        console.error("Speech synthesis not supported in this browser");
-        alert("Speech synthesis not supported in your browser");
     }
 }

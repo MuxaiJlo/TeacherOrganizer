@@ -22,11 +22,14 @@
                      <input type="text" id="Username" name="Username" class="form-control" required />
                      <span asp-validation-for="Username" class="text-danger"></span>
                  </div>
-                 <div class="mb-3">
-                     <label for="Password" class="form-label">Password</label>
-                     <input type="password" id="Password" name="Password" class="form-control" required />
-                     <span asp-validation-for="Password" class="text-danger"></span>
-                 </div>
+                <div class="mb-3 position-relative">
+                    <label for="Password" class="form-label">Password</label>
+                    <input type="password" id="Password" name="Password" class="form-control" required />
+                    <button type="button" id="togglePassword" class="toggle-password-btn" tabindex="-1" aria-label="Show password">
+                        👁
+                    </button>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
 
                  <button type="submit" class="btn btn-primary w-100">Login</button>
              </form>
@@ -34,50 +37,60 @@
              <div class="text-center mt-3">
                  <a href="/AuthView/Register" class="text-decoration-none">Don't have an account? Register</a>
              </div>
+            <div class="text-center mt-3">
+                <a href="/AuthView/ForgotPassword" class="text-decoration-none">Forgot password?</a>
+            </div>
              <div class="text-center mt-3">
                  <a href="/" class="btn btn-outline-secondary w-100">Return to Home</a>
              </div>
          </div>
      </div>
+    @section Scripts {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                document.getElementById('loginForm').addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    const username = document.getElementById('Username').value.trim();
+                    const password = document.getElementById('Password').value.trim();
+
+                    const formData = {
+                        Username: username,
+                        Password: password
+                    };
+
+                    fetch('/api/Auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    })
+                        .then(response => {
+                            if (!response.ok) return response.json().then(err => Promise.reject(err));
+                            return response.json();
+                        })
+                        .then(data => {
+                            window.location.href = data.redirectUrl || '/Main/Index';
+                        })
+                        .catch(error => {
+                            if (error.errors) {
+                                const serverErrors = Object.values(error.errors).flat();
+                                alert(serverErrors.join("\n"));
+                            }
+                            else if (error.message) {
+                                alert(error.message);
+                            }
+                            else {
+                                alert('Login failed. Please check your credentials.');
+                            }
+                        });
+                });
+
+                document.getElementById('togglePassword').addEventListener('click', function () {
+                    const passwordInput = document.getElementById('Password');
+                    passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+                });
+            });
+        </script>
+    }
  </body>
 
- @section Scripts {
-     <script>
-         document.getElementById('loginForm').addEventListener('submit', function (event) {
-             event.preventDefault();
-
-             const username = document.getElementById('Username').value.trim();
-             const password = document.getElementById('Password').value.trim();
-
-             const formData = {
-                 Username: username,
-                 Password: password
-             };
-
-             fetch('/api/Auth/login', {
-                 method: 'POST',
-                 headers: { 'Content-Type': 'application/json' },
-                 body: JSON.stringify(formData)
-             })
-                 .then(response => {
-                     if (!response.ok) return response.json().then(err => Promise.reject(err));
-                     return response.json();
-                 })
-                 .then(data => {
-                     window.location.href = data.redirectUrl || '/Main/Index';
-                 })
-                 .catch(error => {
-                     if (error.errors) {
-                         const serverErrors = Object.values(error.errors).flat();
-                         alert(serverErrors.join("\n"));
-                     }
-                      else if (error.message) {
-                         alert(error.message);
-                     }
-                      else {
-                         alert('Login failed. Please check your credentials.');
-                     }
-                 });
-         });
-     </script>
- }

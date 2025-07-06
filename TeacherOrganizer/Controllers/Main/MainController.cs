@@ -50,7 +50,8 @@ namespace TeacherOrganizer.Controllers.Main
 			var model = new MainViewModel
 			{
 				Username = user.UserName,
-				LoginTime = DateTime.UtcNow
+                UserId = user.Id,
+                LoginTime = DateTime.UtcNow
 			};
 
 			return Ok(new
@@ -60,8 +61,9 @@ namespace TeacherOrganizer.Controllers.Main
 				{
 					Username = user.UserName,
 					Email = user.Email,
-					Roles = roles
-				}
+					Roles = roles,
+					UserId = user.Id
+                }
 			});
 		}
 

@@ -40,6 +40,30 @@ namespace TeacherOrganizer.Controllers.Auth
         {
             return await _authController.Logout();
         }
+        [HttpGet("ForgotPassword")]
+        public IActionResult ForgotPassword()
+        {
+            return View("ForgotPasswordView");
+        }
 
+        [HttpPost("ForgotPassword")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model)
+        {
+            return await _authController.ForgotPassword(model);
+        }
+
+        [HttpGet("ResetPassword")]
+        public IActionResult ResetPassword(string email, string token)
+        {
+            ViewBag.Email = email;
+            ViewBag.Token = token;
+            return View("ResetPasswordView");
+        }
+
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
+        {
+            return await _authController.ResetPassword(model);
+        }
     }
 }
