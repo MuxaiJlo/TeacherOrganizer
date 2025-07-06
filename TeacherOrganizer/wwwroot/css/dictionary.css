@@ -137,7 +137,6 @@
         max-height: 140px !important;
     }
 }
-
 @media (max-width: 480px) {
     #memory-game-container {
         grid-template-columns: 1fr !important;
