@@ -98,7 +98,7 @@
 
                 const passwordPattern = /^(?=.*[a-zA-Z])(?=.*\d).{6,}$/;
                 if (!passwordPattern.test(password)) {
-                    errors.push("Password must be at least 6 characters long and contain at least one letter, one number, one symbol");
+                    errors.push("Password must be at least 6 characters long and contain at least one letter, one number");
                 }
                             const confirmPassword = document.getElementById('ConfirmPassword').value.trim();
             if (password !== confirmPassword) {
