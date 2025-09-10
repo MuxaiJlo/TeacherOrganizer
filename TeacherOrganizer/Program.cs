@@ -31,7 +31,7 @@ namespace TeacherOrganizer
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Add Identity and JWT Authentication
             builder.Services.AddIdentity<User, IdentityRole>()

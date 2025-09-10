@@ -21,21 +21,19 @@ namespace TeacherOrganizer.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            // Конвертер для всех DateTime и DateTime?
+
+            // SQL Server DateTime configuration - видалено ValueConverter для UTC
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 foreach (var property in entityType.GetProperties()
                     .Where(p => p.ClrType == typeof(DateTime) || p.ClrType == typeof(DateTime?)))
                 {
-                    property.SetValueConverter(
-                        new ValueConverter<DateTime, DateTime>(
-                            v => v.Kind == DateTimeKind.Utc ? v : v.ToUniversalTime(),
-                            v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
-                        )
-                    );
+                    // Використовуємо datetime2 для кращої точності в SQL Server
+                    property.SetColumnType("datetime2");
                 }
             }
-            // Configure string properties for PostgreSQL
+
+            // Configure string properties for SQL Server
             modelBuilder.Entity<User>(entity =>
             {
                 entity.Property(e => e.FirstName).HasMaxLength(100);
@@ -60,17 +58,40 @@ namespace TeacherOrganizer.Data
                 entity.Property(e => e.TeacherId).HasMaxLength(450);
                 entity.Property(e => e.Description).HasMaxLength(2000);
                 entity.Property(e => e.Status).HasConversion<string>();
+
+                // Налаштування datetime2 для Lesson
+                entity.Property(e => e.StartTime).HasColumnType("datetime2");
+                entity.Property(e => e.EndTime).HasColumnType("datetime2");
+                entity.Property(e => e.CreatedAt).HasColumnType("datetime2");
+                entity.Property(e => e.UpdatedAt).HasColumnType("datetime2");
             });
 
             modelBuilder.Entity<LessonDetail>(entity =>
             {
-                entity.Property(e => e.Content).HasColumnType("text");
+                // В SQL Server використовуємо nvarchar(max) замість text
+                entity.Property(e => e.Content).HasColumnType("nvarchar(max)");
+                entity.Property(e => e.CreatedAt).HasColumnType("datetime2");
+                entity.Property(e => e.UpdatedAt).HasColumnType("datetime2");
             });
 
             modelBuilder.Entity<RescheduleRequest>(entity =>
             {
                 entity.Property(e => e.InitiatorId).HasMaxLength(450);
                 entity.Property(e => e.RequestStatus).HasConversion<string>();
+                entity.Property(e => e.ProposedStartTime).HasColumnType("datetime2");
+                entity.Property(e => e.ProposedEndTime).HasColumnType("datetime2");
+            });
+
+            // User entity datetime configuration
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.Property(e => e.CreatedAt).HasColumnType("datetime2");
+            });
+
+            // Dictionary entity datetime configuration
+            modelBuilder.Entity<Dictionary>(entity =>
+            {
+                entity.Property(e => e.CreatedAt).HasColumnType("datetime2");
             });
 
             // Lesson relationships

@@ -26,9 +26,9 @@ namespace TeacherOrganizer.Models.DataModels
 
         public LessonStatus Status { get; set; } = LessonStatus.Scheduled;
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
         [JsonIgnore]
         public User Teacher { get; set; }
